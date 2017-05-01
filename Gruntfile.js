@@ -191,7 +191,7 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'default', ['styles', 'scripts', 'php'] );
 
 	grunt.registerTask( 'version', [ 'default', 'replace:version_php', 'replace:version_readme' ] );
-	grunt.registerTask( 'release', [ 'clean:release', 'replace:readme_txt', 'copy', 'compress', 'wp_deploy' ] );
+	grunt.registerTask( 'release', [ 'clean:release', 'replace:readme_txt', 'copy', 'compress' ] );
 
 	grunt.util.linefeed = '\n';
 };
