@@ -1,0 +1,19 @@
+{
+  "generator-plugin-wp": {
+    "name": "Coyote Image Descriptions",
+    "homepage": "https://coyote.pics/",
+    "description": "The open-source Coyote software was developed by the Museum of Contemporary Art Chicago to support a distributed workflow for describing images in our web CMS and publishing those descriptions to our public website.",
+    "version": "0.0.0",
+    "author": "The Andy Warhol Museum",
+    "authoremail": "information@warhol.org",
+    "authorurl": "http://www.warhol.org/",
+    "license": "GPLv2",
+    "slug": "coyote-image-descriptions",
+    "classname": "Coyote_Image_Descriptions",
+    "mainclassname": "Coyote_Image_Descriptions",
+    "classprefix": "CID_",
+    "prefix": "cid",
+    "year": 2017,
+    "currentVersionWP": "4.7.2"
+  }
+}

@@ -1,0 +1,36 @@
+{
+	"name": "coyote-image-descriptions",
+	"description": "The open-source Coyote software was developed by the Museum of Contemporary Art Chicago to support a distributed workflow for describing images in our web CMS and publishing those descriptions to our public website.",
+	"keywords": ["wordpress", "plugin", "generator-plugin-wp"],
+	"homepage": "https://coyote.pics/",
+	"license": "GPLv2",
+	"authors": [
+	{
+		"name": "The Andy Warhol Museum",
+		"homepage": "http://www.warhol.org/"
+	}
+	],
+	"minimum-stability": "dev",
+	"type": "wordpress-plugin",
+	"autoload": {
+		"classmap": ["coyote-image-descriptions.php", "includes/"],
+        "files": ["vendor/webdevstudios/cmb2/init.php"]
+	},
+	"require": {
+		"php": ">=5.2",
+		"xrstf/composer-php52": "1.*",
+		"webdevstudios/cmb2": "^2.2"
+	},
+	"scripts": {
+    "post-install-cmd": [
+        "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "post-update-cmd": [
+        "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "post-autoload-dump": [
+        "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ]
+  }
+
+}
