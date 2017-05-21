@@ -65,7 +65,10 @@ class CID_Image_Lifecycle_Events {
 	public function register_with_coyote( $attachment_id ) {
 		$attachment = get_post( $attachment_id );
 		if ( $attachment ) {
-			$this->api->register( $attachment );
+			$coyote_data = $this->api->register( $attachment );
+			if ( $coyote_data ) {
+				add_post_meta( $attachment->ID, '_coyote_id', $coyote_data['id'], true );
+			}
 		}
 	}
 
