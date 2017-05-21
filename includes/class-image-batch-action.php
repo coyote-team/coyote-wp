@@ -190,12 +190,14 @@ class CID_Image_Batch_Action {
 
 		$coyote_images = get_posts( array(
 			'post_type' => 'attachment',
+			'posts_per_page' => -1,
 			'meta_key' => '_coyote_id',
 			'meta_compare' => 'EXISTS',
 		) );
 
 		$images_to_insert = get_posts( array(
 			'post_type' => 'attachment',
+			'posts_per_page' => -1,
 			'post__in' => $image_ids,
 			'ignore_sticky_posts' => true,
 		) );
