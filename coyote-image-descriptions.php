@@ -3,7 +3,7 @@
  * Plugin Name: Coyote Image Descriptions
  * Plugin URI:  https://coyote.pics/
  * Description: The open-source Coyote software was developed by the Museum of Contemporary Art Chicago to support a distributed workflow for describing images in our web CMS and publishing those descriptions to our public website.
- * Version:     0.1.1
+ * Version:     0.1.2
  * Author:      The Andy Warhol Museum
  * Author URI:  http://www.warhol.org/
  * Donate link: https://coyote.pics/
@@ -14,7 +14,7 @@
  * @link    https://coyote.pics/
  *
  * @package Coyote_Image_Descriptions
- * @version 0.1.1
+ * @version 0.1.2
  *
  * Built using generator-plugin-wp (https://github.com/WebDevStudios/generator-plugin-wp)
  */
@@ -54,7 +54,7 @@ final class Coyote_Image_Descriptions {
 	 * @var    string
 	 * @since  0.1.0
 	 */
-	const VERSION = '0.1.1';
+	const VERSION = '0.1.2';
 
 	/**
 	 * URL of plugin directory.

@@ -1,7 +1,7 @@
 {
   "name": "coyote-image-descriptions",
   "title": "Coyote Image Descriptions",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The open-source Coyote software was developed by the Museum of Contemporary Art Chicago to support a distributed workflow for describing images in our web CMS and publishing those descriptions to our public website.",
   "author": {
     "name": "The Andy Warhol Museum",
