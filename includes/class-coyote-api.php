@@ -140,15 +140,20 @@ class CID_Coyote_Api {
 	 * @return array|bool
 	 */
 	public function get_image( $coyote_id ) {
-		$response = wp_safe_remote_get( $this->url . 'images/' . $coyote_id . '.json', array(
-			'headers' => $this->headers,
-		) );
+		$coyote_image = get_transient( 'coyote_image_' . $coyote_id );
 
-		if ( ! is_wp_error( $response ) && wp_remote_retrieve_response_code( $response ) === 200 ) {
-			return json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( false === $coyote_image ) {
+			$response = wp_safe_remote_get( $this->url . 'images/' . $coyote_id . '.json', array(
+				'headers' => $this->headers,
+			) );
+
+			if ( ! is_wp_error( $response ) && wp_remote_retrieve_response_code( $response ) === 200 ) {
+				$coyote_image = json_decode( wp_remote_retrieve_body( $response ), true );
+				set_transient( 'coyote_image_' . $coyote_id, $coyote_image, (MINUTE_IN_SECONDS * 10) );
+			}
 		}
 
-		return false;
+		return $coyote_image;
 	}
 
 	/**
@@ -159,15 +164,21 @@ class CID_Coyote_Api {
 	 * @return array
 	 */
 	public function get_meta() {
-		$response = wp_safe_remote_get( $this->url . 'meta.json', array(
-			'headers' => $this->headers,
-		) );
+		$coyote_meta = get_transient( 'coyote_meta' );
 
-		if ( ! is_wp_error( $response ) && wp_remote_retrieve_response_code( $response ) === 200 ) {
-			return json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( false === $coyote_meta ) {
+			$response = wp_safe_remote_get( $this->url . 'meta.json', array(
+				'headers' => $this->headers,
+			) );
+
+			if ( ! is_wp_error( $response ) && wp_remote_retrieve_response_code( $response ) === 200 ) {
+				$coyote_meta = json_decode( wp_remote_retrieve_body( $response ), true );
+				set_transient( 'coyote_meta', $coyote_meta, DAY_IN_SECONDS );
+			}
 		}
 
-		return [];
+		$coyote_meta = ( false === $coyote_meta ) ? array() : $coyote_meta;
+		return $coyote_meta;
 	}
 
 	/**
