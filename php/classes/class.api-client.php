@@ -35,8 +35,16 @@ class ApiClient {
         $this->organizationId = $organizationId;
     }
 
-    public function createNewResource(object $resource) {
-        $response = $this->httpClient->post('/resource', $resource, );
+    public function createNewResource(string $source_uri, string $alt) {
+        $resource = [
+            "title" => ($alt ? $alt : ""),
+            "source_uri" => $source_uri,
+            "resource_type" => "still_image"
+        ];
+
+        $response = $this->httpClient->post('/resource', ['json' => $resource]);
+        $json = $response->json();
+        return $json["data"]["id"];
     }
 
     public function getResource(int $resourceId) {

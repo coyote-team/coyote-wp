@@ -13,6 +13,13 @@ class Plugin {
     private $version;
 
     private $post_update_handler;
+    private $api_client;
+
+    static $config = [
+        'CoyoteApiToken' => COYOTE_API_TOKEN,
+        'CoyoteApiEndpoint' => 'https://staging.coyote.pics',
+        'CoyoteOrganizationId' => 1
+    ];
 
     public function __construct(string $file, string $version) {
         $this->file = $file;

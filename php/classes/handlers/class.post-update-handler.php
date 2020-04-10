@@ -37,9 +37,11 @@ class PostUpdateHandler {
         $resources = array();
 
         foreach ($images as $image) {
-//            $resource = new ImageResource($image);
-//            $helper->replace_img_alt($image["element"], $resource->coyote_alt);
-//            array_push($resources, $resource);
+            $resource = new ImageResource($image);
+            if ($resource->coyote_alt !== null) {
+                $helper->replace_img_alt($image["element"], $resource->coyote_alt);
+                array_push($resources, $resource);
+            }
         }
 
         if (!$helper->content_is_modified) {
@@ -49,7 +51,7 @@ class PostUpdateHandler {
         $post->post_content = $helper->get_content();
         $post_update = wp_update_post($this->post, true);
 
-        // if the post update succeeded, then associate the resources with the post
-        // DB::associate_entries_with_post($resources, $this->post);
+        //if the post update succeeded, then associate the resources with the post
+        DB::associate_entries_with_post($resources, $this->post);
     }
 }
