@@ -14,7 +14,7 @@ class Plugin {
         $this->file = $file;
         $this->version = $version;
 
-        $this->post_update_handler = new PostUpdateHandler();
+        $this->post_update_handler = new Handlers\PostUpdateHandler();
 
         $this->setup();
     }

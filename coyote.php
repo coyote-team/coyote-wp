@@ -18,7 +18,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+global $wpdb;
+
+DEFINE('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . '_coyote_image_resource');
+DEFINE('COYOTE_JOIN_TABLE_NAME', $wpdb->prefix . '_coyote_resource_post_jt');
+DEFINE('COYOTE_VERSION', '0.0.1');
+
+DEFINE('WP_DEBUG', true);
+
+require_once 'php/classes/class.plugin.php';
+
 use Coyote\Plugin;
 
 global $coyote_plugin;
-$coyote_plugin = new Plugin(__FILE__, '0.0.1');
+$coyote_plugin = new Plugin(__FILE__, COYOTE_VERSION);
