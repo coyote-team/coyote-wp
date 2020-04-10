@@ -1,6 +1,5 @@
 <?php
 
-use WP_REST_Server;
 
 /**
  * Afford custom Coyote callback endpoint on WP REST API
@@ -10,6 +9,9 @@ use WP_REST_Server;
  */
 
 namespace Coyote\Controllers;
+
+use WP_REST_Server;
+use WP_Rest_Request;
 
 class RestApiController {
     /**
@@ -39,6 +41,16 @@ class RestApiController {
                 'permission_callback' => array($this, 'checkCallbackPermission')
             )
         );
+
+        register_rest_route(
+            $this->namespace,
+            '/status',
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'provideStatus'),
+            )
+        );
+
     }
 
     public function updateResourceInPosts(WP_Rest_Request $request) {
@@ -49,4 +61,9 @@ class RestApiController {
     public function checkCallbackPermission(WP_Rest_Request $request) {
         // perform authentication header checks
     }
+
+    public function provideStatus(WP_Rest_Request $request) {
+        return "Good to go!";
+    }
+
 }

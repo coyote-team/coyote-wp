@@ -3,8 +3,10 @@
 namespace Coyote;
 
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
+require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
 
 use Coyote\Handlers\PostUpdateHandler;
+use Coyote\Controllers\RestApiController;
 
 class Plugin {
     private $file;
@@ -22,6 +24,8 @@ class Plugin {
     }
 
     private function setup() {
+        $controller = new RestApiController();
+
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
