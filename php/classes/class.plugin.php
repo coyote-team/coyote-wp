@@ -1,8 +1,10 @@
 <?php
 
-use Coyote\Handlers\PostUpdateHandler;
-
 namespace Coyote;
+
+require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
+
+use Coyote\Handlers\PostUpdateHandler;
 
 class Plugin {
     private $file;

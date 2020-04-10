@@ -1,3 +1,5 @@
 <?php
-// Silence is golden.
+
+require_once 'coyote.php';
+
 ?>
