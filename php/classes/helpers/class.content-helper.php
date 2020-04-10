@@ -6,6 +6,8 @@ class ContentHelper {
     private $content;
     private $images = null;
 
+    public $content_is_modified = false;
+
     const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
     const SRC_REGEX = '/src\s*=\s*("|\')([\w\.]*)\1/smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
@@ -77,6 +79,11 @@ class ContentHelper {
         $replacement_element = preg_replace(self::ALT_ATTR_REGEX, $replacement_alt, $element);
 
         $replaced = str_replace($element, $replacement_element, $this->content);
+
+        if (strcmp($element,$replacement_element) != 0) {
+           $this->content_is_modified = true;
+        }
+
         $this->content = $replaced;
     }
 
