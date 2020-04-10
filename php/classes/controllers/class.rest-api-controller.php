@@ -19,13 +19,16 @@ class RestApiController {
      */
     private $namespace;
 
+    private $pluginVersion;
+
     /**
      * Constructor
      *
      * @param string $version Plugin version
      */
-    public function __construct($version = 1) {
-        $this->namespace = 'coyote/v' . $version;
+    public function __construct($pluginVersion, $apiVersion = 1) {
+        $this->pluginVersion = $pluginVersion;
+        $this->namespace = "coyote/v{$apiVersion}";
 
         // Appropriate registration hook
         add_action('rest_api_init', array($this, 'registerRestRoutes'));
@@ -63,7 +66,7 @@ class RestApiController {
     }
 
     public function provideStatus(WP_Rest_Request $request) {
-        return "Good to go!";
+        return "Coyote Plugin v{$this->pluginVersion} OK";
     }
 
 }

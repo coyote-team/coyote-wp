@@ -24,7 +24,7 @@ class Plugin {
     }
 
     private function setup() {
-        $controller = new RestApiController();
+        $controller = new RestApiController($this->version);
 
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
