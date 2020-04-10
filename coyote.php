@@ -8,9 +8,6 @@ error_log('Loading Coyote plugin');
 
 global $wpdb;
 
-DEFINE('WP_DEBUG', true);
-DEFINE('WP_DEBUG_LOG', true);
-
 define('COYOTE_PLUGIN_PATH', plugin_dir_path( __FILE__ ));
 
 DEFINE('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . '_coyote_image_resource');
