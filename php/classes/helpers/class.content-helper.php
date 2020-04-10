@@ -10,6 +10,9 @@ class ContentHelper {
     const SRC_REGEX = '/src\s*=\s*("|\')([\w\.]*)\1/smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
 
+    // not just the value, also the attribute
+    const ALT_ATTR_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+
     function __construct(string $content) {
         $this->content = $content;
     }
@@ -37,7 +40,7 @@ class ContentHelper {
         $details = array();
 
         foreach ($images as $image) {
-            array_push($verbose, [
+            array_push($details, [
                 'element' => $image,
                 'src' => self::get_img_src($image),
                 'alt' => self::get_img_alt($image)
@@ -47,7 +50,7 @@ class ContentHelper {
         return $details;
     }
 
-    function get_img_src(string $element) {
+    static function get_img_src(string $element) {
         $matches = array();
         $result = preg_match(self::SRC_REGEX, $element, $matches);
 
@@ -58,7 +61,7 @@ class ContentHelper {
         return null;
     }
 
-    function get_img_alt(string $element) {
+    static function get_img_alt(string $element) {
         $matches = array();
         $result = preg_match(self::ALT_REGEX, $element, $matches);
 
@@ -67,6 +70,18 @@ class ContentHelper {
         }
 
         return null;
+    }
+
+    public function replace_img_alt(string $element, string $alt) {
+        $replacement_alt = 'alt="' . $alt . '"';
+        $replacement_element = preg_replace(self::ALT_ATTR_REGEX, $replacement_alt, $element);
+
+        $replaced = str_replace($element, $replacement_element, $this->content);
+        $this->content = $replaced;
+    }
+
+    public function get_content() {
+        return $this->content;
     }
 }
 

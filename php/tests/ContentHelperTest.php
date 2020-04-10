@@ -1,6 +1,6 @@
 <?php
 
-include '../classes/helpers/class.ContentHelper.php';
+include './php/classes/helpers/class.content-helper.php';
 
 use PHPUnit\Framework\TestCase;
 use Coyote\Helpers\ContentHelper;
@@ -73,6 +73,17 @@ It has \"escaped\" characters.    "      >');
         $this->assertSame($src, 'Hello.
 This is complex alt.
 It has \"escaped\" characters.    ');
+    }
+
+    public function testImgAltReplace() {
+        $element = '<img src="foo.bar" alt="hello" />';
+        $expected = '<img src="foo.bar" alt="world" />';
+
+        $helper = new ContentHelper($element);
+        $helper->replace_img_alt($element, "world"); 
+
+        $this->assertSame($helper->get_content(), $expected);
+
     }
 
 }
