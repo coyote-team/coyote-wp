@@ -14,6 +14,8 @@ Author URI: https://www.pac.bz
  */
 
 
+define('COYOTE_PLUGIN_FILE', __FILE__);
+
 require_once 'coyote.php';
 
 ?>

@@ -7,10 +7,14 @@ if (!defined( 'ABSPATH')) {
 error_log('Loading Coyote plugin');
 
 define('COYOTE_PLUGIN_PATH', plugin_dir_path( __FILE__ ));
-DEFINE('COYOTE_VERSION', '0.0.1');
+define('COYOTE_VERSION', '0.0.1');
 
 function coyote_plugin_file(string $path) {
     return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'php' . DIRECTORY_SEPARATOR . $path;
+}
+
+function coyote_sql_file(string $path) {
+    return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . $path;
 }
 
 require_once coyote_plugin_file('classes/class.plugin.php');
@@ -18,5 +22,5 @@ require_once coyote_plugin_file('classes/class.plugin.php');
 use Coyote\Plugin;
 
 global $coyote_plugin;
-$coyote_plugin = new Plugin(__FILE__, COYOTE_VERSION);
+$coyote_plugin = new Plugin(COYOTE_PLUGIN_FILE, COYOTE_VERSION);
 
