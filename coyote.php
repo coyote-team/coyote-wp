@@ -6,12 +6,7 @@ if (!defined( 'ABSPATH')) {
 
 error_log('Loading Coyote plugin');
 
-global $wpdb;
-
 define('COYOTE_PLUGIN_PATH', plugin_dir_path( __FILE__ ));
-
-DEFINE('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . '_coyote_image_resource');
-DEFINE('COYOTE_JOIN_TABLE_NAME', $wpdb->prefix . '_coyote_resource_post_jt');
 DEFINE('COYOTE_VERSION', '0.0.1');
 
 function coyote_plugin_file(string $path) {

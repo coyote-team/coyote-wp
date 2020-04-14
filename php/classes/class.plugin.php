@@ -50,6 +50,10 @@ class Plugin {
     }
 
     public function load() {
+        // $wpdb becomes available here
+        global $wpdb;
+        DEFINE('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . '_coyote_image_resource');
+        DEFINE('COYOTE_JOIN_TABLE_NAME', $wpdb->prefix . '_coyote_resource_post_jt');
     }
 }
 
