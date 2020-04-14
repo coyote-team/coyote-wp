@@ -6,7 +6,7 @@ class Logger {
 
     public function __construct() {}
 
-    public function log(string $log) {
+    public static function log($log) {
         if (true === WP_DEBUG) {
             if (is_array($log) || is_object($log)) {
                 error_log(print_r($log, true));

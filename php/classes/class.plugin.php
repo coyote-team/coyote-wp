@@ -11,6 +11,8 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
 
 class Plugin {
+    private $is_activated = false;
+
     private $file;
     private $version;
 
@@ -24,6 +26,10 @@ class Plugin {
     ];
 
     public function __construct(string $file, string $version) {
+        if(get_option('coyote_plugin_is_activated', null) !== null) {
+            $this->is_activated = true;
+        }
+
         $this->file = $file;
         $this->version = $version;
 
@@ -76,18 +82,42 @@ class Plugin {
     private function run_plugin_sql(string $path) {
         $file_sql = file_get_contents($path);
         $sql = $this->replace_sql_variables($file_sql);
-        //Logger::log($sql);
         $this->run_sql_query($sql); 
     }
 
+    private function process_existing_posts() {
+        $posts = get_posts(array(
+            'numberposts' => -1 //all
+        ));
+
+        foreach ($posts as $post) {
+            // simulate a post update
+            Logger::log("Processing post {$post->ID}");
+            //$this->post_update_handler->run($post->ID, $post, true)
+        }
+    }
+
     public function activate() {
+        if ($this->is_activated) {
+            Logger::log("Plugin already active");
+            return;
+        }
+
+        Logger::log("Activating plugin");
+        // for some weird reason you can't create multiple tables at once?
         $this->run_plugin_sql(coyote_sql_file('create_resource_table.sql'));
         $this->run_plugin_sql(coyote_sql_file('create_join_table.sql'));
-        // sweep posts
+        $this->process_existing_posts();
+
+        $this->is_activated = true;
+        add_option('coyote_plugin_is_activated', $this->is_activated);
     }
 
     public function deactivate() {
+        Logger::log("Deactivating plugin");
         $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
+        delete_option('coyote_plugin_is_activated');
+        $this->is_activated = false;
     }
 
     public function load() {
