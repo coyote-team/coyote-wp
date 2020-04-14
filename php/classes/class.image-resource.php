@@ -42,7 +42,7 @@ class ImageResource {
         // don't necessarily create a new resource, query by src first
 
         global $coyote_plugin;
-        $client = ApiClient->new(
+        $client = new ApiClient(
             $coyote_plugin->config["CoyoteApiEndpoint"],
             $coyote_plugin->config["CoyoteApiToken"],
             $coyote_plugin->config["CoyoteOrganizationId"]
