@@ -49,9 +49,16 @@ class Plugin {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('plugins_loaded', array($this, 'load'));
         add_action('save_post', array($this->post_update_handler, 'run'), 10, 3);
     }
+
+    public function enqueue_scripts() {
+         Logger::log("hier");
+         wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', array( 'wp-blocks' ));
+    }
+    
 
     private function replace_sql_variables(string $sql) {
         global $wpdb;
