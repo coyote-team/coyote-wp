@@ -86,4 +86,72 @@ It has \"escaped\" characters.    ');
 
     }
 
+    public function testGetMissingCoyoteId() {
+        $element = '<img src="foo.bar" alt="hello" />';
+        $expected = null;
+
+        $actual = ContentHelper::get_coyote_id($element); 
+
+        $this->assertSame($actual, $expected);
+    }
+
+    public function testGetExistingCoyoteId1() {
+        $element = '<img src="foo.bar" data-coyote-id = "123"    alt="hello" />';
+        $expected = '123';
+
+        $actual = ContentHelper::get_coyote_id($element); 
+
+        $this->assertSame($actual, $expected);
+    }
+
+    public function testGetExistingCoyoteId2() {
+        $element = '<img src="foo.bar" alt="hello" data-coyote-id="123"/>';
+        $expected = '123';
+
+        $actual = ContentHelper::get_coyote_id($element); 
+
+        $this->assertSame($actual, $expected);
+    }
+
+    public function testSetCoyoteId1() {
+        $element = '<img src="foo.bar" alt="hello" />';
+        $expected = '<img data-coyote-id="123" src="foo.bar" alt="hello" />';
+
+        $helper = new ContentHelper($element);
+        $helper->set_coyote_id($element, "123"); 
+
+        $this->assertSame($helper->get_content(), $expected);
+    }
+
+    public function testSetCoyoteId2() {
+        $element = '<img      src="foo.bar" alt="hello" />';
+        $expected = '<img data-coyote-id="123" src="foo.bar" alt="hello" />';
+
+        $helper = new ContentHelper($element);
+        $helper->set_coyote_id($element, "123"); 
+
+        $this->assertSame($helper->get_content(), $expected);
+    }
+
+    public function testOverwriteCoyoteId1() {
+        $element = '<img src="foo.bar" alt="hello" data-coyote-id="foo"/>';
+        $expected = '<img src="foo.bar" alt="hello" data-coyote-id="123"/>';
+
+        $helper = new ContentHelper($element);
+        $helper->set_coyote_id($element, "123"); 
+
+        $this->assertSame($helper->get_content(), $expected);
+    }
+
+    public function testOverwriteCoyoteId2() {
+        $element = '<img data-coyote-id   =   "foo"     src="foo.bar" alt="hello"/>';
+        $expected = '<img data-coyote-id="123"     src="foo.bar" alt="hello"/>';
+
+        $helper = new ContentHelper($element);
+        $helper->set_coyote_id($element, "123"); 
+
+        $this->assertSame($helper->get_content(), $expected);
+    }
+
+
 }

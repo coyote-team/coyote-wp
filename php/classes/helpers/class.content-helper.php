@@ -11,9 +11,14 @@ class ContentHelper {
     const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
     const SRC_REGEX = '/src\s*=\s*("|\')([\w\.]*)\1/smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+    const COYOTE_ID_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1\s*/smi';
 
     // not just the value, also the attribute
     const ALT_ATTR_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+    const COYOTE_ID_ATTR_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1/smi';
+
+    // find a position to insert the coyote ID
+    const COYOTE_ID_POSITION_REGEX = '/<\s*img\s+/smi';
 
     function __construct(string $content) {
         $this->content = $content;
@@ -84,6 +89,32 @@ class ContentHelper {
            $this->content_is_modified = true;
         }
 
+        $this->content = $replaced;
+    }
+
+    public static function get_coyote_id(string $element) {
+        $matches = array();
+        $result = preg_match(self::COYOTE_ID_REGEX, $element, $matches);
+
+        if ($result) {
+            return $matches[2];
+        }
+
+        return null;
+    }
+
+    public function set_coyote_id(string $element, string $coyote_id) {
+        $replacement_element = null;
+
+        if (self::get_coyote_id($element) === null) {
+            $replacement_attr = "<img data-coyote-id=\"{$coyote_id}\" ";
+            $replacement_element = preg_replace(self::COYOTE_ID_POSITION_REGEX, $replacement_attr, $element);
+        } else {
+            $replacement_attr = " data-coyote-id=\"{$coyote_id}\"";
+            $replacement_element = preg_replace(self::COYOTE_ID_ATTR_REGEX, $replacement_attr, $element);
+        }
+
+        $replaced = str_replace($element, $replacement_element, $this->content);
         $this->content = $replaced;
     }
 
