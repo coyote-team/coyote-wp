@@ -47,7 +47,13 @@ class ApiClient {
         return $json["data"]["id"];
     }
 
-    public function getResource(int $resourceId) {
+    public function getResourceById(int $resourceId) {
         $response = $this->httpClient->get('resources/' . $resourceId);
+        $json = $response->json();
+    }
+
+    public function getResourceBySourceUri(string $sourceUri) {
+        $response = $this->httpClient->get('resources/' . $sourceUri);
+        $json = $response->json();
     }
 }
