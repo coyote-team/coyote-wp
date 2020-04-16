@@ -21,8 +21,8 @@ class Plugin {
     private $post_update_handler;
     private $api_client;
 
-    static $config = [
-        'CoyoteApiToken' => COYOTE_API_TOKEN,
+    private $config = [
+        'CoyoteApiToken' => null,
         'CoyoteApiEndpoint' => 'https://staging.coyote.pics',
         'CoyoteOrganizationId' => 1
     ];
@@ -41,7 +41,15 @@ class Plugin {
             $_settings = new SettingsController($this->version);
         }
 
+        $this->config = $this->get_config();
         $this->setup();
+    }
+
+    private function get_config() {
+        $_config = $this->config;
+        $_config['CoyoteApiToken'] = get_option('coyote_api__settings_token', $_config['CoyoteApiToken']);
+        $_config['CoyoteApiEndpoint'] = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
+        $this->config = $_config;
     }
 
     private function setup() {

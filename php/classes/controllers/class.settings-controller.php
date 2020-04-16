@@ -63,8 +63,8 @@ class SettingsController {
     }
 
     public function init() {
-        register_setting(self::page_slug, 'api_settings_endpoint');
-        register_setting(self::page_slug, 'api_settings_token');
+        register_setting(self::page_slug, 'coyote__api_settings_endpoint');
+        register_setting(self::page_slug, 'coyote__api_settings_token');
 
         add_settings_section(
             self::api_settings_section, 
@@ -74,7 +74,7 @@ class SettingsController {
         );
 
         add_settings_field(
-            'api_settings_endpoint',
+            'coyote__api_settings_endpoint',
             __('Endpoint', self::i18n_ns),
             array($this, 'api_settings_endpoint_cb'),
             self::page_slug,
@@ -82,7 +82,7 @@ class SettingsController {
         );
 
         add_settings_field(
-            'api_settings_token',
+            'coyote__api_settings_token',
             __('Token', self::i18n_ns),
             array($this, 'api_settings_token_cb'),
             self::page_slug,
