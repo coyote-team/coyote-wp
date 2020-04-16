@@ -4,6 +4,8 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+require_once ('vendor/autoload.php');
+
 error_log('Loading Coyote plugin');
 
 define('COYOTE_PLUGIN_PATH', plugin_dir_path( __FILE__ ));
