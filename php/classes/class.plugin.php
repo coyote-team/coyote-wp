@@ -21,7 +21,7 @@ class Plugin {
     private $post_update_handler;
     private $api_client;
 
-    private $config = [
+    public $config = [
         'CoyoteApiToken' => null,
         'CoyoteApiEndpoint' => 'https://staging.coyote.pics',
         'CoyoteOrganizationId' => 1
@@ -41,18 +41,19 @@ class Plugin {
             $_settings = new SettingsController($this->version);
         }
 
-        $this->config = $this->get_config();
         $this->setup();
     }
 
-    private function get_config() {
+    private function load_config() {
         $_config = $this->config;
-        $_config['CoyoteApiToken'] = get_option('coyote_api__settings_token', $_config['CoyoteApiToken']);
+        $_config['CoyoteApiToken'] = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
         $_config['CoyoteApiEndpoint'] = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
         $this->config = $_config;
     }
 
     private function setup() {
+        $this->load_config();
+
         $controller = new RestApiController($this->version);
 
         // $wpdb becomes available here
@@ -71,7 +72,6 @@ class Plugin {
     public function enqueue_scripts() {
          wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', array( 'wp-blocks' ));
     }
-    
 
     private function replace_sql_variables(string $sql) {
         global $wpdb;
