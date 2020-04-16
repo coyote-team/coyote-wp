@@ -22,20 +22,16 @@ class ImageResource {
 
     private function process() {
         $hash = sha1($this->image["src"]);
-        $record = $this->fetchFromDB($hash);
+        $record = DB::get_image_by_hash($hash);
 
         $record = $record
             ? $record 
-            : $this->createAndInsert($hash, $image["src"], $image["alt"])
+            : $this->createAndInsert($hash, $this->image["src"], $this->image["alt"])
         ;
 
         $this->coyote_resource_id = $record["coyote_resource_id"]; 
         $this->coyote_description = $record["coyote_description"]; 
         $this->original_description = $record["original_description"];
-    }
-
-    private function fetchFromDb(string $hash) {
-        return DB::get_image_by_hash($hash);
     }
 
     private function createAndInsert(string $hash, string $src, string $alt) {
@@ -48,13 +44,19 @@ class ImageResource {
             $coyote_plugin->config["CoyoteOrganizationId"]
         );
 
-        $resourceId = $client->createNewResource($src, $alt);
+        $existingResource = $client->getResourceBySourceUri($src);
+
+        $resourceId = $existingResource
+            ? $existingResource->id
+            : $client->createNewResource($src, $alt)
+        ;
+
         DB::insert_image($hash, $src, $alt, $resourceId);
 
-        return [
+        return (object) array(
             "coyote_resource_id" => $resourceId,
             "coyote_description" => null,
             "original_description" => $alt
-        ];
+        );
     }
 }
