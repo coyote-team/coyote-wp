@@ -33,13 +33,15 @@ class PostUpdateHandler {
         Logger::log("Processing update on post " . $this->post->ID);
 
         $helper = new ContentHelper($this->post->post_content);
-        $images = $helper->get_images_with_alt_and_src();
+        $images = $helper->get_images_with_attributes();
         $resources = array();
 
         foreach ($images as $image) {
             $resource = new ImageResource($image);
+
             if ($resource->coyote_alt !== null) {
                 $helper->replace_img_alt($image["element"], $resource->coyote_alt);
+                $helper->set_coyote_id($image["element"], $resource->coyote_resource_id);
                 array_push($resources, $resource);
             }
         }
