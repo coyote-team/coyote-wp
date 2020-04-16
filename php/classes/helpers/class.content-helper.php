@@ -9,7 +9,7 @@ class ContentHelper {
     public $content_is_modified = false;
 
     const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
-    const SRC_REGEX = '/src\s*=\s*("|\')([\w\.]*)\1/smi';
+    const SRC_REGEX = '/src\s*=\s*("|\')([\w\.\:\/\?\&\;\%]*)\1/smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
     const COYOTE_ID_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1\s*/smi';
 
@@ -37,7 +37,7 @@ class ContentHelper {
         return $this->images;
     }
 
-    function get_images_with_alt_and_src() {
+    function get_images_with_attributes() {
         $images = $this->get_images();
 
         if ($images === null) {
@@ -50,7 +50,8 @@ class ContentHelper {
             array_push($details, [
                 'element' => $image,
                 'src' => self::get_img_src($image),
-                'alt' => self::get_img_alt($image)
+                'alt' => self::get_img_alt($image),
+                'data-coyote-id' => self::get_coyote_id($image)
             ]);
         }
 

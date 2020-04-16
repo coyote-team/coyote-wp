@@ -45,6 +45,11 @@ class ContentHelperTest extends TestCase {
         $this->assertSame($src, "foo.bar");
     }
 
+    public function testImgSrcExtraction2() {
+        $src = ContentHelper::get_img_src('<img src="https://i.imgur.com/9O2yaA8.jpeg" alt="Dit is alt tekst."/>');
+        $this->assertSame($src, "https://i.imgur.com/9O2yaA8.jpeg");
+    }
+
     public function testBadImgSrcExtraction() {
         $src = ContentHelper::get_img_src('<img  alt="hello" />');
         $this->assertSame($src, null);
