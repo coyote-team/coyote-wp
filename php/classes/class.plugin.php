@@ -5,10 +5,12 @@ namespace Coyote;
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
 require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
+require_once coyote_plugin_file('classes/controllers/class.settings-controller.php');
 
 use Coyote\Logger;
 use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
+use Coyote\Controllers\SettingsController;
 
 class Plugin {
     private $is_activated = false;
@@ -25,7 +27,7 @@ class Plugin {
         'CoyoteOrganizationId' => 1
     ];
 
-    public function __construct(string $file, string $version) {
+    public function __construct(string $file, string $version, bool $is_admin = false) {
         if(get_option('coyote_plugin_is_activated', null) !== null) {
             $this->is_activated = true;
         }
@@ -34,6 +36,10 @@ class Plugin {
         $this->version = $version;
 
         $this->post_update_handler = new Handlers\PostUpdateHandler();
+
+        if ($is_admin) {
+            $_settings = new SettingsController($this->version);
+        }
 
         $this->setup();
     }
@@ -55,7 +61,6 @@ class Plugin {
     }
 
     public function enqueue_scripts() {
-         Logger::log("hier");
          wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', array( 'wp-blocks' ));
     }
     

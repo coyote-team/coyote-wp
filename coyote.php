@@ -30,5 +30,5 @@ require_once coyote_plugin_file('classes/class.plugin.php');
 use Coyote\Plugin;
 
 global $coyote_plugin;
-$coyote_plugin = new Plugin(COYOTE_PLUGIN_FILE, COYOTE_VERSION);
+$coyote_plugin = new Plugin(COYOTE_PLUGIN_FILE, COYOTE_VERSION, is_admin());
 
