@@ -95,11 +95,11 @@ class SettingsController {
     }
 
     public function api_settings_endpoint_cb() {
-        echo '<input name="api_settings_endpoint" id="api_settings_endpoint" type="text" value="' . get_option('api_settings_endpoint') . '" />';
+        echo '<input name="coyote__api_settings_endpoint" id="coyote__api_settings_endpoint" type="text" value="' . get_option('coyote__api_settings_endpoint') . '" />';
     }
 
     public function api_settings_token_cb() {
-        echo '<input name="api_settings_token" id="api_settings_token" type="text" value="' . get_option('api_settings_token') . '" />';
+        echo '<input name="coyote__api_settings_token" id="coyote__api_settings_token" type="text" value="' . get_option('coyote__api_settings_token') . '" />';
     }
 
 }
