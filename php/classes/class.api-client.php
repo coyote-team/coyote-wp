@@ -8,9 +8,9 @@
  * @since 1.0
  */
 
-use GuzzleHttp\Client;
-
 namespace Coyote;
+
+use \GuzzleHttp\Client;
 
 class ApiClient {
     /**
@@ -53,7 +53,38 @@ class ApiClient {
     }
 
     public function getResourceBySourceUri(string $sourceUri) {
-        $response = $this->httpClient->get('resources/' . $sourceUri);
-        $json = $response->json();
+        $query = [
+            "filter" => ["source_uri_eq_any" => $sourceUri]
+        ];
+        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", ['json' => $query]);
+        $json = json_decode($response->getBody());
+        $records = $json->data;
+
+        if (count($records) !== 1) {
+            return false;
+        }
+
+        $record = $records[0];
+        $id = $record->id;
+
+        $representations = $record->relationships->representations->data;
+
+        if (count($representations) !== 1) {
+            return false;
+        }
+
+        $alt_representations = array_filter($json->included, function($item) {
+            return $item->type == "representation" && $item->attributes->metum == "Alt";
+        });
+
+        if (count($alt_representations) !== 1) {
+            return false;
+        }
+
+        return [
+            "id" => $id,
+            "alt" => array_pop($alt_representations)->attributes->text
+        ];
+
     }
 }
