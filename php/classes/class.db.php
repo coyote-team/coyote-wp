@@ -4,11 +4,17 @@ namespace Coyote;
 
 class DB {
 
-    public static function associate_resources_with_post(array $resource, WP_Post $post) {
+    public static function associate_resources_with_post(array $resources, int $postID) {
         global $wpdb;
 
         foreach ($resources as $resource) {
-            $wpdb->replace(COYOTE_JOIN_TABLE_NAME, [$resource->coyote_resource_id, $post->ID], ["%d", "%d"]);
+            $wpdb->replace(
+                COYOTE_JOIN_TABLE_NAME,
+                [
+                    'coyote_resource_id' => $resource->coyote_resource_id,
+                    'wp_post_id' => $postID
+                ], ["%d", "%d"]
+            );
         }
     }
 
@@ -38,7 +44,7 @@ class DB {
             $hash
         );
 
-        $wpdb->get_row($prepared_query);
+        return $wpdb->get_row($prepared_query);
     }
 
     private function _create_entry($hash, $image) {
