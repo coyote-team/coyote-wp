@@ -3,44 +3,52 @@
 namespace Coyote\Handlers;
 
 require_once coyote_plugin_file('classes/class.logger.php');
+require_once coyote_plugin_file('classes/class.db.php');
 require_once coyote_plugin_file('classes/class.image-resource.php');
 require_once coyote_plugin_file('classes/helpers/class.content-helper.php');
 
 use WP_Post;
 
-//use Coyote\DB;
+use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
 use Coyote\Logger;
 use Coyote\ImageResource;
 
 class PostUpdateHandler {
 
-    private $post;
+    private $postID;
 
     public function __construct() {}
 
-    public function run(int $post_ID, WP_Post $post, bool $update) {
-        if (!$update) {
-            Logger::log("Not an update, skipping");
-            return;
+    public function run(array $data, array $postArr) {
+        if($postArr['post_type'] == 'revision') {
+            return $data;
         }
 
-        $this->post = WP_Post::get_instance($post_ID);
-        $this->process();
+        $this->postID = $postArr['ID'];
+        $content = $this->process(wp_unslash($data['post_content']));
+        $data['post_content'] = wp_slash($content);
+
+        return $data;
     }
 
-    private function process() {
-        Logger::log("Processing update on post " . $this->post->ID);
+    private function process(string $postContent) {
+        Logger::log("Processing update on post " . $this->postID);
 
-        $helper = new ContentHelper($this->post->post_content);
+        $helper = new ContentHelper($postContent);
         $images = $helper->get_images_with_attributes();
         $resources = array();
 
         foreach ($images as $image) {
+            if ($image["data-coyote-id"] !== null) {
+                // already linked
+                continue;
+            }
+
             $resource = new ImageResource($image);
 
-            if ($resource->coyote_alt !== null) {
-                $helper->replace_img_alt($image["element"], $resource->coyote_alt);
+            if ($resource->coyote_description !== null) {
+                $helper->replace_img_alt($image["element"], $resource->coyote_description);
                 $helper->set_coyote_id($image["element"], $resource->coyote_resource_id);
                 array_push($resources, $resource);
             }
@@ -48,12 +56,12 @@ class PostUpdateHandler {
 
         if (!$helper->content_is_modified) {
             Logger::log("No modifications made, done.");
+            return $helper->get_content();
         }
 
-        $post->post_content = $helper->get_content();
-        $post_update = wp_update_post($this->post, true);
-
         //if the post update succeeded, then associate the resources with the post
-        DB::associate_entries_with_post($resources, $this->post);
+        DB::associate_resources_with_post($resources, $this->postID);
+
+        return $helper->get_content();
     }
 }

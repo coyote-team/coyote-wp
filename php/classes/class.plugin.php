@@ -66,11 +66,22 @@ class Plugin {
 
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('plugins_loaded', array($this, 'load'));
-        add_action('save_post', array($this->post_update_handler, 'run'), 10, 3);
+
+        add_filter('wp_insert_post_data', array($this->post_update_handler, 'run'), 10, 2);
     }
 
     public function enqueue_scripts() {
-         wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', array( 'wp-blocks' ));
+        $requirements = array(
+            'wp-blocks',
+            'wp-components',
+            'wp-compose',
+            'wp-dom-ready',
+            'wp-editor',
+            'wp-element',
+            'wp-hooks'
+        );
+
+        wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', $requirements);
     }
 
     private function replace_sql_variables(string $sql) {
