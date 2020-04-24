@@ -3,9 +3,11 @@
 namespace Coyote;
 
 require_once coyote_plugin_file('classes/class.db.php');
+require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/class.api-client.php');
 
 use Coyote\DB;
+use Coyote\Logger;
 use Coyote\ApiClient;
 
 class ImageResource {
@@ -24,14 +26,16 @@ class ImageResource {
         $hash = sha1($this->image["src"]);
         $record = DB::get_image_by_hash($hash);
 
+        $alt = $this->image["alt"] ? $this->image["alt"] : "";
+
         $record = $record
             ? $record 
-            : $this->createAndInsert($hash, $this->image["src"], $this->image["alt"])
+            : $this->createAndInsert($hash, $this->image["src"], $alt)
         ;
 
-        $this->coyote_resource_id = $record["coyote_resource_id"]; 
-        $this->coyote_description = $record["coyote_description"]; 
-        $this->original_description = $record["original_description"];
+        $this->coyote_resource_id = $record->coyote_resource_id;
+        $this->coyote_description = $record->coyote_description;
+        $this->original_description = $record->original_description;
     }
 
     private function createAndInsert(string $hash, string $src, string $alt) {
@@ -51,11 +55,13 @@ class ImageResource {
             : $client->createNewResource($src, $alt)
         ;
 
-        DB::insert_image($hash, $src, $alt, $resourceId);
+        $coyoteAlt = $existingResource ? $existingResource->alt : null;
+
+        DB::insert_image($hash, $src, $alt, $resourceId, $coyoteAlt);
 
         return (object) array(
             "coyote_resource_id" => $resourceId,
-            "coyote_description" => null,
+            "coyote_description" => $coyoteAlt,
             "original_description" => $alt
         );
     }

@@ -18,18 +18,18 @@ class DB {
         }
     }
 
-    public static function insert_image($hash, $src, $alt, $resourceId) {
+    public static function insert_image($hash, $src, $alt, $resourceId, $resourceAlt) {
         global $wpdb;
 
         $record = [
-            $hash,
-            $src,
-            (int) $resourceId,
-            $alt,
-            ""
+            'source_uri_sha1' => $hash,
+            'source_uri' => $src,
+            'coyote_resource_id' => (int) $resourceId,
+            'original_description' => $alt,
+            'coyote_description' => ($resourceAlt === null ? "" : $resourceAlt)
         ];
 
-        $data_types = ["%s", "%s", "%d", "%s", "%d"];
+        $data_types = ["%s", "%s", "%d", "%s", "%s"];
 
         $wpdb->insert(COYOTE_IMAGE_TABLE_NAME, $record, $data_types);
 

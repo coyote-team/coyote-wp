@@ -37,14 +37,15 @@ class ApiClient {
 
     public function createNewResource(string $source_uri, string $alt) {
         $resource = [
-            "title" => ($alt ? $alt : ""),
+            "title" => ($alt ? $alt : "Image Title"),
             "source_uri" => $source_uri,
             "resource_type" => "still_image"
         ];
 
-        $response = $this->httpClient->post('/resource', ['json' => $resource]);
-        $json = $response->json();
-        return $json["data"]["id"];
+        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources", ['json' => $resource]);
+        $json = json_decode($response->getBody());
+
+        return $json->data->id;
     }
 
     public function getResourceById(int $resourceId) {
@@ -69,10 +70,6 @@ class ApiClient {
 
         $representations = $record->relationships->representations->data;
 
-        if (count($representations) !== 1) {
-            return false;
-        }
-
         $alt_representations = array_filter($json->included, function($item) {
             return $item->type == "representation" && $item->attributes->metum == "Alt";
         });
@@ -81,10 +78,10 @@ class ApiClient {
             return false;
         }
 
-        return [
+        return (object) array(
             "id" => $id,
             "alt" => array_pop($alt_representations)->attributes->text
-        ];
+        );
 
     }
 }

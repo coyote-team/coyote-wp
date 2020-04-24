@@ -47,11 +47,10 @@ class PostUpdateHandler {
 
             $resource = new ImageResource($image);
 
-            if ($resource->coyote_description !== null) {
-                $helper->replace_img_alt($image["element"], $resource->coyote_description);
-                $helper->set_coyote_id($image["element"], $resource->coyote_resource_id);
-                array_push($resources, $resource);
-            }
+            $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
+            $element = $helper->set_coyote_id_and_alt($image["element"], $resource->coyote_resource_id, $alt);
+
+            array_push($resources, $resource);
         }
 
         if (!$helper->content_is_modified) {
