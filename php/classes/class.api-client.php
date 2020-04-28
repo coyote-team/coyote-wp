@@ -57,7 +57,6 @@ class ApiClient {
 
     public function createNewResource(string $source_uri, string $alt) {
         $resource = array(
-            "title"         => ($alt ? $alt : "Image Title"),
             "source_uri"    => $source_uri,
             "resource_type" => "still_image"
         );
