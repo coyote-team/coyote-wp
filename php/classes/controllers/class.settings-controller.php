@@ -23,7 +23,6 @@ class SettingsController {
     function __construct(string $version) {
         $this->version = $version;
         $this->setup();
-        Logger::log("Controller settings init");
     }
 
     private function setup() {
@@ -48,7 +47,31 @@ class SettingsController {
 
         echo "
                 </form>
+        ";
+
+        echo $this->tools();
+
+        echo "
             </div>
+        ";
+    }
+
+    public function tools() {
+        $title  = __("Tools", self::i18n_ns);
+        $action = plugins_url(COYOTE_PLUGIN_NAME . "/php/public/tools.php");
+
+        $update = get_transient('coyote_posts_processed')
+            ? '<div id="coyote-posts-processed" class="notice notice-success"><p><strong>Posts processed.</strong></p></div>'
+            : ''
+        ;
+
+        return "
+            {$update}
+            <hr>
+            <h2>{$title}</h2>
+            <form method=\"post\" action=\"{$action}\">
+                <button type=\"submit\" name=\"tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
+            </form>
         ";
     }
 
