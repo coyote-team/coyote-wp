@@ -119,7 +119,8 @@ class Plugin {
 
     public function process_existing_posts() {
         $posts = get_posts(array(
-            'numberposts' => -1 //all
+            'numberposts' => -1, //all
+            'post_type' => array('post', 'page')
         ));
 
         foreach ($posts as $post) {
