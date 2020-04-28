@@ -10,10 +10,10 @@ class DB {
         foreach ($resources as $resource) {
             $wpdb->replace(
                 COYOTE_JOIN_TABLE_NAME,
-                [
+                array(
                     'coyote_resource_id' => $resource->coyote_resource_id,
                     'wp_post_id' => $postID
-                ], ["%d", "%d"]
+                ), array("%d", "%d")
             );
         }
     }
@@ -21,15 +21,15 @@ class DB {
     public static function insert_image($hash, $src, $alt, $resourceId, $resourceAlt) {
         global $wpdb;
 
-        $record = [
+        $record = array(
             'source_uri_sha1' => $hash,
             'source_uri' => $src,
             'coyote_resource_id' => (int) $resourceId,
             'original_description' => $alt,
             'coyote_description' => ($resourceAlt === null ? "" : $resourceAlt)
-        ];
+        );
 
-        $data_types = ["%s", "%s", "%d", "%s", "%s"];
+        $data_types = array("%s", "%s", "%d", "%s", "%s");
 
         $wpdb->insert(COYOTE_IMAGE_TABLE_NAME, $record, $data_types);
 
@@ -45,8 +45,5 @@ class DB {
         );
 
         return $wpdb->get_row($prepared_query);
-    }
-
-    private function _create_entry($hash, $image) {
     }
 }
