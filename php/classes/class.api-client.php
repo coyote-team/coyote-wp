@@ -4,7 +4,7 @@
  * Coyote API Client Class
  * @author Job van Achterberg
  * @category class
- * @package CoyotePlugin/Clients
+ * @package Coyote\ApiClient
  * @since 1.0
  */
 
@@ -25,7 +25,10 @@ class ApiClient {
     private $organizationId;
     private $httpClient;
 
-    public function __construct(string $endpoint, string $token, int $organizationId, int $apiVersion = 1) {
+    const HTTP_OK = 200;
+    const HTTP_CREATED = 201;
+
+    public function __construct(string $endpoint, string $token, string $organizationId, string $apiVersion) {
         $this->httpClient = new \GuzzleHttp\Client([
             'base_uri' => ($endpoint . '/api/' . 'v' . $apiVersion . '/'),
             'timeout'  => 2.0,
@@ -35,53 +38,75 @@ class ApiClient {
         $this->organizationId = $organizationId;
     }
 
+    private function getResponseJson($expected_code, $response) {
+        if ($response->getStatusCode() === $expected_code) {
+            $json = json_decode($response->getBody());
+
+            if ($json !== null) {
+                return $json;
+            }
+        }
+
+        return null;
+    }
+
     public function createNewResource(string $source_uri, string $alt) {
-        $resource = [
-            "title" => ($alt ? $alt : "Image Title"),
-            "source_uri" => $source_uri,
+        $resource = array(
+            "title"         => ($alt ? $alt : "Image Title"),
+            "source_uri"    => $source_uri,
             "resource_type" => "still_image"
-        ];
+        );
 
-        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources", ['json' => $resource]);
-        $json = json_decode($response->getBody());
+        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources", array('json' => $resource));
 
-        return $json->data->id;
+        if ($json = $this->getResponseJson(self::HTTP_CREATED, $response)) {
+            return $json->data->id;
+        }
+
+        return null;
     }
 
     public function getResourceById(int $resourceId) {
         $response = $this->httpClient->get('resources/' . $resourceId);
-        $json = $response->json();
+        return $this->getResponseJson(self::HTTP_OK, $response);
     }
 
     public function getResourceBySourceUri(string $sourceUri) {
-        $query = [
-            "filter" => ["source_uri_eq_any" => $sourceUri]
-        ];
-        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", ['json' => $query]);
-        $json = json_decode($response->getBody());
-        $records = $json->data;
-
-        if (count($records) !== 1) {
-            return false;
-        }
-
-        $record = $records[0];
-        $id = $record->id;
-
-        $representations = $record->relationships->representations->data;
-
-        $alt_representations = array_filter($json->included, function($item) {
-            return $item->type == "representation" && $item->attributes->metum == "Alt";
-        });
-
-        if (count($alt_representations) !== 1) {
-            return false;
-        }
-
-        return (object) array(
-            "id" => $id,
-            "alt" => array_pop($alt_representations)->attributes->text
+        $query = array(
+            "filter" => array("source_uri_eq_any" => $sourceUri)
         );
 
+        $isAltRepresentation = function($item) {
+            return $item->type === "representation" && $item->attributes->metum === "Alt";
+        };
+
+        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", array('json' => $query));
+
+        if ($json = $this->getResponseJson(self::HTTP_OK, $response)) {
+            $records = $json->data;
+
+            if (count($records) !== 1) {
+                return null;
+            }
+
+            $record = $records[0];
+            $id = $record->id;
+
+            $representations = $record->relationships->representations->data;
+
+            $altRepresentations = array_filter($json->included, $isAltRepresentation);
+
+            if (count($altRepresentations) !== 1) {
+                return null;
+            }
+
+            return (object) array(
+                "id" => $id,
+                "alt" => array_pop($altRepresentations)->attributes->text
+            );
+        }
+
+        return null;
     }
+
 }

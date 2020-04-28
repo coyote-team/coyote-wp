@@ -19,9 +19,9 @@ class Plugin {
     private $version;
 
     private $post_update_handler;
-    private $api_client;
 
     public $config = [
+        'CoyoteApiVersion' => "1",
         'CoyoteApiToken' => null,
         'CoyoteApiEndpoint' => "",
         'CoyoteOrganizationId' => null
@@ -47,8 +47,9 @@ class Plugin {
     private function load_config() {
         $_config = $this->config;
 
-        $_config['CoyoteApiToken'] = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
-        $_config['CoyoteApiEndpoint'] = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteApiVersion']     = get_option('coyote__api_settings_version', $_config['CoyoteApiVersion']);
+        $_config['CoyoteApiToken']       = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
+        $_config['CoyoteApiEndpoint']    = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
         $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
 
         $this->config = $_config;

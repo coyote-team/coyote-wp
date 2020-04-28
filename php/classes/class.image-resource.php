@@ -33,6 +33,10 @@ class ImageResource {
             : $this->createAndInsert($hash, $this->image["src"], $alt)
         ;
 
+        if ($record === null) {
+            return;
+        }
+
         $this->coyote_resource_id = $record->coyote_resource_id;
         $this->coyote_description = $record->coyote_description;
         $this->original_description = $record->original_description;
@@ -45,7 +49,8 @@ class ImageResource {
         $client = new ApiClient(
             $coyote_plugin->config["CoyoteApiEndpoint"],
             $coyote_plugin->config["CoyoteApiToken"],
-            $coyote_plugin->config["CoyoteOrganizationId"]
+            $coyote_plugin->config["CoyoteOrganizationId"],
+            $coyote_plugin->config["CoyoteApiVersion"]
         );
 
         $existingResource = $client->getResourceBySourceUri($src);
@@ -54,6 +59,10 @@ class ImageResource {
             ? $existingResource->id
             : $client->createNewResource($src, $alt)
         ;
+
+        if ($resourceId === null) {
+            return null;
+        }
 
         $coyoteAlt = $existingResource ? $existingResource->alt : null;
 
