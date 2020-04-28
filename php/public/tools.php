@@ -15,10 +15,12 @@ function plugin_file($file) {
 // load wordpress functions
 require_once wp_root_file('wp-load.php');
 
-if (!current_user_can('manage_options')) {
+$nonce = $_POST['_wpnonce'];
+
+if (!current_user_can('manage_options') || !wp_verify_nonce($nonce, 'coyote_fields-options')) {
     wp_die(
-        '<h1>' . __( 'You need a higher level of permission.' ) . '</h1>' .
-        '<p>' . __( 'Sorry, you are not allowed to manage options for this site.' ) . '</p>',
+        '<h1>' . __('You need a higher level of permission.', COYOTE_PLUGIN_NAME) . '</h1>' .
+        '<p>' . __('Sorry, you are not allowed to manage options for this site.', COYOTE_PLUGIN_NAME) . '</p>',
         403
     );
 }

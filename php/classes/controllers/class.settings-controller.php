@@ -54,7 +54,7 @@ class SettingsController {
                 </form>
         ";
 
-        echo $this->tools();
+        $this->tools();
 
         echo "
             </div>
@@ -70,11 +70,16 @@ class SettingsController {
             : ''
         ;
 
-        return "
+        echo "
             {$update}
             <hr>
             <h2>{$title}</h2>
             <form method=\"post\" action=\"{$action}\">
+        ";
+
+        settings_fields(self::page_slug);
+
+        echo "
                 <button type=\"submit\" name=\"tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
             </form>
         ";
