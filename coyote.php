@@ -18,6 +18,7 @@ require_once('php/media-template.php');
 
 error_log('Loading Coyote plugin');
 
+define('COYOTE_PLUGIN_NAME', 'coyote');
 define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('COYOTE_VERSION', '0.0.1');
