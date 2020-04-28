@@ -101,7 +101,7 @@ class ApiClient {
 
             $altRepresentations = array_filter($json->included, $isAltRepresentation);
 
-            if (count($altRepresentations) !== 1) {
+            if (count($altRepresentations) === 0) {
                 return null;
             }
 
