@@ -10,6 +10,11 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 use \GuzzleHttp\Client;
 
 class ApiClient {

@@ -2,9 +2,12 @@
 
 namespace Coyote;
 
-class Logger {
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
 
-    public function __construct() {}
+class Logger {
 
     public static function log($log) {
         if (true === WP_DEBUG) {

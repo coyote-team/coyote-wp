@@ -2,6 +2,11 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');

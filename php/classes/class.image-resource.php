@@ -2,6 +2,11 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 require_once coyote_plugin_file('classes/class.db.php');
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/class.api-client.php');

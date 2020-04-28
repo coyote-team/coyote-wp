@@ -10,6 +10,11 @@
 
 namespace Coyote\Controllers;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 use WP_REST_Server;
 use WP_Rest_Request;
 

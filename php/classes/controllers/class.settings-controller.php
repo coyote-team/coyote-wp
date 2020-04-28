@@ -2,6 +2,11 @@
 
 namespace Coyote\Controllers;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 require_once coyote_plugin_file('classes/class.logger.php');
 
 use Coyote\Logger;

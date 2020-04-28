@@ -2,6 +2,11 @@
 
 namespace Coyote\Helpers;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 class ContentHelper {
     private $content;
     private $images = null;

@@ -2,6 +2,11 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 class DB {
 
     public static function associate_resources_with_post(array $resources, int $postID) {
