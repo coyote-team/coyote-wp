@@ -9,8 +9,8 @@ class ContentHelper {
     public $content_is_modified = false;
 
     const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
-    const SRC_REGEX = '/src\s*=\s*("|\')([\w\.\:\/\?\&\;\%]*)\1/smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+    const SRC_REGEX = '/src\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
     const COYOTE_ID_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1\s*/smi';
 
     // not just the value, also the attribute
@@ -81,7 +81,7 @@ class ContentHelper {
     }
 
     public function replace_img_alt(string $element, string $alt) {
-        $replacement_alt = 'alt="' . $alt . '"';
+        $replacement_alt = 'alt="' . htmlspecialchars($alt) . '"';
 
         if (self::get_img_alt($element) === null) {
             // no alt on this element to begin with? Enforce it
