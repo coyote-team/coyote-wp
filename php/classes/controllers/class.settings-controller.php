@@ -32,6 +32,7 @@ class SettingsController {
 
         add_action('admin_init', array($this, 'init'));
         add_action('admin_menu', array($this, 'menu'));
+
     }
 
     public function settings_page_cb() {
@@ -65,6 +66,7 @@ class SettingsController {
     public function init() {
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
+        register_setting(self::page_slug, 'coyote__api_settings_organization_id');
 
         add_settings_section(
             self::api_settings_section, 
@@ -88,6 +90,15 @@ class SettingsController {
             self::page_slug,
             self::api_settings_section
         );
+
+        add_settings_field(
+            'coyote__api_settings_organization_id',
+            __('Organization ID', self::i18n_ns),
+            array($this, 'api_settings_organization_id_cb'),
+            self::page_slug,
+            self::api_settings_section
+        );
+
     }
 
     public function api_settings_cb() {
@@ -95,11 +106,15 @@ class SettingsController {
     }
 
     public function api_settings_endpoint_cb() {
-        echo '<input name="coyote__api_settings_endpoint" id="coyote__api_settings_endpoint" type="text" value="' . get_option('coyote__api_settings_endpoint') . '" />';
+        echo '<input name="coyote__api_settings_endpoint" id="coyote__api_settings_endpoint" type="text" value="' . get_option('coyote__api_settings_endpoint') . '" size="50"/>';
     }
 
     public function api_settings_token_cb() {
-        echo '<input name="coyote__api_settings_token" id="coyote__api_settings_token" type="text" value="' . get_option('coyote__api_settings_token') . '" />';
+        echo '<input name="coyote__api_settings_token" id="coyote__api_settings_token" type="text" value="' . get_option('coyote__api_settings_token') . '" size="30"/>';
+    }
+
+    public function api_settings_organization_id_cb() {
+        echo '<input name="coyote__api_settings_organization_id" id="coyote__api_settings_organization_id" type="text" value="' . get_option('coyote__api_settings_organization_id') . '" size="2" maxlength="2" />';
     }
 
 }

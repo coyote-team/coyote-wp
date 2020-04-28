@@ -23,8 +23,8 @@ class Plugin {
 
     public $config = [
         'CoyoteApiToken' => null,
-        'CoyoteApiEndpoint' => 'https://staging.coyote.pics',
-        'CoyoteOrganizationId' => 1
+        'CoyoteApiEndpoint' => "",
+        'CoyoteOrganizationId' => null
     ];
 
     public function __construct(string $file, string $version, bool $is_admin = false) {
@@ -46,8 +46,11 @@ class Plugin {
 
     private function load_config() {
         $_config = $this->config;
+
         $_config['CoyoteApiToken'] = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
         $_config['CoyoteApiEndpoint'] = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
+
         $this->config = $_config;
     }
 
