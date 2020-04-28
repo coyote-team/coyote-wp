@@ -1,0 +1,9 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "~6.0",
+        "psr/log": "^1.1"
+    },
+    "autoload" : {
+        "classmap": ["php/"]
+    }
+}
