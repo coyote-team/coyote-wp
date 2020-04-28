@@ -1,21 +1,22 @@
 <?php
-/**
- * @package Coyote
- * @version 0.0.1
- */
 
 /*
-Plugin Name: Coyote
-Plugin URI: http://wordpress.org/plugins/coyote/
-Description: Integrate with a Coyote API to obtain media text descriptions.
-Author: Prime Access Consulting | Job van Achterberg
-Version: 0.0.1
-Author URI: https://www.pac.bz
+ * There are some qualities—some incorporate things,
+ *   That have a double life, which thus is made
+ * A type of that twin entity which springs
+ *   From matter and light, evinced in solid and shade.
+ * There is a two-fold Silence—sea and shore—
+ *   Body and soul. One dwells in lonely places,
+ *   Newly with grass o'ergrown; some solemn graces,
+ * Some human memories and tearful lore,
+ * Render him terrorless: his name's "No More."
+ * He is the corporate Silence: dread him not!
+ *   No power hath he of evil in himself;
+ * But should some urgent fate (untimely lot!)
+ *   Bring thee to meet his shadow (nameless elf,
+ * That haunteth the lone regions where hath trod
+ * No foot of man,) commend thyself to God!
+ *
+ * "Silence", by Edgar Allan Poe
+ *
  */
-
-
-define('COYOTE_PLUGIN_FILE', __FILE__);
-
-require_once 'coyote.php';
-
-?>
