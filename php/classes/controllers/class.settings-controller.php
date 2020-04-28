@@ -64,9 +64,18 @@ class SettingsController {
     }
 
     public function init() {
+        register_setting(self::page_slug, 'coyote__api_settings_version');
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
         register_setting(self::page_slug, 'coyote__api_settings_organization_id');
+
+        add_settings_field(
+            'coyote__api_settings_version',
+            __('Version number', self::i18n_ns),
+            array($this, 'api_settings_version_cb'),
+            self::page_slug,
+            self::api_settings_section
+        );
 
         add_settings_section(
             self::api_settings_section, 
@@ -103,6 +112,10 @@ class SettingsController {
 
     public function api_settings_cb() {
         //TODO refactor into generator
+    }
+
+    public function api_settings_version_cb() {
+        echo '<input name="coyote__api_settings_version" id="coyote__api_settings_version" type="text" value="' . get_option('coyote__api_settings_version', "1") . '" size="1", maxlength="1"/>';
     }
 
     public function api_settings_endpoint_cb() {
