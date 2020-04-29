@@ -17,12 +17,6 @@ require_once wp_root_file('wp-load.php');
 
 $nonce = $_POST['_wpnonce'];
 
-error_log(print_r(array(
-  '$_SERVER[\'REQUEST_URI\']' => $_SERVER['REQUEST_URI'],
-  '$_REQUEST[\'_wp_http_referer\']' => $_REQUEST['_wp_http_referer'],
-  '$_SERVER[\'HTTP_REFERER\']' => $_SERVER['HTTP_REFERER']
-), true));
-
 if (!current_user_can('manage_options') || !wp_verify_nonce($nonce, 'coyote_fields-options')) {
     wp_die(
         '<h1>' . __('You need a higher level of permission.', COYOTE_PLUGIN_NAME) . '</h1>' .
