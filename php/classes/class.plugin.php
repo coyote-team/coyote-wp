@@ -32,6 +32,8 @@ class Plugin {
         'CoyoteOrganizationId' => null
     ];
 
+    public $is_configured = false;
+
     public function __construct(string $file, string $version, bool $is_admin = false) {
         if(get_option('coyote_plugin_is_activated', null) !== null) {
             $this->is_activated = true;
@@ -55,6 +57,10 @@ class Plugin {
         $_config['CoyoteApiEndpoint']    = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
         $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
 
+        if (get_option('coyote__api_profile')) {
+            $this->is_configured = true;
+        }
+
         $this->config = $_config;
     }
 
@@ -73,7 +79,9 @@ class Plugin {
 
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
-        add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+        if ($this->is_configured) {
+            add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+        }
     }
 
     public function enqueue_scripts() {

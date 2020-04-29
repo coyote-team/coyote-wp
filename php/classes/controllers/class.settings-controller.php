@@ -37,6 +37,7 @@ class SettingsController {
         $this->page_title = __('Coyote Plugin Settings', self::i18n_ns);
         $this->menu_title = __('Coyote Plugin', self::i18n_ns);
 
+        $this->profile_fetch_failed = false;
         $this->profile = $this->get_profile();
 
         add_action('admin_init', array($this, 'init'));
@@ -64,10 +65,10 @@ class SettingsController {
                 update_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
             }
         } else {
+            $this->profile_fetch_failed = true;
             delete_option('coyote__api_profile');
             delete_option('coyote__api_settings_organization_id');
         }
-
     }
 
     private function get_profile() {
@@ -77,9 +78,13 @@ class SettingsController {
 
         $profile = get_option('coyote__api_profile', null);
 
-        if (!$profile && $profile = $client->getProfile()) {
-            add_option('coyote__api_profile', $profile);
-            add_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
+        if (!$profile) {
+            if ($profile = $client->getProfile()) {
+                add_option('coyote__api_profile', $profile);
+                add_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
+            } else if ($endpoint && $token) {
+                $this->profile_fetch_failed = true;
+            }
         }
 
         return $profile;
@@ -97,6 +102,8 @@ class SettingsController {
 
         if ($this->profile) {
             echo "<p>Username: " . $this->profile->name . "</p>";
+        } else if ($this->profile_fetch_failed) {
+            echo "<strong>" . __('Unable to load Coyote profile.', self::i18n_ns) . "</strong>";
         }
 
         submit_button();
