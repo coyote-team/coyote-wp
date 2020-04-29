@@ -27,16 +27,18 @@ class ApiClient {
      * @param int apiVersion API version to use
      */
 
-    private $organizationId;
+    private $organizationId = null;
     private $httpClient;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
-    public function __construct(string $endpoint, string $token, string $organizationId, string $apiVersion) {
+    public function __construct(string $endpoint, string $token, string $organizationId = null, string $apiVersion = "1") {
         $this->httpClient = new \GuzzleHttp\Client([
             'base_uri' => ($endpoint . '/api/' . 'v' . $apiVersion . '/'),
             'timeout'  => 2.0,
+            // disable exceptions, handle http 4xx-5xx internally
+            'exceptions' => false,
             'headers' => ['Authorization' => $token]
         ]);
 
@@ -111,6 +113,44 @@ class ApiClient {
         }
 
         return null;
+    }
+
+    public function getProfile() {
+        $response = $this->httpClient->get('profile');
+        $json = $this->getResponseJson(self::HTTP_OK, $response);
+
+        if (!$json) {
+            return null;
+        }
+
+        return (object) array(
+            "id" => $json->data->id,
+            "name" => $this->getProfileName($json),
+            "organizations" => $this->getProfileOrganizations($json)
+        );
+    }
+
+    private function getProfileName($json) {
+        $data = $json->data;
+        return
+            $data->attributes->first_name .
+            " " .
+            $data->attributes->last_name;
+    }
+
+    private function getProfileOrganizations($json) {
+        $reducer = function($carry, $item) {
+            if ($item->type === "organization") {
+                array_push($carry, array(
+                    "id" => $item->id,
+                    "name" => $item->attributes->title
+                ));
+            }
+
+            return $carry;
+        };
+
+        return array_reduce($json->included, $reducer, array());
     }
 
 }
