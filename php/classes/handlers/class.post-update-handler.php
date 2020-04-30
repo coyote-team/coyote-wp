@@ -8,16 +8,10 @@ if (!defined( 'ABSPATH')) {
 }
 
 require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/class.db.php');
-require_once coyote_plugin_file('classes/class.image-resource.php');
 require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
 
-use WP_Post;
-
-use Coyote\DB;
 use Coyote\Helpers\PostProcessHelper;
 use Coyote\Logger;
-use Coyote\ImageResource;
 
 class PostUpdateHandler {
 

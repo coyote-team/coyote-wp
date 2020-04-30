@@ -39,21 +39,21 @@ class PostProcessHelper {
 
         $helper = new ContentHelper($postContent);
         $images = $helper->get_images_with_attributes();
-        $resources = array();
 
-        foreach ($images as $image) {
-            if ($image["data-coyote-id"] !== null) {
-                // already linked
+        $resources = ImageResource::map($images);
+        $associated = array();
+
+        foreach ($resources as $resource) {
+            if ($resource->image["data-coyote-id"] !== null) {
+                //already linked
                 continue;
             }
-
-            $resource = new ImageResource($image);
 
             // The retrieval or creation of the coyote resource was successful
             if ($resource->coyote_resource_id !== null) {
                 $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
-                $element = $helper->set_coyote_id_and_alt($image["element"], $resource->coyote_resource_id, $alt);
-                array_push($resources, $resource);
+                $helper->set_coyote_id_and_alt($resource->image["element"], $resource->coyote_resource_id, $alt);
+                array_push($associated, $resource);
             }
         }
 
@@ -66,7 +66,7 @@ class PostProcessHelper {
         }
 
         //if the post update succeeded, then associate the resources with the post
-        DB::associate_resources_with_post($resources, $postID);
+        DB::associate_resources_with_post($associated, $postID);
 
         return (object) array(
             "content" => $helper->get_content(),

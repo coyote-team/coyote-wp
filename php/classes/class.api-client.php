@@ -77,42 +77,61 @@ class ApiClient {
         return $this->getResponseJson(self::HTTP_OK, $response);
     }
 
-    public function getResourceBySourceUri(string $sourceUri) {
+    public function getResourcesBySourceUris(array $sourceUris) {
+        $uris = join(" ", array_unique($sourceUris));
         $query = array(
-            "filter" => array("source_uri_eq_any" => $sourceUri)
+            'filter' => array('source_uri_eq_any' => $uris)
         );
 
-        $isAltRepresentation = function($item) {
-            return $item->type === "representation" && $item->attributes->metum === "Alt";
+        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", array('json' => $query));
+        $json = $this->getResponseJson(self::HTTP_OK, $response);
+
+        if (!$json) {
+            return array();
+        }
+
+        return $this->jsonToIdAndAlt($json);
+    }
+
+    private function jsonToIdAndAlt($json) {
+        $mapRepresentations = function($representations, $included) {
+            return array_reduce($representations, function ($carry, $representation) use ($included) {
+                if ($representation->type !== "representation") {
+                    return $carry;
+                }
+
+                $matches = array_filter($included, function($item) use ($representation) {
+                    return
+                        $item->id === $representation->id &&
+                        $item->type === "representation" &&
+                        $item->attributes->metum === "Alt" &&
+                        $item->attributes->status === "approved"
+                    ;
+                });
+
+                if (count($matches) === 1) {
+                    array_push($carry, array_shift($matches));
+                }
+
+                return $carry;
+            }, array());
         };
 
-        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", array('json' => $query));
+        $list = array();
 
-        if ($json = $this->getResponseJson(self::HTTP_OK, $response)) {
-            $records = $json->data;
+        foreach ($json->data as $item) {
+            $altRepresentations = $mapRepresentations($item->relationships->representations->data, $json->included);
+            $alt = count($altRepresentations) ? $altRepresentations[0]->attributes->text : null;
+            $uri = $item->attributes->source_uri;
 
-            if (count($records) !== 1) {
-                return null;
-            }
-
-            $record = $records[0];
-            $id = $record->id;
-
-            $representations = $record->relationships->representations->data;
-
-            $altRepresentations = array_filter($json->included, $isAltRepresentation);
-
-            if (count($altRepresentations) === 0) {
-                return null;
-            }
-
-            return (object) array(
-                "id" => $id,
-                "alt" => array_pop($altRepresentations)->attributes->text
+            $list[$uri] = (object) array(
+                'id' => $item->id,
+                'alt' => $alt,
+                'source_uri' => $uri
             );
         }
 
-        return null;
+        return $list;
     }
 
     public function getProfile() {

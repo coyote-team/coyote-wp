@@ -16,28 +16,97 @@ use Coyote\Logger;
 use Coyote\ApiClient;
 
 class ImageResource {
-    private $image;
+    public $image;
+    private $resource = null;
 
     public $original_description = '';
     public $coyote_description = null;
     public $coyote_resource_id = null;
 
-    public function __construct(array $image) {
+    public function __construct(array $image, object $resource = null) {
         $this->image = $image;
+
+        if ($resource !== null) {
+            $this->resource = $resource;
+
+            $this->coyote_resource_id = $resource->id;
+            $this->coyote_description = $resource->alt;
+            $this->original_description = $image['alt'] ? $image['alt'] : '';
+        }
+
         $this->process();
     }
 
+    public static function map(array $images) {
+        $sourceUris = array_reduce($images, function($carry, $image) {
+            if ($image['data-coyote-id']) {
+                return $carry;
+            }
+
+            array_push($carry, $image['src']);
+            return $carry;
+        }, array());
+
+        // empty array
+        if (!count($sourceUris)) {
+            return $sourceUris;
+        }
+
+        $apiClient = self::getApiClient();
+        $coyoteResources = $apiClient->getResourcesBySourceUris($sourceUris);
+
+        return array_map(function ($image) use ($coyoteResources) {
+            $resource = array_key_exists($image['src'], $coyoteResources)
+                ? $coyoteResources[$image['src']]
+                : null
+            ;
+
+            return new ImageResource($image, $resource);
+        }, $images);
+    }
+
+    public static function getApiClient() {
+        global $coyote_plugin;
+        $client = new ApiClient(
+            $coyote_plugin->config["CoyoteApiEndpoint"],
+            $coyote_plugin->config["CoyoteApiToken"],
+            $coyote_plugin->config["CoyoteOrganizationId"],
+            $coyote_plugin->config["CoyoteApiVersion"]
+        );
+
+        return $client;
+    }
+
     private function process() {
-        $hash = sha1($this->image["src"]);
-        $record = DB::get_image_by_hash($hash);
+        $alt = $this->image['alt'] ? $this->image['alt'] : '';
+        $hash = sha1($this->image['src']);
 
-        $alt = $this->image["alt"] ? $this->image["alt"] : "";
+        // coyote knows this image source uri
+        if ($this->resource) {
+            // is it in the db? have we processed it before?
+            $record = DB::get_image_by_hash($hash);
 
-        $record = $record
-            ? $record 
-            : $this->createAndInsert($hash, $this->image["src"], $alt)
-        ;
+            if (!$record) {
+                // if not, insert it. Otherwise leave alone
+                DB::insert_image(
+                    $hash,
+                    $this->image['src'],
+                    $alt,
+                    $this->resource->id,
+                    $this->resource->alt
+                );
 
+                return;
+            }
+
+            return;
+        }
+
+        // this image is not in coyote, so it won't be in the db either
+        // create a new resource and store the ID in the db
+        $record = $this->createAndInsert($hash, $this->image['src'], $alt);
+
+        // couldn't create the record
         if ($record === null) {
             return;
         }
@@ -48,34 +117,20 @@ class ImageResource {
     }
 
     private function createAndInsert(string $hash, string $src, string $alt) {
-        // don't necessarily create a new resource, query by src first
+        // if we get here, no resource for this image existed in coyote
 
-        global $coyote_plugin;
-        $client = new ApiClient(
-            $coyote_plugin->config["CoyoteApiEndpoint"],
-            $coyote_plugin->config["CoyoteApiToken"],
-            $coyote_plugin->config["CoyoteOrganizationId"],
-            $coyote_plugin->config["CoyoteApiVersion"]
-        );
+        $resourceId = self::getApiClient()->createNewResource($src, $alt);
 
-        $existingResource = $client->getResourceBySourceUri($src);
-
-        $resourceId = $existingResource
-            ? $existingResource->id
-            : $client->createNewResource($src, $alt)
-        ;
-
+        // failed. Client configuration error?
         if ($resourceId === null) {
             return null;
         }
 
-        $coyoteAlt = $existingResource ? $existingResource->alt : null;
-
-        DB::insert_image($hash, $src, $alt, $resourceId, $coyoteAlt);
+        DB::insert_image($hash, $src, $alt, $resourceId, null);
 
         return (object) array(
             "coyote_resource_id" => $resourceId,
-            "coyote_description" => $coyoteAlt,
+            "coyote_description" => null,
             "original_description" => $alt
         );
     }
