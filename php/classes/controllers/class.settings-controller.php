@@ -45,6 +45,17 @@ class SettingsController {
 
         add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
+        add_action('pre_update_option_coyote__settings_tool', array($this, 'run_tool'), 10, 3);
+    }
+
+    public function run_tool($old, $new, $option) {
+        switch ($old) {
+            case 'process_existing_posts':
+                if ($this->profile) {
+                    do_action('coyote_process_existing_posts', $this->profile);
+                }
+            break;
+        }
     }
 
     public function verify_settings($old, $new, $option) {
@@ -59,6 +70,7 @@ class SettingsController {
             update_option('coyote__api_profile', $profile);
 
             if ($stored_profile && $profile->id !== $stored_profile->id) {
+                $this->profile = $profile;
                 update_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
             } else if (!$stored_profile) {
                 Logger::log($profile->organizations[0]['id']);
@@ -107,14 +119,10 @@ class SettingsController {
         }
 
         submit_button();
-
-        echo "
-                </form>
-        ";
-
         $this->tools();
 
         echo "
+                </form>
             </div>
         ";
     }
@@ -136,14 +144,12 @@ class SettingsController {
             {$update}
             <hr>
             <h2>{$title}</h2>
-            <form method=\"post\" action=\"{$action}\">
         ";
 
         settings_fields(self::page_slug);
 
         echo "
-                <button type=\"submit\" name=\"tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
-            </form>
+                <button type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
         ";
     }
 
@@ -163,6 +169,7 @@ class SettingsController {
 
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
+        register_setting(self::page_slug, 'coyote__settings_tool');
 
         if ($this->profile) {
             register_setting(self::page_slug, 'coyote__api_settings_organization_id');

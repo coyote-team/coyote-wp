@@ -59,6 +59,7 @@ class Plugin {
 
         if (get_option('coyote__api_profile')) {
             $this->is_configured = true;
+            add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
         }
 
         $this->config = $_config;
@@ -130,7 +131,9 @@ class Plugin {
         $this->run_sql_query($sql); 
     }
 
-    public function process_existing_posts() {
+    public function process_existing_posts($profile) {
+        Logger::log('Processing existing posts');
+
         $posts = get_posts(array(
             'numberposts' => -1, //all
             'post_type' => array('post', 'page')
