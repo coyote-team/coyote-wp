@@ -81,7 +81,7 @@ class SettingsController {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'coyote_settings_js',
-            plugins_url('/coyote/asset/settings.js'),
+            coyote_asset_url('settings.js'),
             false
         );
 

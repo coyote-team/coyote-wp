@@ -31,8 +31,8 @@ function coyote_sql_file(string $path) {
     return _coyote_file('sql', $path);
 }
 
-function coyote_asset_file(string $path) {
-    return _coyote_file('asset', $path);
+function coyote_asset_url(string $path) {
+    return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
 
 function _coyote_file(string $type, string $path) {
