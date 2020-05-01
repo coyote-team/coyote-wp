@@ -64,10 +64,12 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const processExistingPostsButton = document.getElementById('coyote_process_existing_posts');
 
-    processExistingPostsButton.addEventListener('click', startProcessing);
+    if (processExistingPostsButton) {
+        processExistingPostsButton.addEventListener('click', startProcessing);
 
-    if (processExistingPostsButton.hasAttribute('disabled')) {
-        return updateProgress();
+        if (processExistingPostsButton.hasAttribute('disabled')) {
+            return updateProgress();
+        }
     }
 
 });
