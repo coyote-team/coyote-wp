@@ -8,12 +8,13 @@ if (!defined( 'ABSPATH')) {
 }
 
 require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
+require_once coyote_plugin_file('classes/class.process-posts-async-request.php');
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
 require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
 require_once coyote_plugin_file('classes/controllers/class.settings-controller.php');
 
 use Coyote\Logger;
+use Coyote\ProcessPostsAsyncRequest;
 use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Helpers\PostProcessHelper;
 use Coyote\Controllers\RestApiController;
@@ -21,6 +22,7 @@ use Coyote\Controllers\SettingsController;
 
 class Plugin {
     private $is_activated = false;
+    private $process_posts_async_request;
 
     private $file;
     private $version;
@@ -81,6 +83,7 @@ class Plugin {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
         if ($this->is_configured) {
+            $this->process_posts_async_request = new ProcessPostsAsyncRequest();
             add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         }
     }
@@ -132,18 +135,8 @@ class Plugin {
     }
 
     public function process_existing_posts($profile) {
-        Logger::log('Processing existing posts');
-
-        $posts = get_posts(array(
-            'numberposts' => -1, //all
-            'post_type' => array('post', 'page')
-        ));
-
-        foreach ($posts as $post) {
-            // simulate a post update
-            Logger::log("Processing post {$post->ID}");
-            PostProcessHelper::processExistingPost($post);
-        }
+        Logger::log($request);
+        $this->process_posts_async_request->dispatch();
     }
 
     public function activate() {

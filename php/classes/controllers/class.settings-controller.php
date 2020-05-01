@@ -135,6 +135,9 @@ class SettingsController {
         $title  = __("Tools", self::i18n_ns);
         $action = plugins_url(COYOTE_PLUGIN_NAME . "/php/public/tools.php");
 
+        $processing = get_transient('coyote_process_posts_progress');
+        $disabled = $processing !== false ? 'disabled' : '';
+
         $update = get_transient('coyote_posts_processed')
             ? '<div id="coyote-posts-processed" class="notice notice-success"><p><strong>Posts processed.</strong></p></div>'
             : ''
@@ -149,8 +152,15 @@ class SettingsController {
         settings_fields(self::page_slug);
 
         echo "
-                <button type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
+            <button {$disabled} type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
         ";
+    
+        if ($disabled) {
+            echo "
+                <div aria-live=\"polite\">
+                    <strong>Processing: {$processing}%.</strong>
+                </div>";
+        }
     }
 
     public function menu() {
