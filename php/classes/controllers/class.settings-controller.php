@@ -47,11 +47,29 @@ class SettingsController {
 
         add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
-        add_action('pre_update_option_coyote__settings_tool', array($this, 'run_tool'), 10, 3);
 
         if ($this->profile) {
+            add_action('wp_ajax_coyote_process_existing_posts', array($this, 'ajax_process_existing_posts'));
             add_action('wp_ajax_coyote_get_processing_progress', array($this, 'ajax_get_processing_progress'));
         }
+    }
+
+    public function ajax_process_existing_posts() {
+        check_ajax_referer('coyote-settings-ajax');
+
+        // verify it's a POST request
+        if(!$_POST['action']) {
+            return wp_die(-1, 404);
+        }
+
+        if (get_transient('coyote_process_posts_progress')) {
+            echo false;
+            return wp_die;
+        }
+
+        do_action('coyote_process_existing_posts', $this->profile);
+        echo true;
+        wp_die();
     }
 
     public function ajax_get_processing_progress() {
@@ -71,16 +89,6 @@ class SettingsController {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('coyote-settings-ajax')
         ));
-    }
-
-    public function run_tool($old, $new, $option) {
-        switch ($old) {
-            case 'process_existing_posts':
-                if ($this->profile) {
-                    do_action('coyote_process_existing_posts', $this->profile);
-                }
-            break;
-        }
     }
 
     public function verify_settings($old, $new, $option) {
@@ -144,12 +152,13 @@ class SettingsController {
         }
 
         submit_button();
-        $this->tools();
 
         echo "
                 </form>
             </div>
         ";
+
+        $this->tools();
     }
 
     public function tools() {
@@ -163,13 +172,7 @@ class SettingsController {
         $processing = get_transient('coyote_process_posts_progress');
         $disabled = $processing !== false ? 'disabled' : '';
 
-        $update = get_transient('coyote_posts_processed')
-            ? '<div id="coyote-posts-processed" class="notice notice-success"><p><strong>Posts processed.</strong></p></div>'
-            : ''
-        ;
-
         echo "
-            {$update}
             <hr>
             <h2>{$title}</h2>
         ";
@@ -179,14 +182,15 @@ class SettingsController {
         echo "
             <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
         ";
-    
-        if ($disabled) {
-            echo "
-                <div aria-live=\"assertive\" aria-atomic=\"true\">
-                    <strong id=\"coyote_process_existing_posts_progress\">" . __('Processing', 'coyote') . ": <span>{$processing}</span>%</strong>
-                    <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
-                </div>";
-        }
+
+        $hidden = $disabled ? '' : 'hidden';
+
+        echo "
+            <div id=\"coyote_processing_status\" {$hidden} aria-live=\"assertive\" aria-atomic=\"true\">
+                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span>{$processing}</span>%</strong>
+                <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
+            </div>
+        ";
     }
 
     public function menu() {
@@ -205,7 +209,6 @@ class SettingsController {
 
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
-        register_setting(self::page_slug, 'coyote__settings_tool');
 
         if ($this->profile) {
             register_setting(self::page_slug, 'coyote__api_settings_organization_id');

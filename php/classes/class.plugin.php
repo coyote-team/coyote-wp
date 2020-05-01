@@ -135,7 +135,6 @@ class Plugin {
     }
 
     public function process_existing_posts($profile) {
-        Logger::log($request);
         $this->process_posts_async_request->dispatch();
     }
 

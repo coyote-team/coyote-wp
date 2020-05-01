@@ -1,37 +1,73 @@
 window.addEventListener('DOMContentLoaded', function () {
     console.debug('[Coyote]', 'settings loaded');
 
-    const button = document.getElementById('coyote_process_existing_posts');
-    if (!button.hasAttribute('disabled')) {
-        return;
-    }
+    const hide = (selector) => document.querySelector(selector).setAttribute('hidden', '');
+    const show = (selector) => document.querySelector(selector).removeAttribute('hidden');
+    const disable = (selector) => document.querySelector(selector).setAttribute('disabled', '');
+    const enable = (selector) => document.querySelector(selector).removeAttribute('disabled');
 
-    const progress = document.querySelector('#coyote_process_existing_posts_progress span');
+    const ajaxUrl = (action) => {
+        const url = new URL(coyote_ajax_obj.ajax_url);
+        const params = {
+            _ajax_nonce: coyote_ajax_obj.nonce,
+            action: action
+        };
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+        return url;
+    };
 
-    const updateProgress = (url) => {
-        fetch(url)
+    const startProcessing = function () {
+        const formData = new FormData();
+
+        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+        formData.append('action', 'coyote_process_existing_posts');
+
+        fetch(coyote_ajax_obj.ajax_url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(reply => {
+            if (reply == "1") {
+                processExistingPostsButton.setAttribute('disabled', '');
+                hide('#coyote_processing_complete');
+                show('#coyote_processing_status');
+                show('#coyote_processing');
+                updateProgress();
+            }
+        });
+    };
+
+    const updateProgress = function () {
+        const percentage = document.querySelector('#coyote_processing_status span');
+
+        const update = (url) => {
+            fetch(url)
             .then(response => response.text())
             .then(data => {
                 if (data.length) {
-                    progress.textContent = data;
-                    setTimeout(() => updateProgress(url), 1000);
+                    percentage.textContent = data;
+                    setTimeout(() => update(url), 1000);
                     return;
                 }
 
-                progress.textContent = 100;
-                button.removeAttribute('disabled');
-                document.querySelector('#coyote_process_existing_posts_progress').setAttribute('hidden', '');
-                document.querySelector('#coyote_processing_complete').removeAttribute('hidden');
-
+                percentage.textContent = 100;
+                processExistingPostsButton.removeAttribute('disabled');
+                hide('#coyote_processing');
+                show('#coyote_processing_complete');
             });
+        };
+
+        const url = ajaxUrl('coyote_get_processing_progress');
+        update(url);
     };
 
-    const url = new URL(coyote_ajax_obj.ajax_url);
-    const params = {
-        _ajax_nonce: coyote_ajax_obj.nonce,
-        action: 'coyote_get_processing_progress'
-    };
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+    const processExistingPostsButton = document.getElementById('coyote_process_existing_posts');
 
-    updateProgress(url);
+    processExistingPostsButton.addEventListener('click', startProcessing);
+
+    if (processExistingPostsButton.hasAttribute('disabled')) {
+        return updateProgress();
+    }
+
 });

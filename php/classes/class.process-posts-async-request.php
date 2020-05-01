@@ -37,8 +37,8 @@ class ProcessPostsAsyncRequest extends WP_Async_Request {
             // simulate a post update
             Logger::log("Processing post {$post->ID}, {$processed} of {$total}");
             PostProcessHelper::processExistingPost($post);
-
             $processed++;
+
             $update_progress((int) (($processed / $total) * 100));
         }
 
