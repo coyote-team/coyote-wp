@@ -40,12 +40,37 @@ class SettingsController {
         $this->profile_fetch_failed = false;
         $this->profile = $this->get_profile();
 
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+
         add_action('admin_init', array($this, 'init'));
         add_action('admin_menu', array($this, 'menu'));
 
         add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
         add_action('pre_update_option_coyote__settings_tool', array($this, 'run_tool'), 10, 3);
+
+        if ($this->profile) {
+            add_action('wp_ajax_coyote_get_processing_progress', array($this, 'ajax_get_processing_progress'));
+        }
+    }
+
+    public function ajax_get_processing_progress() {
+        check_ajax_referer('coyote-settings-ajax');
+        echo get_transient('coyote_process_posts_progress');
+        wp_die();
+    }
+
+    public function enqueue_scripts() {
+        wp_enqueue_script(
+            'coyote_settings_js',
+            plugins_url('/coyote/asset/settings.js'),
+            false
+        );
+
+        wp_localize_script('coyote_settings_js', 'coyote_ajax_obj', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('coyote-settings-ajax')
+        ));
     }
 
     public function run_tool($old, $new, $option) {
@@ -152,13 +177,14 @@ class SettingsController {
         settings_fields(self::page_slug);
 
         echo "
-            <button {$disabled} type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
+            <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
         ";
     
         if ($disabled) {
             echo "
-                <div aria-live=\"polite\">
-                    <strong>Processing: {$processing}%.</strong>
+                <div aria-live=\"assertive\" aria-atomic=\"true\">
+                    <strong id=\"coyote_process_existing_posts_progress\">" . __('Processing', 'coyote') . ": <span>{$processing}</span>%</strong>
+                    <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
                 </div>";
         }
     }
