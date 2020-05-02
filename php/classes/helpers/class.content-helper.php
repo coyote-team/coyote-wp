@@ -14,12 +14,12 @@ class ContentHelper {
     public $content_is_modified = false;
 
     const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
-    const ALT_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
-    const SRC_REGEX = '/src\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+    const ALT_REGEX = '/alt\s*=\s*("|\')(.+?)(?!\\\\)\1/smi';
+    const SRC_REGEX = '/src\s*=\s*("|\')([^\1]+?)\1/smi';
     const COYOTE_ID_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1\s*/smi';
 
     // not just the value, also the attribute
-    const ALT_ATTR_REGEX = '/alt\s*=\s*("|\')(.*)(?!\\\\)\1/smi';
+    const ALT_ATTR_REGEX = '/alt\s*=\s*("|\')(.+?)(?!\\\\)\1/smi';
     const COYOTE_ID_ATTR_REGEX = '/\s+data-coyote-id\s*=\s*("|\')(.*?)(?!\\\\)\1/smi';
 
     // find a position to insert the coyote ID
