@@ -34,8 +34,8 @@ class SettingsController {
     }
 
     private function setup() {
-        $this->page_title = __('Coyote Plugin Settings', self::i18n_ns);
-        $this->menu_title = __('Coyote Plugin', self::i18n_ns);
+        $this->page_title = __('Coyote settings', self::i18n_ns);
+        $this->menu_title = __('Coyote', self::i18n_ns);
 
         $this->profile_fetch_failed = false;
         $this->profile = $this->get_profile();
