@@ -10,6 +10,7 @@ if (!defined( 'ABSPATH')) {
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/class.process-posts-async-request.php');
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
+require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
 require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
 require_once coyote_plugin_file('classes/controllers/class.settings-controller.php');
 
@@ -155,6 +156,11 @@ class Plugin {
 
     public function deactivate() {
         Logger::log("Deactivating plugin");
+        // don't trigger update filters when removing coyote ids
+        remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
+
+        PostProcessHelper::restoreImages();
+
         $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
         delete_option('coyote_plugin_is_activated');
         $this->is_activated = false;

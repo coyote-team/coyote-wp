@@ -9,6 +9,23 @@ if (!defined( 'ABSPATH')) {
 
 class DB {
 
+    public static function get_edited_post_ids() {
+        global $wpdb;
+        $query = "SELECT DISTINCT wp_post_id as id FROM " . COYOTE_JOIN_TABLE_NAME;
+        return $wpdb->get_col($query);
+    }
+
+    public static function get_resources_for_post($postId) {
+        global $wpdb;
+
+        $prepared_query = $wpdb->prepare(
+            "SELECT jt.*, image.original_description FROM " . COYOTE_JOIN_TABLE_NAME . " AS jt LEFT JOIN " . COYOTE_IMAGE_TABLE_NAME . " AS image ON image.coyote_resource_id = jt.coyote_resource_id WHERE jt.wp_post_id = %d",
+            $postId
+        );
+
+        return $wpdb->get_results($prepared_query);
+    }
+
     public static function associate_resources_with_post(array $resources, int $postID) {
         global $wpdb;
 

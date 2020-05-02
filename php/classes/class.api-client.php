@@ -36,7 +36,7 @@ class ApiClient {
     public function __construct(string $endpoint, string $token, string $organizationId = null, string $apiVersion = "1") {
         $this->httpClient = new \GuzzleHttp\Client([
             'base_uri' => ($endpoint . '/api/' . 'v' . $apiVersion . '/'),
-            'timeout'  => 2.0,
+            'timeout'  => 20.0,
             // disable exceptions, handle http 4xx-5xx internally
             'exceptions' => false,
             'headers' => ['Authorization' => $token]
@@ -120,6 +120,10 @@ class ApiClient {
         $list = array();
 
         foreach ($json->data as $item) {
+            if ($item->relationships->organization->data->id != $this->organizationId) {
+                continue;
+            }
+
             $altRepresentations = $mapRepresentations($item->relationships->representations->data, $json->included);
             $alt = count($altRepresentations) ? $altRepresentations[0]->attributes->text : null;
             $uri = $item->attributes->source_uri;

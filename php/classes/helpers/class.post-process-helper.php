@@ -19,6 +19,33 @@ use Coyote\ImageResource;
 
 class PostProcessHelper {
 
+    public static function restoreImages() {
+        $postIds = DB::get_edited_post_ids();
+        $amount = count($postIds);
+
+        Logger::log("Restoring images in {$amount} posts");
+
+        foreach ($postIds as $postId) {
+            Logger::log("Restoring images in post {$postId}");
+
+            $post = get_post($postId);
+            if (!$post) {
+                continue;
+            }
+
+            $resources = DB::get_resources_for_post($postId);
+            $helper = new ContentHelper($post->post_content);
+
+            foreach ($resources as $resource) {
+                $helper->restore_resource($resource->coyote_resource_id, $resource->original_description);
+            }
+
+            $post->post_content = $helper->get_content();
+
+            wp_update_post($post);
+        }
+    }
+
     public static function processExistingPost($post) {
         if (wp_check_post_lock($post->ID)) {
             Logger::log("Post {$post->ID} is locked for editing.");
