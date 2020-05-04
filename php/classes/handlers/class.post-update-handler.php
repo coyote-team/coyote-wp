@@ -16,8 +16,13 @@ use Coyote\Logger;
 class PostUpdateHandler {
 
     public static function run(array $data, array $postArr) {
-        if($postArr['post_type'] == 'revision') {
+        if ($postArr['post_type'] == 'revision') {
             return $data;
+        }
+
+        if (get_transient('coyote_process_posts_progress') !== false) {
+            Logger::log("Firing PostUpdateHandler while processing existing posts!");
+            return;
         }
 
         $postID = $postArr['ID'];

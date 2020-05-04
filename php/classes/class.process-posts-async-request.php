@@ -18,19 +18,12 @@ use Coyote\Helpers\ContentHelper;
 class ProcessPostsAsyncRequest extends WP_Async_Request {
     protected $action = 'coyote_process_existing_posts';
 
-    protected function handle() {
-        Logger::log('Processing existing posts');
-
+    private function processPosts($posts) {
         $update_progress = function ($progress) {
             set_transient('coyote_process_posts_progress', $progress);
         };
 
         $update_progress(0);
-
-        $posts = get_posts(array(
-            'numberposts' => -1, //all
-            'post_type' => array('post', 'page')
-        ));
 
         $post_images = array();
 
@@ -62,14 +55,33 @@ class ProcessPostsAsyncRequest extends WP_Async_Request {
         foreach ($posts as $post) {
             Logger::log("Processing post {$post->ID}, {$processed} of {$total}");
             $images = $post_images[$post->ID];
-            PostProcessHelper::processExistingPost($post, $images, $resources);
+
+            if ($count[$images]) {
+                PostProcessHelper::processExistingPost($post, $images, $resources);
+            }
+
             $processed++;
 
             $update_progress((int) (($processed / $total) * 100));
         }
+    }
+
+    protected function handle() {
+        Logger::log('Processing existing posts');
+
+        $posts = get_posts(array(
+            'numberposts' => -1, //all
+            'post_type' => array('post', 'page')
+        ));
+
+        try {
+            self::processPosts($posts);
+        } catch (Exception $error) {
+            Logger::log("Error processing existing posts: " . $error->getMessage());
+        } finally {
+            delete_transient('coyote_process_posts_progress');
+        }
 
         Logger::log('Done processing existing posts');
-
-        delete_transient('coyote_process_posts_progress');
     }
 }

@@ -29,7 +29,9 @@ class PostProcessHelper {
             Logger::log("Restoring images in post {$postId}");
 
             $post = get_post($postId);
+
             if (!$post) {
+                Logger::log("Unable to get post {$postId}, skipping");
                 continue;
             }
 
@@ -53,15 +55,18 @@ class PostProcessHelper {
         }
 
         $resources = array_reduce($images, function($carry, $image) use ($api_resources) {
+            // Skip the image if it's already linked
             if ($image["data-coyote-id"] !== null) {
                 return $carry;
             }
 
+            // this is defined if the api knows this resource
             $api_resource = array_key_exists($image['src'], $api_resources)
                 ? $api_resources[$image['src']]
                 : null
             ;
 
+            // construct into ImageResource abstraction
             $post_resource = new ImageResource($image, $api_resource);
 
             array_push($carry, $post_resource);

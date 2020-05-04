@@ -83,7 +83,7 @@ class Plugin {
 
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
-        if ($this->is_configured && get_transient('coyote_process_posts_progress') === false) {
+        if ($this->is_activated && $this->is_configured && get_transient('coyote_process_posts_progress') === false) {
             $this->process_posts_async_request = new ProcessPostsAsyncRequest();
             add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         }
@@ -159,11 +159,14 @@ class Plugin {
         // don't trigger update filters when removing coyote ids
         remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
 
-        PostProcessHelper::restoreImages();
-
-        $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
-        delete_option('coyote_plugin_is_activated');
-        $this->is_activated = false;
+        try {
+            PostProcessHelper::restoreImages();
+        } catch (Exception $error) {
+            Logger::log("Error restoring images: " . $error->getMessage());
+        } finally {
+            $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
+            delete_option('coyote_plugin_is_activated');
+        }
     }
 }
 
