@@ -119,7 +119,6 @@ class ContentHelper {
     }
 
     public function set_coyote_id(string $element, string $coyote_id) {
-
         $replacement_element = null;
 
         if (self::get_coyote_id($element) === null) {

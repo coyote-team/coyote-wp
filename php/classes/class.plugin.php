@@ -83,7 +83,9 @@ class Plugin {
 
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
-        if ($this->is_configured) {
+        // only allow post processing if there is a valid api configuration
+        // and there is not already a post-processing in place.
+        if ($this->is_configured && get_transient('coyote_process_posts_progress') === false) {
             $this->process_posts_async_request = new ProcessPostsAsyncRequest();
             add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         }
@@ -136,7 +138,21 @@ class Plugin {
     }
 
     public function process_existing_posts($profile) {
-        $this->process_posts_async_request->dispatch();
+        if ($this->process_posts_async_request) {
+            $this->process_posts_async_request->dispatch();
+        }
+    }
+
+    public static function get_api_client() {
+        global $coyote_plugin;
+        $client = new ApiClient(
+            $coyote_plugin->config["CoyoteApiEndpoint"],
+            $coyote_plugin->config["CoyoteApiToken"],
+            $coyote_plugin->config["CoyoteOrganizationId"],
+            $coyote_plugin->config["CoyoteApiVersion"]
+        );
+
+        return $client;
     }
 
     public function activate() {
