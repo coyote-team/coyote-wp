@@ -100,15 +100,20 @@ class ImageResource {
             }
 
             return;
-        }
+        } else {
+            // in case of multiple identical images per post, this can
+            // already exist in the database
+            $record = DB::get_image_by_hash($hash);
 
-        // this image is not in coyote, so it won't be in the db either
-        // create a new resource and store the ID in the db
-        $record = $this->createAndInsert($hash, $this->image['src'], $alt);
+            if (!$record) {
+                // No database or coyote record - create a resource.
+                $record = $this->createAndInsert($hash, $this->image['src'], $alt);
+            }
 
-        // couldn't create the record
-        if ($record === null) {
-            return;
+            if ($record === null) {
+                Logger::log("No resource could be created for \"" . $this->image['src'] . "\"");
+                return;
+            }
         }
 
         $this->coyote_resource_id = $record->coyote_resource_id;
@@ -119,12 +124,16 @@ class ImageResource {
     private function createAndInsert(string $hash, string $src, string $alt) {
         // if we get here, no resource for this image existed in coyote
 
+
         $resourceId = self::getApiClient()->createNewResource($src, $alt);
 
         // failed. Client configuration error?
         if ($resourceId === null) {
+            Logger::log("Failed to create resource for source_uri \"{$src}\"");
             return null;
         }
+
+        Logger::log("Created resource for source_uri \"{$src}\": {$resourceId}");
 
         DB::insert_image($hash, $src, $alt, $resourceId, null);
 
