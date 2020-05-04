@@ -81,28 +81,12 @@ class Plugin {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
-
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
         if ($this->is_configured && get_transient('coyote_process_posts_progress') === false) {
             $this->process_posts_async_request = new ProcessPostsAsyncRequest();
             add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         }
-    }
-
-    public function enqueue_scripts() {
-        $requirements = array(
-            'wp-blocks',
-            'wp-components',
-            'wp-compose',
-            'wp-dom-ready',
-            'wp-editor',
-            'wp-element',
-            'wp-hooks'
-        );
-
-        wp_enqueue_script('coyote_editor_javascript', '/wp-content/plugins/coyote/asset/editor.js', $requirements);
     }
 
     private function replace_sql_variables(string $sql) {
