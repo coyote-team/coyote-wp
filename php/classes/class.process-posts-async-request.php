@@ -49,14 +49,14 @@ class ProcessPostsAsyncRequest extends WP_Async_Request {
         $uris = array_keys($uris);
         $resources = Plugin::get_api_client()->getResourcesBySourceUris($uris);
 
-        $processed = 0;
+        $processed = 1;
         $total = count($posts);
 
         foreach ($posts as $post) {
             Logger::log("Processing post {$post->ID}, {$processed} of {$total}");
             $images = $post_images[$post->ID];
 
-            if ($count[$images]) {
+            if (count([$images])) {
                 PostProcessHelper::processExistingPost($post, $images, $resources);
             }
 

@@ -21,8 +21,8 @@ class PostUpdateHandler {
         }
 
         if (get_transient('coyote_process_posts_progress') !== false) {
-            Logger::log("Firing PostUpdateHandler while processing existing posts!");
-            return;
+            Logger::log("Firing PostUpdateHandler while processing existing posts, skipping");
+            return $data;
         }
 
         $postID = $postArr['ID'];
