@@ -9,7 +9,9 @@ if (!defined( 'ABSPATH')) {
 
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
+require_once coyote_plugin_file('classes/class.batch-post-processor.php');
 
+use Coyote\BatchPostProcessorState;
 use Coyote\Helpers\PostProcessHelper;
 use Coyote\Logger;
 
@@ -20,13 +22,16 @@ class PostUpdateHandler {
             return $data;
         }
 
-        if (get_transient('coyote_process_posts_progress') !== false) {
-            Logger::log("Firing PostUpdateHandler while processing existing posts, skipping");
-            return $data;
+        $post_id = $postArr['ID'];
+
+        if ($state = BatchPostProcessorState::load()) {
+            if ($state->current_post_id() === $post_id) {
+                Logger::log("Firing PostUpdateHandler while processing existing post {$post_id}, skipping");
+                return $data;
+            }
         }
 
-        $postID = $postArr['ID'];
-        $processed = PostProcessHelper::processPostContent(wp_unslash($data['post_content']), $postID);
+        $processed = PostProcessHelper::processPostContent(wp_unslash($data['post_content']), $post_id);
         $data['post_content'] = wp_slash($processed->content);
 
         return $data;
