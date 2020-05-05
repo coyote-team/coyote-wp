@@ -26,19 +26,20 @@ class DB {
         return $wpdb->get_results($prepared_query);
     }
 
-    public static function associate_resources_with_post(array $resources, int $postID) {
+    public static function associate_resource_ids_with_post(array $resource_ids, int $postID) {
         global $wpdb;
 
-        foreach ($resources as $resource) {
+        foreach ($resource_ids as $id) {
             $wpdb->replace(
                 COYOTE_JOIN_TABLE_NAME,
                 array(
-                    'coyote_resource_id' => $resource->coyote_resource_id,
+                    'coyote_resource_id' => $id,
                     'wp_post_id' => $postID
                 ), array("%d", "%d")
             );
         }
     }
+
 
     public static function insert_image($hash, $src, $alt, $resourceId, $resourceAlt) {
         global $wpdb;

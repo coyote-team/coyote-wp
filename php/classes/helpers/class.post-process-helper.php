@@ -48,61 +48,6 @@ class PostProcessHelper {
         }
     }
 
-    public static function processExistingPost($post, $images, $api_resources) {
-        if (wp_check_post_lock($post->ID)) {
-            Logger::log("Post {$post->ID} is locked for editing.");
-            return;
-        }
-
-        $resources = array_reduce($images, function($carry, $image) use ($api_resources) {
-            // Skip the image if it's already linked
-            if ($image["data-coyote-id"] !== null) {
-                return $carry;
-            }
-
-            // this is defined if the api knows this resource
-            $api_resource = array_key_exists($image['src'], $api_resources)
-                ? $api_resources[$image['src']]
-                : null
-            ;
-
-            // construct into ImageResource abstraction
-            $post_resource = new ImageResource($image, $api_resource);
-
-            array_push($carry, $post_resource);
-
-            return $carry;
-        }, array());
-
-        $helper = new ContentHelper($post->post_content);
-        $associated = array();
-
-        foreach ($resources as $resource) {
-            // The retrieval or creation of the coyote resource was successful
-            if ($resource->coyote_resource_id !== null) {
-                $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
-                $helper->set_coyote_id_and_alt($resource->image["element"], $resource->coyote_resource_id, $alt);
-                array_push($associated, $resource);
-            }
-        }
-
-        if (!$helper->content_is_modified) {
-            Logger::log("No modifications made, done.");
-            return;
-        }
-
-        $post->post_content = $helper->get_content();
-        $result = wp_update_post($post, true);
-
-        if (is_wp_error($result)) {
-            Logger::log("Couldn't process post {$post->ID}: {$result->get_error_message()}");
-        } else {
-            Logger::log("Processed post {$post->ID}.");
-            //if the post update succeeded, then associate the resources with the post
-            DB::associate_resources_with_post($associated, $post->ID);
-        }
-    }
-
     public static function processPostContent(string $postContent, string $postID) {
         Logger::log("Processing update on post " . $postID);
 
@@ -122,7 +67,7 @@ class PostProcessHelper {
             if ($resource->coyote_resource_id !== null) {
                 $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
                 $helper->set_coyote_id_and_alt($resource->image["element"], $resource->coyote_resource_id, $alt);
-                array_push($associated, $resource);
+                array_push($associated->coyote_resource_id, $resource);
             }
         }
 
@@ -135,7 +80,7 @@ class PostProcessHelper {
         }
 
         //if the post update succeeded, then associate the resources with the post
-        DB::associate_resources_with_post($associated, $postID);
+        DB::associate_resource_ids_with_post($associated, $postID);
 
         return (object) array(
             "content" => $helper->get_content(),

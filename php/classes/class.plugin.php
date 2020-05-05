@@ -8,14 +8,13 @@ if (!defined( 'ABSPATH')) {
 }
 
 require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/class.process-posts-async-request.php');
-require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
+require_once coyote_plugin_file('classes/class.batch-post-processor.php');
 require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
 require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
 require_once coyote_plugin_file('classes/controllers/class.settings-controller.php');
 
 use Coyote\Logger;
-use Coyote\ProcessPostsAsyncRequest;
+use Coyote\BatchPostProcessor;
 use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Helpers\PostProcessHelper;
 use Coyote\Controllers\RestApiController;
@@ -62,7 +61,6 @@ class Plugin {
 
         if (get_option('coyote__api_profile')) {
             $this->is_configured = true;
-            add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
         }
 
         $this->config = $_config;
@@ -83,9 +81,10 @@ class Plugin {
 
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
-        if ($this->is_activated && $this->is_configured && get_transient('coyote_process_posts_progress') === false) {
-            $this->process_posts_async_request = new ProcessPostsAsyncRequest();
-            add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+        if ($this->is_activated && $this->is_configured) {
+            add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
+            //add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+            $this->batch_processor = new AsyncPostProcessProcess();
         }
     }
 
@@ -122,9 +121,7 @@ class Plugin {
     }
 
     public function process_existing_posts($profile) {
-        if ($this->process_posts_async_request) {
-            $this->process_posts_async_request->dispatch();
-        }
+        $this->batch_processor->dispatch();
     }
 
     public static function get_api_client() {
