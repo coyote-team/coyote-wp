@@ -9,9 +9,11 @@ if (!defined( 'ABSPATH')) {
 
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/class.api-client.php');
+require_once coyote_plugin_file('classes/class.batch-post-processor.php');
 
 use Coyote\Logger;
 use Coyote\ApiClient;
+use Coyote\BatchPostProcessorState;
 
 class SettingsController {
     private $version;
@@ -62,7 +64,7 @@ class SettingsController {
             return wp_die(-1, 404);
         }
 
-        if (get_transient('coyote_process_posts_progress')) {
+        if (BatchPostProcessorState::load()) {
             echo false;
             return wp_die;
         }
@@ -74,7 +76,11 @@ class SettingsController {
 
     public function ajax_get_processing_progress() {
         check_ajax_referer('coyote-settings-ajax');
-        echo get_transient('coyote_process_posts_progress');
+
+        if ($state = BatchPostProcessorState::load()) {
+            echo $state->get_progress_percentage();
+        }
+
         wp_die();
     }
 

@@ -16,8 +16,6 @@ if (!defined( 'ABSPATH')) {
 require_once ('vendor/autoload.php');
 require_once('php/media-template.php');
 
-error_log('Loading Coyote plugin');
-
 define('COYOTE_PLUGIN_NAME', 'coyote');
 define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
