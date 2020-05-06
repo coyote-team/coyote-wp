@@ -21,18 +21,20 @@ class BatchPostProcessorState {
     public $total;
     public $batch_size;
     public $post_types;
+    public $post_statuses;
 
-    public function __construct($state, $total, $batch_size, $post_types) {
+    public function __construct($state, $total, $batch_size, $post_types, $post_statuses) {
         $this->state = $state;
 
         $this->total = $total;
         $this->batch_size = $batch_size;
         $this->post_types = $post_types;
+        $this->post_statuses = $post_statuses;
 
         $this->persist();
     }
 
-    public static function create($total, $batch_size, $post_types) {
+    public static function create($total, $batch_size, $post_types, $post_statuses) {
         $state = array(
             'skipped_post_ids'   => array(),
             'failed_post_ids'    => array(),
@@ -45,11 +47,12 @@ class BatchPostProcessorState {
             'total_posts'        => $total,
             'batch_size'         => $batch_size,
             'post_types'         => $post_types,
+            'post_statuses'      => $post_statuses,
 
             'last_update'        => null
         );
 
-        return new BatchPostProcessorState($state, $total, $batch_size, $post_types);
+        return new BatchPostProcessorState($state, $total, $batch_size, $post_types, $post_statuses);
     }
 
     public function set_batch($posts, $resources) {
@@ -79,7 +82,7 @@ class BatchPostProcessorState {
             return null;
         }
 
-        return new BatchPostProcessorState($state, $state['total_posts'], $state['batch_size'], $state['post_types']);
+        return new BatchPostProcessorState($state, $state['total_posts'], $state['batch_size'], $state['post_types'], $state['post_statuses']);
     }
 
     public function persist() {
@@ -142,20 +145,17 @@ class BatchPostProcessor {
 
     private $state;
 
-    public function __construct($batch_size = 50, $post_types = array('page', 'post')) {
+    public function __construct($batch_size = 50, $post_types = array('page', 'post'), $post_statuses = array('published')) {
         if ($state = BatchPostProcessorState::load()) {
             $this->state = $state;
             return;
         }
 
-        // get a total post count
-        $all_posts = get_posts(array(
-            'numberposts' => -1, //all posts
-            'post_type' => $post_types
-        ));
+        $total_posts = array_reduce($post_types, function($carry, $type) {
+            return $carry + wp_count_posts($type)->publish;
+        }, 0);
 
-        $total = count($all_posts);
-        $state = BatchPostProcessorState::create($total, $batch_size, $post_types);
+        $state = BatchPostProcessorState::create($total_posts, $batch_size, $post_types, $post_statuses);
 
         $this->state = $state;
 
@@ -170,7 +170,8 @@ class BatchPostProcessor {
             'order_by'    => 'ID',
             'offset'      => $this->state->get_offset(),
             'numberposts' => $this->state->batch_size,
-            'post_type'   => $this->state->post_types
+            'post_type'   => $this->state->post_types,
+            'post_status' => $this->state->post_statuses
         ));
 
         if (!count($batch)) {
@@ -178,6 +179,8 @@ class BatchPostProcessor {
             $this->state->destroy();
             return false;
         }
+
+        Logger::log('Batch size: (' . count($batch) . ')'); 
 
         $resources = $this->fetch_resources($batch);
         $this->state->set_batch($batch, $resources);
@@ -211,6 +214,7 @@ class BatchPostProcessor {
     public function process_next() {
         if ($next_post_id = $this->state->shift_next_post_id()) {
             $this->state->persist();
+            Logger::log($this->state->get_progress_percentage() . '% complete');
             return $this->process($next_post_id);
         }
 
@@ -308,7 +312,7 @@ class AsyncPostProcessProcess extends WP_Async_Request {
     protected $action = 'coyote_process_post_async';
 
     protected function handle() {
-        $processor = new BatchPostProcessor();
+        $processor = new BatchPostProcessor(5);
         if (!$processor->is_finished()) {
             $processor->process_next();
             $this->dispatch();

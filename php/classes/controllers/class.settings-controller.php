@@ -175,8 +175,12 @@ class SettingsController {
         $title  = __("Tools", self::i18n_ns);
         $action = plugins_url(COYOTE_PLUGIN_NAME . "/php/public/tools.php");
 
-        $processing = get_transient('coyote_process_posts_progress');
-        $disabled = $processing !== false ? 'disabled' : '';
+        $processing = BatchPostProcessorState::load();
+        if ($processing !== null) {
+            $processing = $processing->get_progress_percentage();
+        }
+
+        $disabled = $processing !== null ? 'disabled' : '';
 
         echo "
             <hr>
