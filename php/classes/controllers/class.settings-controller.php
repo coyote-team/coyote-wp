@@ -64,12 +64,12 @@ class SettingsController {
             return wp_die(-1, 404);
         }
 
-        if (BatchPostProcessorState::load()) {
+        if (BatchPostProcessorState::exists()) {
             echo false;
             return wp_die;
         }
 
-        do_action('coyote_process_existing_posts', $this->profile);
+        do_action('coyote_process_existing_posts');
         echo true;
         wp_die();
     }
@@ -77,7 +77,7 @@ class SettingsController {
     public function ajax_get_processing_progress() {
         check_ajax_referer('coyote-settings-ajax');
 
-        if ($state = BatchPostProcessorState::load()) {
+        if ($state = BatchPostProcessorState::load($refresh = false)) {
             echo $state->get_progress_percentage();
         }
 

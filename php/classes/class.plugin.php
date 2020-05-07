@@ -23,6 +23,7 @@ use Coyote\Controllers\SettingsController;
 
 class Plugin {
     private $is_activated = false;
+    private $is_admin = false;
     private $process_posts_async_request;
 
     private $file;
@@ -44,10 +45,7 @@ class Plugin {
 
         $this->file = $file;
         $this->version = $version;
-
-        if ($is_admin) {
-            $_settings = new SettingsController($this->version);
-        }
+        $this->is_admin = $is_admin;
 
         $this->setup();
     }
@@ -70,7 +68,20 @@ class Plugin {
     private function setup() {
         $this->load_config();
 
-        $controller = new RestApiController($this->version);
+        (new RestApiController($this->version));
+
+        if ($this->is_admin) {
+            (new SettingsController($this->version));
+
+            // only allow post processing if there is a valid api configuration
+            // and there is not already a post-processing in place.
+            if ($this->is_activated && $this->is_configured) {
+                add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
+                add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+                $this->batch_processor = new AsyncPostProcessProcess();
+
+            }
+        }
 
         // $wpdb becomes available here
         global $wpdb;
@@ -80,12 +91,13 @@ class Plugin {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
-        // only allow post processing if there is a valid api configuration
-        // and there is not already a post-processing in place.
-        if ($this->is_activated && $this->is_configured) {
-            add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
-            add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
-            $this->batch_processor = new AsyncPostProcessProcess();
+        add_action('plugins_loaded', array($this, 'loaded'), 10, 0);
+    }
+
+    public function loaded() {
+        // The loading order for this is important, otherwise required WP functions aren't available
+        if ($this->is_activated && $this->is_configured && BatchPostProcessorState::has_stale_state()) {
+            do_action('coyote_process_existing_posts');
         }
     }
 
@@ -121,7 +133,7 @@ class Plugin {
         $this->run_sql_query($sql); 
     }
 
-    public function process_existing_posts($profile) {
+    public function process_existing_posts() {
         $this->batch_processor->dispatch();
     }
 
