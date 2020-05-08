@@ -47,45 +47,4 @@ class PostProcessHelper {
             wp_update_post($post);
         }
     }
-
-    public static function processPostContent(string $postContent, string $postID) {
-        Logger::log("Processing update on post " . $postID);
-
-        $helper = new ContentHelper($postContent);
-        $images = $helper->get_images_with_attributes();
-
-        $resources = ImageResource::map($images);
-        $associated = array();
-
-        foreach ($resources as $resource) {
-            if ($resource->image["data-coyote-id"] !== null) {
-                //already linked
-                continue;
-            }
-
-            // The retrieval or creation of the coyote resource was successful
-            if ($resource->coyote_resource_id !== null) {
-                $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
-                $helper->set_coyote_id_and_alt($resource->image["element"], $resource->coyote_resource_id, $alt);
-                array_push($associated->coyote_resource_id, $resource);
-            }
-        }
-
-        if (!$helper->content_is_modified) {
-            Logger::log("No modifications made, done.");
-            return (object) array(
-                "content" => $helper->get_content(),
-                "modified" => false
-            );
-        }
-
-        //if the post update succeeded, then associate the resources with the post
-        DB::associate_resource_ids_with_post($associated, $postID);
-
-        return (object) array(
-            "content" => $helper->get_content(),
-            "modified" => true
-        );
-    }
-
 }

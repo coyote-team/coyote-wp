@@ -76,10 +76,12 @@ class Plugin {
             // only allow post processing if there is a valid api configuration
             // and there is not already a post-processing in place.
             if ($this->is_activated && $this->is_configured) {
+                Logger::log("Configuring hooks");
                 add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
                 add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
                 $this->batch_processor = new AsyncPostProcessProcess();
-
+            } else {
+                Logger::log("Not activated or configured; skipping hooks");
             }
         }
 

@@ -302,18 +302,15 @@ class BatchPostProcessor {
         // do processing
         try {
             $content = $this->process_post($post, $resources);
+            Logger::log("Done processing {$post_id}");
+            $this->state->complete_current()->persist();
         } catch (Exception $error) {
             $message = $error->get_error_message();
             Logger::log("Failed to process {$post_id}: {$message}");
-
             $this->state->fail_current()->persist();
         } finally {
             //TODO unlock the post for editing
         }
-
-        Logger::log("Done processing {$post_id}");
-
-        $this->state->complete_current()->persist();
     }
 
     private function process_post($post, $resources) {
