@@ -328,6 +328,10 @@ class BatchPostProcessor {
             }
 
             if ($resource = $resources[$image['src']]) {
+                if (!$resource['id']) {
+                    Logger::log("Resource for {$image['src']} has no id? Skipping");
+                    continue;
+                }
                 $alt = $resource['alt'] === null ? '' : $resource['alt'];
                 $helper->set_coyote_id_and_alt($image['element'], $resource['id'], $alt);
                 Logger::log("Associated {$resource['id']} with image {$image['src']} in post {$post->ID}");
