@@ -127,7 +127,7 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                         }
 
                         return array(
-                                'timeout'   => 2.0,
+                                'timeout'   => 0,
                                 'blocking'  => false,
                                 'body'      => $this->data,
                                 'cookies'   => $_COOKIE,
