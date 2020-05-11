@@ -68,7 +68,9 @@ class Plugin {
     private function setup() {
         $this->load_config();
 
-        (new RestApiController($this->version));
+        if ($this->is_activated && $this->is_configured) {
+            (new RestApiController($this->version));
+        }
 
         if ($this->is_admin) {
             (new SettingsController($this->version));
