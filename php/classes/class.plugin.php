@@ -137,7 +137,16 @@ class Plugin {
         $this->run_sql_query($sql); 
     }
 
-    public function process_existing_posts() {
+    public function process_existing_posts($batch_size = 5) {
+        $batch_size = isset($_POST['batchSize']) ? intval($_POST['batchSize']) : $batch_size;
+
+        // minimum batch size
+        if ($batch_size < 1) { $batch_size = 1; }
+
+        // maximum batch size
+        else if ($batch_size > 500) { $batch_size = 500; }
+
+        $this->batch_processor->data(array('batch_size' => $batch_size));
         $this->batch_processor->dispatch();
     }
 

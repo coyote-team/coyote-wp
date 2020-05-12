@@ -361,7 +361,7 @@ class AsyncPostProcessProcess extends WP_Async_Request {
     protected $action = 'coyote_process_post_async';
 
     protected function handle() {
-        $processor = new BatchPostProcessor(5);
+        $processor = new BatchPostProcessor($_POST['batch_size']);
         if (!$processor->is_finished()) {
             $processor->process_next();
             $this->dispatch();

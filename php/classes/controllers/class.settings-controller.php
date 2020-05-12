@@ -182,15 +182,19 @@ class SettingsController {
 
         $disabled = $processing !== null ? 'disabled' : '';
 
+        $batch_size = get_option('coyote__processing_batch_size', 50);
+
         echo "
             <hr>
             <h2>{$title}</h2>
         ";
 
-        settings_fields(self::page_slug);
-
         echo "
-            <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" name=\"coyote__settings_tool\" value=\"process_existing_posts\" class=\"button button-primary\">Process existing posts</button>
+            <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" class=\"button button-primary\">" . __('Process existing posts', self::i18n_ns) . "</button>
+            <div class=\"form-group\">
+                <label for=\"\">" . __('Batch size', self::i18n_ns) . "</label>
+                <input {$disabled} id=\"batch_size\" type=\"text\" size=\"2\" maxlength=\"2\" value=\"{$batch_size}\">
+            </div>
         ";
 
         $hidden = $disabled ? '' : 'hidden';

@@ -21,6 +21,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
         formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
         formData.append('action', 'coyote_process_existing_posts');
+        formData.append('batchSize', document.getElementById('batch_size').value);
 
         fetch(coyote_ajax_obj.ajax_url, {
             method: 'POST',
