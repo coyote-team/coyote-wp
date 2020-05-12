@@ -70,6 +70,8 @@ class ResourceUpdateHandler {
             if (is_wp_error($result)) {
                 throw $result;
             }
+
+            wp_save_post_revision($post_id);
         }
 
         return true;

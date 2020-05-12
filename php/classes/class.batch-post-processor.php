@@ -350,6 +350,7 @@ class BatchPostProcessor {
         if (is_wp_error($result)) {
             throw $result;
         } else {
+            wp_save_post_revision($post->ID);
             //if the post update succeeded, then associate the resources with the post
             DB::associate_resource_ids_with_post($associated, $post->ID);
         }
