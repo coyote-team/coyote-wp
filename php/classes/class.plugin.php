@@ -68,6 +68,9 @@ class Plugin {
     private function setup() {
         $this->load_config();
 
+        add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
+
+
         if ($this->is_activated && $this->is_configured) {
             (new RestApiController($this->version));
         }
@@ -103,6 +106,14 @@ class Plugin {
         if ($this->is_activated && $this->is_configured && BatchPostProcessorState::has_stale_state()) {
             do_action('coyote_process_existing_posts');
         }
+    }
+
+    public function add_action_links($links) {
+        $settings_links = array(
+            '<a href="' . admin_url('options-general.php?page=coyote_fields') . '"> ' . __('Settings') . '</a>',
+        );
+
+        return array_merge($links, $settings_links);
     }
 
     private function replace_sql_variables(string $sql) {
