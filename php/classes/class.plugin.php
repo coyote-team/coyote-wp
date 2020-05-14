@@ -104,7 +104,6 @@ class Plugin {
 
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
-        Logger::log("Configuring hooks");
         add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
         $this->async_process_request = new AsyncProcessRequest();
     }

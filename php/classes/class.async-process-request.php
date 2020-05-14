@@ -12,10 +12,13 @@ class AsyncProcessRequest extends WP_Async_Request {
     protected $action = 'coyote_process_post_async';
 
     protected function handle() {
-        $processor = new BatchPostProcessor($_POST['batch_size']);
+        $batch_size = $_POST['batch_size'];
+
+        $processor = new BatchPostProcessor($batch_size);
+
         if (!$processor->is_finished()) {
             $processor->process_next();
-            $this->dispatch();
+            $this->data(array('batch_size' => $batch_size))->dispatch();
         }
     }
 }
