@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Coyote API Client Class
+ * Coyote API Client
  * @author Job van Achterberg
  * @category class
  * @package Coyote\ApiClient
@@ -27,25 +27,25 @@ class ApiClient {
      * @param int apiVersion API version to use
      */
 
-    private $organizationId = null;
-    private $httpClient;
+    private $organization_id = null;
+    private $guzzle_client;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
-    public function __construct(string $endpoint, string $token, string $organizationId = null, string $apiVersion = "1") {
-        $this->httpClient = new \GuzzleHttp\Client([
-            'base_uri' => ($endpoint . '/api/' . 'v' . $apiVersion . '/'),
+    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = "1") {
+        $this->guzzle_client = new \GuzzleHttp\Client([
+            'base_uri' => ($endpoint . '/api/' . 'v' . $api_version . '/'),
             'timeout'  => 20.0,
             // disable exceptions, handle http 4xx-5xx internally
             'exceptions' => false,
             'headers' => ['Authorization' => $token]
         ]);
 
-        $this->organizationId = $organizationId;
+        $this->organization_id = $organization_id;
     }
 
-    private function getResponseJson($expected_code, $response) {
+    private function get_response_json($expected_code, $response) {
         if ($response->getStatusCode() === $expected_code) {
             $json = json_decode($response->getBody());
 
@@ -57,44 +57,44 @@ class ApiClient {
         return null;
     }
 
-    public function createNewResource(string $source_uri, string $alt) {
+    public function create_new_resource(string $source_uri, string $alt) {
         $resource = array(
             "source_uri"    => $source_uri,
             "resource_type" => "still_image"
         );
 
-        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources", array('json' => $resource));
+        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources", array('json' => $resource));
 
-        if ($json = $this->getResponseJson(self::HTTP_CREATED, $response)) {
+        if ($json = $this->get_response_json(self::HTTP_CREATED, $response)) {
             return $json->data->id;
         }
 
         return null;
     }
 
-    public function getResourceById(int $resourceId) {
-        $response = $this->httpClient->get('resources/' . $resourceId);
-        return $this->getResponseJson(self::HTTP_OK, $response);
+    public function get_resource_by_id(int $resource_id) {
+        $response = $this->guzzle_client->get('resources/' . $resource_id);
+        return $this->get_response_json(self::HTTP_OK, $response);
     }
 
-    public function getResourcesBySourceUris(array $sourceUris) {
-        $uris = join(" ", array_unique($sourceUris));
+    public function get_resources_by_source_uris(array $source_uris) {
+        $uris = join(" ", array_unique($source_uris));
         $query = array(
             'filter' => array('source_uri_eq_any' => $uris)
         );
 
-        $response = $this->httpClient->post("organizations/{$this->organizationId}/resources/get", array('json' => $query));
-        $json = $this->getResponseJson(self::HTTP_OK, $response);
+        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/get", array('json' => $query));
+        $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
             return array();
         }
 
-        return $this->jsonToIdAndAlt($json);
+        return $this->json_to_id_and_alt($json);
     }
 
-    private function jsonToIdAndAlt($json) {
-        $mapRepresentations = function($representations, $included) {
+    private function json_to_id_and_alt($json) {
+        $map_representations = function($representations, $included) {
             return array_reduce($representations, function ($carry, $representation) use ($included) {
                 if ($representation->type !== "representation") {
                     return $carry;
@@ -124,8 +124,8 @@ class ApiClient {
                 continue;
             }
 
-            $altRepresentations = $mapRepresentations($item->relationships->representations->data, $json->included);
-            $alt = count($altRepresentations) ? $altRepresentations[0]->attributes->text : null;
+            $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
+            $alt = count($alt_representations) ? $alt_representations[0]->attributes->text : null;
             $uri = $item->attributes->source_uri;
 
             $list[$uri] = (object) array(
@@ -138,9 +138,9 @@ class ApiClient {
         return $list;
     }
 
-    public function getProfile() {
-        $response = $this->httpClient->get('profile');
-        $json = $this->getResponseJson(self::HTTP_OK, $response);
+    public function get_profile() {
+        $response = $this->guzzle_client->get('profile');
+        $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
             return null;
@@ -148,12 +148,12 @@ class ApiClient {
 
         return (object) array(
             "id" => $json->data->id,
-            "name" => $this->getProfileName($json),
-            "organizations" => $this->getProfileOrganizations($json)
+            "name" => $this->get_profile_name($json),
+            "organizations" => $this->get_profile_organizations($json)
         );
     }
 
-    private function getProfileName($json) {
+    private function get_profile_name($json) {
         $data = $json->data;
         return
             $data->attributes->first_name .
@@ -161,7 +161,7 @@ class ApiClient {
             $data->attributes->last_name;
     }
 
-    private function getProfileOrganizations($json) {
+    private function get_profile_organizations($json) {
         $reducer = function($carry, $item) {
             if ($item->type === "organization") {
                 array_push($carry, array(

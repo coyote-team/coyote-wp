@@ -102,7 +102,7 @@ class SettingsController {
         $endpoint = get_option('coyote__api_settings_endpoint');
         $client = new ApiClient($endpoint, $token);
 
-        $profile = $client->getProfile();
+        $profile = $client->get_profile();
 
         if ($profile) {
             $stored_profile = get_option('coyote__api_profile');
@@ -130,7 +130,7 @@ class SettingsController {
         $profile = get_option('coyote__api_profile', null);
 
         if (!$profile) {
-            if ($profile = $client->getProfile()) {
+            if ($profile = $client->get_profile()) {
                 add_option('coyote__api_profile', $profile);
                 add_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
             } else if ($endpoint && $token) {

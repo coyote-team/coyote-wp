@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Coyote Plugin
+ * @package Coyote\Plugin
+ */
+
+
 namespace Coyote;
 
 // Exit if accessed directly.
@@ -8,14 +14,14 @@ if (!defined( 'ABSPATH')) {
 }
 
 require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/class.batch-post-processor.php');
+require_once coyote_plugin_file('classes/class.async-process-request.php');
 require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
 require_once coyote_plugin_file('classes/handlers/class.post-update-handler.php');
 require_once coyote_plugin_file('classes/controllers/class.rest-api-controller.php');
 require_once coyote_plugin_file('classes/controllers/class.settings-controller.php');
 
 use Coyote\Logger;
-use Coyote\BatchPostProcessor;
+use Coyote\AsyncProcessRequest;
 use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Helpers\PostProcessHelper;
 use Coyote\Controllers\RestApiController;
@@ -66,30 +72,6 @@ class Plugin {
     }
 
     private function setup() {
-        $this->load_config();
-
-        add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
-
-
-        if ($this->is_activated && $this->is_configured) {
-            (new RestApiController($this->version));
-        }
-
-        if ($this->is_admin) {
-            (new SettingsController($this->version));
-
-            // only allow post processing if there is a valid api configuration
-            // and there is not already a post-processing in place.
-            if ($this->is_activated && $this->is_configured) {
-                Logger::log("Configuring hooks");
-                add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
-                add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
-                $this->batch_processor = new AsyncPostProcessProcess();
-            } else {
-                Logger::log("Not activated or configured; skipping hooks");
-            }
-        }
-
         // $wpdb becomes available here
         global $wpdb;
         define('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . 'coyote_image_resource');
@@ -98,12 +80,38 @@ class Plugin {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
+        $this->load_config();
+
+        if (!$this->is_activated) {
+            return;
+        }
+
+        add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
+
+        if (!$this->is_configured) {
+            return;
+        }
+
+        (new RestApiController($this->version));
+        add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         add_action('plugins_loaded', array($this, 'loaded'), 10, 0);
+
+        if (!$this->is_admin) {
+            return;
+        }
+
+        (new SettingsController($this->version));
+
+        // only allow post processing if there is a valid api configuration
+        // and there is not already a post-processing in place.
+        Logger::log("Configuring hooks");
+        add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
+        $this->async_process_request = new AsyncProcessRequest();
     }
 
     public function loaded() {
         // The loading order for this is important, otherwise required WP functions aren't available
-        if ($this->is_activated && $this->is_configured && BatchPostProcessorState::has_stale_state()) {
+        if (BatchPostProcessorState::has_stale_state()) {
             do_action('coyote_process_existing_posts');
         }
     }
@@ -157,20 +165,8 @@ class Plugin {
         // maximum batch size
         else if ($batch_size > 500) { $batch_size = 500; }
 
-        $this->batch_processor->data(array('batch_size' => $batch_size));
-        $this->batch_processor->dispatch();
-    }
-
-    public static function get_api_client() {
-        global $coyote_plugin;
-        $client = new ApiClient(
-            $coyote_plugin->config["CoyoteApiEndpoint"],
-            $coyote_plugin->config["CoyoteApiToken"],
-            $coyote_plugin->config["CoyoteOrganizationId"],
-            $coyote_plugin->config["CoyoteApiVersion"]
-        );
-
-        return $client;
+        $this->async_process_request->data(array('batch_size' => $batch_size));
+        $this->async_process_request->dispatch();
     }
 
     public function activate() {
@@ -194,7 +190,8 @@ class Plugin {
         remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
 
         try {
-            PostProcessHelper::restoreImages();
+            //TODO get this setting from config
+            PostProcessHelper::restore_images();
         } catch (Exception $error) {
             Logger::log("Error restoring images: " . $error->getMessage());
         } finally {

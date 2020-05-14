@@ -33,29 +33,30 @@ class RestApiController {
      */
     private $namespace;
 
-    private $pluginVersion;
+    private $plugin_version;
 
     /**
      * Constructor
      *
-     * @param string $version Plugin version
+     * @param string $plugin_version    Local Plugin version
+     * @param string $api_version       Remote Coyote API version
      */
-    public function __construct($pluginVersion, $apiVersion = 1) {
-        $this->pluginVersion = $pluginVersion;
-        $this->namespace = "coyote/v{$apiVersion}";
+    public function __construct($plugin_version, $api_version = 1) {
+        $this->plugin_version = $plugin_version;
+        $this->namespace = "coyote/v{$api_version}";
 
         // Appropriate registration hook
-        add_action('rest_api_init', array($this, 'registerRestRoutes'));
+        add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
 
-    public function registerRestRoutes() {
+    public function register_rest_routes() {
         register_rest_route(
             $this->namespace,
             'callback',
             array(
                 'methods' => WP_REST_Server::CREATABLE,
-                'callback' => array($this, 'updateResourceInPosts'),
-                'permission_callback' => array($this, 'checkCallbackPermission')
+                'callback' => array($this, 'update_resource_in_posts'),
+                'permission_callback' => array($this, 'check_callback_permission')
             )
         );
 
@@ -64,12 +65,12 @@ class RestApiController {
             '/status',
             array(
                 'methods' => WP_REST_Server::READABLE,
-                'callback' => array($this, 'provideStatus'),
+                'callback' => array($this, 'provide_status'),
             )
         );
     }
 
-    public function updateResourceInPosts(WP_Rest_Request $request) {
+    public function update_resource_in_posts(WP_Rest_Request $request) {
         $body = $request->get_body();
         $json = json_decode($body);
 
@@ -111,14 +112,14 @@ class RestApiController {
         );
     }
 
-    public function checkCallbackPermission(WP_Rest_Request $request) {
+    public function check_callback_permission(WP_Rest_Request $request) {
         // perform authentication header checks
         // TODO verify API token in header
         // TODO verify organization ID
         return true;
     }
 
-    public function provideStatus(WP_Rest_Request $request) {
+    public function provide_status(WP_Rest_Request $request) {
         return "Coyote Plugin v{$this->pluginVersion} OK";
     }
 
