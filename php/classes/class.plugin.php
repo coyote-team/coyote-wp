@@ -15,9 +15,9 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Logger;
 use Coyote\AsyncProcessRequest;
-use Coyote\BatchPostProcessorState;
+use Coyote\BatchProcessExistingState;
+use Coyote\BatchRestoreState;
 use Coyote\Handlers\PostUpdateHandler;
-use Coyote\Helpers\PostProcessHelper;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
@@ -82,6 +82,11 @@ class Plugin {
 
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
 
+        if ($this->is_admin) {
+            (new SettingsController($this->version));
+            $this->async_restore_request = new AsyncRestoreRequest();
+        }
+
         if (!$this->is_configured) {
             return;
         }
@@ -89,12 +94,6 @@ class Plugin {
         (new RestApiController($this->version));
         add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
         add_action('plugins_loaded', array($this, 'loaded'), 10, 0);
-
-        if (!$this->is_admin) {
-            return;
-        }
-
-        (new SettingsController($this->version));
 
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
@@ -104,9 +103,14 @@ class Plugin {
 
     public function loaded() {
         // The loading order for this is important, otherwise required WP functions aren't available
-        if (BatchPostProcessorState::has_stale_state()) {
+        if (BatchProcessExistingState::has_stale_state()) {
             do_action('coyote_process_existing_posts');
         }
+
+        if (BatchRestoreState::has_stale_state()) {
+            do_action('coyote_restore_posts');
+        }
+
     }
 
     public function add_action_links($links) {
@@ -182,15 +186,8 @@ class Plugin {
         // don't trigger update filters when removing coyote ids
         remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
 
-        try {
-            //TODO get this setting from config
-            PostProcessHelper::restore_images();
-        } catch (Exception $error) {
-            Logger::log("Error restoring images: " . $error->getMessage());
-        } finally {
-            $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
-            delete_option('coyote_plugin_is_activated');
-        }
+        $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
+        delete_option('coyote_plugin_is_activated');
     }
 }
 

@@ -2,34 +2,23 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 use Coyote\Logger;
 use Coyote\ImageResource;
 use Coyote\Helpers\ContentHelper;
 use Coyote\Helpers\PostHelper;
-use Coyote\BatchPostProcessorState;
+use Coyote\BatchProcessor;
 
-class BatchPostProcessor {
+class BatchPostProcessor extends BatchProcessor {
+    const STATE_CLASS = 'Coyote\BatchProcessExistingState';
 
-    private $state;
+    private $resources;
 
-    public function __construct($batch_size = 50, $post_types = array('page', 'post'), $post_statuses = array('published')) {
-        if ($state = BatchPostProcessorState::load()) {
-            $this->state = $state;
-            return;
-        }
-
-        $total_posts = array_reduce($post_types, function($carry, $type) {
-            return $carry + wp_count_posts($type)->publish;
-        }, 0);
-
-        $state = BatchPostProcessorState::create($total_posts, $batch_size, $post_types, $post_statuses);
-
-        $this->state = $state;
-
-        $this->load_next_batch();
-    }
-
-    private function load_next_batch() {
+    protected function load_next_batch() {
         Logger::log("Loading next batch({$this->state->batch_size})");
 
         $batch = get_posts(array(
@@ -49,10 +38,20 @@ class BatchPostProcessor {
 
         Logger::log('Batch size: (' . count($batch) . ')'); 
 
-        $resources = $this->fetch_resources($batch);
-        $this->state->set_batch($batch, $resources);
+        $this->on_batch_load($batch);
+        $this->state->set_batch($batch);
 
         return true;
+    }
+
+    protected function on_batch_load($batch) {
+        try {
+            $resources = $this->fetch_resources($batch);
+            $this->state->set('resources', $resources);
+        } catch (Exception $e) {
+            $this->state->set('resources', array());
+            Logger::log("Error fetching resources: " . $e->get_error_message());
+        }
     }
 
     private function fetch_resources($posts) {
@@ -78,75 +77,13 @@ class BatchPostProcessor {
         }, array());
     }
 
-    public function process_next() {
-        $next_post_id = $this->state->current_post_id()
-            ? $this->state->current_post_id()
-            : $this->state->shift_next_post_id()
-        ;
-
-        if ($next_post_id) {
-            $this->state->persist();
-            Logger::log($this->state->get_progress_percentage() . '% complete');
-            return $this->process($next_post_id);
-        }
-
-        //nothing left, we're done.
-    }
-
-    public function is_finished() {
-        if ($this->state->current_post_id()) {
-            return false;
-        }
-
-        if ($this->state->has_next_post_id()) {
-            return false;
-        }
-        
-        return !$this->load_next_batch();
-    }
-
-    private function process($post_id) {
-        Logger::log("Processing {$post_id}");
-
-        $post = get_post($post_id);
-
-        if (!$post) {
-            Logger::log("Unable to get post {$post_id}?");
-            $this->state->skip_current()->persist();
-            return;
-        }
-
-        if (PostHelper::is_locked($post_id)) {
-            Logger::log("Post {$post_id} is locked for editing.");
-            $this->state->skip_current()->persist();
-            return;
-        }
-
-        Logger::log("Got post {$post_id}");
-
-        PostHelper::lock($post_id);
-
-        $resources = $this->state->coyote_resources();
-
-        // do processing
-        try {
-            $content = $this->process_post($post, $resources);
-            Logger::log("Done processing {$post_id}");
-            $this->state->complete_current()->persist();
-        } catch (Exception $error) {
-            $message = $error->get_error_message();
-            Logger::log("Failed to process {$post_id}: {$message}");
-            $this->state->fail_current()->persist();
-        } finally {
-            PostHelper::unlock($post_id);
-        }
-    }
-
-    private function process_post($post, $resources) {
+    protected function process_post($post) {
         $helper = new ContentHelper($post->post_content);
         $images = $helper->get_images_with_attributes();
 
         $associated = array();
+
+        $resources = $this->state->get('resources');
 
         foreach ($images as $image) {
             if ($image['data-coyote-id'] !== null) {

@@ -9,7 +9,7 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Logger;
 use Coyote\ApiClient;
-use Coyote\BatchPostProcessorState;
+use Coyote\BatchProcessExistingState;
 
 class SettingsController {
     private $version;
@@ -49,7 +49,18 @@ class SettingsController {
         if ($this->profile) {
             add_action('wp_ajax_coyote_process_existing_posts', array($this, 'ajax_process_existing_posts'));
             add_action('wp_ajax_coyote_get_processing_progress', array($this, 'ajax_get_processing_progress'));
+            add_action('wp_ajax_coyote_cancel_processing', array($this, 'ajax_cancel_processing'));
         }
+    }
+
+    public function ajax_cancel_processing() {
+        check_ajax_referer('coyote-settings-ajax');
+
+        if ($state = BatchProcessExistingState::load($refresh = false)) {
+            $state->cancel();
+            echo true;
+        }
+        return wp_die();
     }
 
     public function ajax_process_existing_posts() {
@@ -60,9 +71,9 @@ class SettingsController {
             return wp_die(-1, 404);
         }
 
-        if (BatchPostProcessorState::exists()) {
+        if (BatchProcessExistingState::exists()) {
             echo false;
-            return wp_die;
+            return wp_die();
         }
 
         do_action('coyote_process_existing_posts');
@@ -73,7 +84,7 @@ class SettingsController {
     public function ajax_get_processing_progress() {
         check_ajax_referer('coyote-settings-ajax');
 
-        if ($state = BatchPostProcessorState::load($refresh = false)) {
+        if ($state = BatchProcessExistingState::load($refresh = false)) {
             echo $state->get_progress_percentage();
         }
 
@@ -148,7 +159,7 @@ class SettingsController {
         do_settings_sections(self::page_slug);
 
         if ($this->profile) {
-            echo "<p>Username: " . $this->profile->name . "</p>";
+            echo "<p>User: " . $this->profile->name . "</p>";
         } else if ($this->profile_fetch_failed) {
             echo "<strong>" . __('Unable to load Coyote profile.', self::i18n_ns) . "</strong>";
         }
@@ -171,12 +182,11 @@ class SettingsController {
         $title  = __("Tools", self::i18n_ns);
         $action = plugins_url(COYOTE_PLUGIN_NAME . "/php/public/tools.php");
 
-        $processing = BatchPostProcessorState::load();
-        if ($processing !== null) {
-            $processing = $processing->get_progress_percentage();
-        }
+        $state = BatchProcessExistingState::load($refresh = false);
 
-        $disabled = $processing !== null ? 'disabled' : '';
+        $progress = $state !== null && !$state->is_cancelled() ? $state->get_progress_percentage() : '';
+
+        $disabled = ($state !== null && !$state->is_cancelled()) ? 'disabled' : '';
 
         $batch_size = get_option('coyote__processing_batch_size', 50);
 
@@ -197,7 +207,7 @@ class SettingsController {
 
         echo "
             <div id=\"coyote_processing_status\" {$hidden} aria-live=\"assertive\" aria-atomic=\"true\">
-                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span>{$processing}</span>%</strong>
+                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span>{$progress}</span>%</strong>
                 <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
             </div>
         ";
@@ -261,6 +271,7 @@ class SettingsController {
             self::api_settings_section,
             array('label_for' => 'coyote__api_settings_organization_id')
         );
+
     }
 
     public function api_settings_cb() {

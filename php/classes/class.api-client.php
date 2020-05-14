@@ -22,9 +22,9 @@ class ApiClient {
      * CoyoteApiCLient constructor
      * 
      * @param string endpoint the endpoint the API is located at
-     * @param string authKey API authentication key
-     * @param int organizationId API organization Id
-     * @param int apiVersion API version to use
+     * @param string auth_key API authentication key
+     * @param int organization_id API organization Id
+     * @param int api_version API version to use
      */
 
     private $organization_id = null;
@@ -63,18 +63,28 @@ class ApiClient {
             "resource_type" => "still_image"
         );
 
-        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources", array('json' => $resource));
+        try {
+            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources", array('json' => $resource));
 
-        if ($json = $this->get_response_json(self::HTTP_CREATED, $response)) {
-            return $json->data->id;
+            if ($json = $this->get_response_json(self::HTTP_CREATED, $response)) {
+                return $json->data->id;
+            }
+
+            return null;
+        } catch (Exception $error) {
+            Logger::log("Error creating resource: " . $error->get_error_message());
+            return null;
         }
-
-        return null;
     }
 
     public function get_resource_by_id(int $resource_id) {
-        $response = $this->guzzle_client->get('resources/' . $resource_id);
-        return $this->get_response_json(self::HTTP_OK, $response);
+        try {
+            $response = $this->guzzle_client->get('resources/' . $resource_id);
+            return $this->get_response_json(self::HTTP_OK, $response);
+        } catch (Exception $error) {
+            Logger::log("Error fetching resource: " . $error->get_error_message());
+            return null;
+        }
     }
 
     public function get_resources_by_source_uris(array $source_uris) {
@@ -83,14 +93,19 @@ class ApiClient {
             'filter' => array('source_uri_eq_any' => $uris)
         );
 
-        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/get", array('json' => $query));
-        $json = $this->get_response_json(self::HTTP_OK, $response);
+        try {
+            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/get", array('json' => $query));
+            $json = $this->get_response_json(self::HTTP_OK, $response);
 
-        if (!$json) {
+            if (!$json) {
+                return array();
+            }
+
+            return $this->json_to_id_and_alt($json);
+        } catch (Exception $error) {
+            Logger::log("Error fetching resources: " . $error->get_error_message());
             return array();
         }
-
-        return $this->json_to_id_and_alt($json);
     }
 
     private function json_to_id_and_alt($json) {
@@ -120,7 +135,7 @@ class ApiClient {
         $list = array();
 
         foreach ($json->data as $item) {
-            if ($item->relationships->organization->data->id != $this->organizationId) {
+            if ($item->relationships->organization->data->id != $this->organization_id) {
                 continue;
             }
 

@@ -4,9 +4,22 @@ namespace Coyote;
 
 use Coyote\Logger;
 
-class BatchPostProcessorState {
-    const state_transient_key = 'coyote_batch_processor_state';
-    const last_update_transient_key = 'coyote_batch_processor_last_update';
+class BatchRestoreState extends BatchProcessorState {
+    const state_transient_key = 'coyote_restore_state';
+    const last_update_transient_key = 'coyote_restore_last_update';
+    const cancelled_transient_key = 'coyote_restore_cancelled';
+}
+
+class BatchProcessExistingState extends BatchProcessorState {
+    const state_transient_key = 'coyote_process_existing_state';
+    const last_update_transient_key = 'coyote_process_existing_last_update';
+    const cancelled_transient_key = 'coyote_process_existing_cancelled';
+}
+
+abstract class BatchProcessorState {
+    const state_transient_key = null;
+    const last_update_transient_key = null;
+    const cancelled_transient_key = null;
 
     private $state;
 
@@ -15,7 +28,15 @@ class BatchPostProcessorState {
     public $post_types;
     public $post_statuses;
 
+    private $state_key;
+    private $last_update_key;
+    private $cancelled_key;
+
     public function __construct($state, $total, $batch_size, $post_types, $post_statuses) {
+        if (!(static::state_transient_key && static::last_update_transient_key && static::cancelled_transient_key)) {
+            throw new Exception("Not all required class consts defined!");
+        }
+
         $this->state = $state;
 
         $this->total = $total;
@@ -33,7 +54,6 @@ class BatchPostProcessorState {
             'completed_post_ids' => array(),
 
             'current_post_ids'   => array(),
-            'coyote_resources'   => array(),
             'current_post_id'    => null,
 
             'total_posts'        => $total,
@@ -41,21 +61,34 @@ class BatchPostProcessorState {
             'post_types'         => $post_types,
             'post_statuses'      => $post_statuses,
 
-            'last_update'        => null
+            'last_update'        => null,
+            'cancelled'          => false,
+
+            'custom'             => array(),
         );
 
-        return new BatchPostProcessorState($state, $total, $batch_size, $post_types, $post_statuses);
+        $class = static::class;
+
+        return new $class($state, $total, $batch_size, $post_types, $post_statuses);
     }
 
-    public function set_batch($posts, $resources) {
+    public function set_batch($posts) {
         $ids = wp_list_pluck($posts, 'ID');
         $this->state['current_post_ids'] = $ids;
-        $this->state['coyote_resources'] = $resources;
         $this->persist();
     }
 
+    public function set($key, $value) {
+        $this->state['custom'][$key] = $value;
+        $this->persist();
+    }
+
+    public function get($key) {
+        return $this->state['custom'][$key];
+    }
+
     public static function has_stale_state() {
-        $last_update = get_transient(self::last_update_transient_key);
+        $last_update = get_transient(static::last_update_transient_key);
 
         if ($last_update === false) {
             return false;
@@ -67,7 +100,7 @@ class BatchPostProcessorState {
         // at least five minutes old?
         if ($seconds >= COYOTE_BATCH_STALE_SECONDS) {
             // block asap
-            set_transient(self::last_update_transient_key, new \DateTime());
+            set_transient(static::last_update_transient_key, new \DateTime());
             Logger::log('Found stale batch processor state.');
             return true;
         }
@@ -88,13 +121,20 @@ class BatchPostProcessorState {
     }
 
     public static function load($refresh = true) {
-        $state = get_transient(self::state_transient_key);
+        $state = get_transient(static::state_transient_key);
 
         if ($state === false) {
             return null;
         }
 
-        $loaded_state = new BatchPostProcessorState($state, $state['total_posts'], $state['batch_size'], $state['post_types'], $state['post_statuses']);
+        $class = static::class;
+
+        $loaded_state = new $class($state, $state['total_posts'], $state['batch_size'], $state['post_types'], $state['post_statuses']);
+
+        if ($cancelled = get_transient(static::cancelled_transient_key)) {
+            $loaded_state->state['cancelled'] = true;
+            delete_transient(static::cancelled_transient_key);
+        }
 
         if ($refresh) {
             $loaded_state->touch();
@@ -104,20 +144,17 @@ class BatchPostProcessorState {
     }
 
     public static function exists() {
-        return get_transient(self::last_update_transient_key) !== false;
+        return get_transient(static::last_update_transient_key) !== false;
     }
 
     public function persist() {
-       return set_transient(self::state_transient_key, $this->state);
+       return set_transient(static::state_transient_key, $this->state);
     }
 
     public function current_post_id() {
         return $this->state['current_post_id'];
     }
 
-    public function coyote_resources() {
-        return $this->state['coyote_resources'];
-    }
 
     public function shift_next_post_id() {
         $ids = $this->state['current_post_ids'];
@@ -136,7 +173,7 @@ class BatchPostProcessorState {
     public function touch() {
         $dt = new \DateTime();
         $this->state['last_update'] = $dt;
-        set_transient(self::last_update_transient_key, $dt);
+        set_transient(static::last_update_transient_key, $dt);
     }
 
     public function skip_current() {
@@ -161,8 +198,18 @@ class BatchPostProcessorState {
     }
 
     public function destroy() {
-        delete_transient(self::state_transient_key);
-        delete_transient(self::last_update_transient_key);
+        delete_transient(static::state_transient_key);
+        delete_transient(static::last_update_transient_key);
+        delete_transient(static::cancelled_transient_key);
     }
+
+    public function cancel() {
+        set_transient(static::cancelled_transient_key, true);
+    }
+
+    public function is_cancelled() {
+        return $this->state['cancelled'];
+    }
+
 }
 

@@ -82,8 +82,7 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                  */
                 public function dispatch() {
                         $url  = add_query_arg( $this->get_query_args(), $this->get_query_url() );
-                        $args = $this->get_post_args();
-                        $request = wp_remote_post( esc_url_raw( $url ), $args );
+                        $request = wp_remote_get( esc_url_raw( $url ));
                         return $request;
                 }
 

@@ -39,15 +39,15 @@ class PostProcessHelper {
     }
 
     public static function process($post_id) {
-        Logger::log("Restoring images in post {$postId}");
+        Logger::log("Restoring images in post {$post_id}");
 
-        $post = get_post($postId);
+        $post = get_post($post_id);
 
         if (!$post) {
-            throw new Exception("Unable to get post {$postId}");
+            throw new Exception("Unable to get post {$post_id}");
         }
 
-        $resources = DB::get_resources_for_post($postId);
+        $resources = DB::get_resources_for_post($post_id);
         $helper = new ContentHelper($post->post_content);
 
         foreach ($resources as $resource) {

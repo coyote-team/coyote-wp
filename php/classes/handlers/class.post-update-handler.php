@@ -7,7 +7,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\BatchPostProcessorState;
+use Coyote\BatchProcessExistingState;
 use Coyote\Logger;
 use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
@@ -23,7 +23,7 @@ class PostUpdateHandler {
             return $data;
         }
 
-        if (BatchPostProcessorState::exists() && $state = BatchPostProcessorState::load()) {
+        if (BatchProcessExistingState::exists() && $state = BatchProcessExistingState::load()) {
             if ($state->current_post_id() === $post_id) {
                 Logger::log("Firing PostUpdateHandler while processing existing post {$post_id}, skipping");
                 return $data;

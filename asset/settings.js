@@ -39,6 +39,26 @@ window.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    const cancelProcessing = function () {
+        const formData = new FormData();
+
+        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+        formData.append('action', 'coyote_cancel_processing');
+
+        fetch(coyote_ajax_obj.ajax_url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(reply => {
+            enable('#coyote_process_existing_posts');
+            disable('#coyote_cancel_processing');
+            hide('#coyote_processing_complete');
+            hide('#coyote_processing_status');
+            hide('#coyote_processing');
+        });
+    }
+
     const updateProgress = function () {
         const percentage = document.querySelector('#coyote_processing_status span');
 
@@ -64,9 +84,11 @@ window.addEventListener('DOMContentLoaded', function () {
     };
 
     const processExistingPostsButton = document.getElementById('coyote_process_existing_posts');
+    const cancelProcessingButton = document.getElementById('coyote_cancel_processing');
 
     if (processExistingPostsButton) {
         processExistingPostsButton.addEventListener('click', startProcessing);
+        //cancelProcessingButton.addEventListener('click', cancelProcessing);
 
         if (processExistingPostsButton.hasAttribute('disabled')) {
             return updateProgress();

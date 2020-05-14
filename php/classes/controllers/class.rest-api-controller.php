@@ -70,8 +70,6 @@ class RestApiController {
         $body = $request->get_body();
         $json = json_decode($body);
 
-        Logger::log($json);
-
         try {
             $update = self::parse_update($json);
         } catch (Exception $e) {
@@ -116,7 +114,7 @@ class RestApiController {
     }
 
     public function provide_status(WP_Rest_Request $request) {
-        return "Coyote Plugin v{$this->pluginVersion} OK";
+        return "Coyote Plugin v{$this->plugin_version} OK";
     }
 
 }
