@@ -2,12 +2,6 @@
 
 namespace Coyote;
 
-require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/helpers/class.content-helper.php');
-require_once coyote_plugin_file('classes/helpers/class.post-helper.php');
-require_once coyote_plugin_file('classes/class.image-resource.php');
-require_once coyote_plugin_file('classes/class.batch-post-processor-state.php');
-
 use Coyote\Logger;
 use Coyote\ImageResource;
 use Coyote\Helpers\ContentHelper;

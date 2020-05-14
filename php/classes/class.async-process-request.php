@@ -2,9 +2,6 @@
 
 namespace Coyote;
 
-require_once coyote_plugin_file('classes/class.wp-async-request.php');
-require_once coyote_plugin_file('classes/class.batch-post-processor.php');
-
 use \WP_Async_Request;
 use Coyote\BatchPostProcessor;
 

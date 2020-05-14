@@ -13,7 +13,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-require_once ('vendor/autoload.php');
+require_once('vendor/autoload.php');
 require_once('php/media-template.php');
 
 define('COYOTE_PLUGIN_NAME', 'coyote');

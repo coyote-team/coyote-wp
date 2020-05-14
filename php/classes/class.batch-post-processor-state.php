@@ -2,8 +2,6 @@
 
 namespace Coyote;
 
-require_once coyote_plugin_file('classes/class.logger.php');
-
 use Coyote\Logger;
 
 class BatchPostProcessorState {

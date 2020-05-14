@@ -7,10 +7,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/helpers/class.post-process-helper.php');
-require_once coyote_plugin_file('classes/class.batch-post-processor.php');
-
 use Coyote\BatchPostProcessorState;
 use Coyote\Logger;
 use Coyote\DB;

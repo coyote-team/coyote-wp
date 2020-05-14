@@ -16,10 +16,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-require_once coyote_plugin_file('classes/class.logger.php');
-require_once coyote_plugin_file('classes/class.api-client.php');
-require_once coyote_plugin_file('classes/handlers/class.resource-update-handler.php');
-
 use Coyote\Logger;
 use Coyote\ApiClient;
 use Coyote\Handlers\ResourceUpdateHandler;
