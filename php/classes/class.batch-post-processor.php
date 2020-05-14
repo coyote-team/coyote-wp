@@ -4,12 +4,14 @@ namespace Coyote;
 
 require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/helpers/class.content-helper.php');
+require_once coyote_plugin_file('classes/helpers/class.post-helper.php');
 require_once coyote_plugin_file('classes/class.image-resource.php');
 require_once coyote_plugin_file('classes/class.batch-post-processor-state.php');
 
 use Coyote\Logger;
 use Coyote\ImageResource;
 use Coyote\Helpers\ContentHelper;
+use Coyote\Helpers\PostHelper;
 use Coyote\BatchPostProcessorState;
 
 class BatchPostProcessor {
@@ -120,7 +122,7 @@ class BatchPostProcessor {
             return;
         }
 
-        if (wp_check_post_lock($post_id)) {
+        if (PostHelper::is_locked($post_id)) {
             Logger::log("Post {$post_id} is locked for editing.");
             $this->state->skip_current()->persist();
             return;
@@ -128,7 +130,7 @@ class BatchPostProcessor {
 
         Logger::log("Got post {$post_id}");
 
-        //wp_set_post_lock($post_id);
+        PostHelper::lock($post_id);
 
         $resources = $this->state->coyote_resources();
 
@@ -142,7 +144,7 @@ class BatchPostProcessor {
             Logger::log("Failed to process {$post_id}: {$message}");
             $this->state->fail_current()->persist();
         } finally {
-            //TODO unlock the post for editing
+            PostHelper::unlock($post_id);
         }
     }
 

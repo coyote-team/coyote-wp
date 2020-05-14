@@ -11,9 +11,11 @@ require_once coyote_plugin_file('classes/class.logger.php');
 require_once coyote_plugin_file('classes/class.db.php');
 require_once coyote_plugin_file('classes/class.image-resource.php');
 require_once coyote_plugin_file('classes/helpers/class.content-helper.php');
+require_once coyote_plugin_file('classes/helpers/class.post-helper.php');
 
 use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
+use Coyote\Helpers\PostHelper;
 use Coyote\Logger;
 use Coyote\ImageResource;
 
