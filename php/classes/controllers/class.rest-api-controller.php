@@ -78,8 +78,8 @@ class RestApiController {
         }
 
         if ($update['alt'] === null) {
-            Logger::log("Update contained no alt text");
-            return true;
+            Logger::log("Update contained no alt text, setting to empty string");
+            $update['alt'] = "";
         }
 
         // disable the post update hook
