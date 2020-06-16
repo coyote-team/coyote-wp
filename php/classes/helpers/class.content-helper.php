@@ -7,13 +7,15 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Coyote\Logger;
+
 class ContentHelper {
     private $content;
     private $images = null;
 
     public $content_is_modified = false;
 
-    const IMAGE_REGEX = '/(<\s*img\s+.*?\/?>)/smi';
+    const IMAGE_REGEX = '#(?:(?:\[caption[^\]]*?\].*?)(<\s*img\s+[^>]*?\/?>)(?:\s*<\/a>)?\s*(?:(.*?)\[\/caption\])|<\s*img\s+[^>]*?\/?>)#smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*?)(?!\\\\)\1/smi';
     const SRC_REGEX = '/src\s*=\s*("|\')([^\1]+?)\1/smi';
     const COYOTE_ID_REGEX = '/\s+data-coyote-id\s*=\s*("|\')([0-9]+)\1\s*/smi';
@@ -37,30 +39,29 @@ class ContentHelper {
         $matches = array();
         preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
 
-        $this->images = $matches[0];
+        $match_count = count($matches[0]);
+        $images = [];
 
-        return $this->images;
-    }
+        for ($i = 0; $i < $match_count; $i++) {
+            if (isset($matches[2][$i]) && strlen($matches[2][$i])) {
+                // this one has a caption
+                $element = $matches[1][$i];
+                $caption = $matches[2][$i];
+            } else {
+                $element = $matches[0][$i];
+                $caption = null;
+            }
 
-    function get_images_with_attributes() {
-        $images = $this->get_images();
-
-        if ($images === null) {
-            return $images;
-        }
-
-        $details = array();
-
-        foreach ($images as $image) {
-            array_push($details, [
-                'element' => $image,
-                'src' => self::get_img_src($image),
-                'alt' => self::get_img_alt($image),
-                'data-coyote-id' => self::get_coyote_id($image)
+            array_push($images, [
+                'element' => $element,
+                'caption' => $caption,
+                'src' => self::get_img_src($element),
+                'alt' => self::get_img_alt($element),
+                'coyote_id' => self::get_coyote_id($element)
             ]);
         }
 
-        return $details;
+        return $this->images = $images;
     }
 
     static function get_img_src(string $element) {

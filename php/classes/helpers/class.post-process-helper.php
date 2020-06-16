@@ -11,7 +11,6 @@ use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
 use Coyote\Helpers\PostHelper;
 use Coyote\Logger;
-use Coyote\ImageResource;
 
 class PostProcessHelper {
 

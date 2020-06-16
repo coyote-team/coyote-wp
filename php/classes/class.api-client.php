@@ -28,12 +28,13 @@ class ApiClient {
      */
 
     private $organization_id = null;
+    private $language;
     private $guzzle_client;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
-    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = "1") {
+    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = '1', $language = 'en') {
         $this->guzzle_client = new \GuzzleHttp\Client([
             'base_uri' => ($endpoint . '/api/' . 'v' . $api_version . '/'),
             'timeout'  => 20.0,
@@ -43,6 +44,7 @@ class ApiClient {
         ]);
 
         $this->organization_id = $organization_id;
+        $this->language = $language;
     }
 
     private function get_response_json($expected_code, $response) {
@@ -57,53 +59,41 @@ class ApiClient {
         return null;
     }
 
-    public function create_new_resource(string $source_uri, string $alt) {
-        $resource = array(
-            "source_uri"    => $source_uri,
-            "resource_type" => "still_image"
-        );
+    public function batch_create(array $images) {
+        $language = $this->language;
 
-        try {
-            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources", array('json' => $resource));
+        $resources = array_map(function ($i) use ($language) {
+            $name = isset($i['caption']) ? $i['caption'] : $i['src'];
+            $resource = [
+                'name' => $name,
+                'source_uri' => $i['src'],
+                'resource_type' => 'still_image',
+            ];
 
-            if ($json = $this->get_response_json(self::HTTP_CREATED, $response)) {
-                return $json->data->id;
+            if (isset($i['alt']) && strlen($i['alt'])) {
+                $resource['representations'] = [
+                    [
+                        'text' => $i['alt'],
+                        'metum' => 'Alt',
+                        'language' => $language
+                    ]
+                ];
             }
 
-            return null;
-        } catch (Exception $error) {
-            Logger::log("Error creating resource: " . $error->get_error_message());
-            return null;
-        }
-    }
-
-    public function get_resource_by_id(int $resource_id) {
-        try {
-            $response = $this->guzzle_client->get('resources/' . $resource_id);
-            return $this->get_response_json(self::HTTP_OK, $response);
-        } catch (Exception $error) {
-            Logger::log("Error fetching resource: " . $error->get_error_message());
-            return null;
-        }
-    }
-
-    public function get_resources_by_source_uris(array $source_uris) {
-        $uris = join(" ", array_unique($source_uris));
-        $query = array(
-            'filter' => array('source_uri_eq_any' => $uris)
-        );
+            return $resource;
+        }, $images);
 
         try {
-            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/get", array('json' => $query));
-            $json = $this->get_response_json(self::HTTP_OK, $response);
+            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/create", ['json' => ['resources' => $resources]]);
+            $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
             if (!$json) {
-                return array();
+                return [];
             }
 
             return $this->json_to_id_and_alt($json);
         } catch (Exception $error) {
-            Logger::log("Error fetching resources: " . $error->get_error_message());
+            Logger::log("Error batch creating resources: " . $error->get_error_message());
             return array();
         }
     }
@@ -129,19 +119,21 @@ class ApiClient {
                 }
 
                 return $carry;
-            }, array());
+            }, []);
         };
 
-        $list = array();
+        $list = [];
 
         foreach ($json->data as $item) {
-            if ($item->relationships->organization->data->id != $this->organization_id) {
-                continue;
+            $alt_representations = [];
+            if ($item->relationships->representations->meta->included) {
+                $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
             }
 
-            $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
             $alt = count($alt_representations) ? $alt_representations[0]->attributes->text : null;
             $uri = $item->attributes->source_uri;
+
+            Logger::log("New resource {$item->id}: {$uri} => \"{$alt}\"");
 
             $list[$uri] = (object) array(
                 'id' => $item->id,
@@ -181,7 +173,7 @@ class ApiClient {
             if ($item->type === "organization") {
                 array_push($carry, array(
                     "id" => $item->id,
-                    "name" => $item->attributes->title
+                    "name" => $item->attributes->name
                 ));
             }
 

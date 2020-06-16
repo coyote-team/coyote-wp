@@ -47,12 +47,11 @@ class ResourceUpdateHandler {
                 throw new Exception("Unable to load post {$post_id}");
             }
             
-            // get post
             $helper = new ContentHelper($post->post_content);
-            $images = $helper->get_images_with_attributes();
+            $images = $helper->get_images();
 
             foreach ($images as $image) {
-                if ($image['data-coyote-id'] !== $id) {
+                if ($image['coyote_id'] !== $id) {
                     continue;
                 }
 

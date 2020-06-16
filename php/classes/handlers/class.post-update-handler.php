@@ -44,13 +44,13 @@ class PostUpdateHandler {
         Logger::log("Processing update on post " . $post_id);
 
         $helper = new ContentHelper($content);
-        $images = $helper->get_images_with_attributes();
+        $images = $helper->get_images();
 
         $resources = ImageResource::map($images);
         $associated = array();
 
         foreach ($resources as $resource) {
-            if ($resource->image["data-coyote-id"] !== null) {
+            if ($resource->image["coyote_id"] !== null) {
                 //already linked
                 continue;
             }

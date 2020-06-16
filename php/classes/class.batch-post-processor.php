@@ -59,7 +59,7 @@ class BatchPostProcessor extends BatchProcessor {
 
         foreach ($posts as $post) {
             $helper = new ContentHelper($post->post_content);
-            $images = $helper->get_images_with_attributes();
+            $images = $helper->get_images();
             foreach ($images as $image) {
                 $all_images[$image['src']] = $image;
             }
@@ -79,14 +79,14 @@ class BatchPostProcessor extends BatchProcessor {
 
     protected function process_post($post) {
         $helper = new ContentHelper($post->post_content);
-        $images = $helper->get_images_with_attributes();
+        $images = $helper->get_images();
 
         $associated = array();
 
         $resources = $this->state->get('resources');
 
         foreach ($images as $image) {
-            if ($image['data-coyote-id'] !== null) {
+            if ($image['coyote_id'] !== null) {
                 continue;
             }
 

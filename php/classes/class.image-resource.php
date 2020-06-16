@@ -36,22 +36,12 @@ class ImageResource {
     }
 
     public static function map(array $images) {
-        $source_uris = array_reduce($images, function($carry, $image) {
-            if ($image['data-coyote-id']) {
-                return $carry;
-            }
-
-            array_push($carry, $image['src']);
-            return $carry;
-        }, array());
-
-        // empty array
-        if (!count($source_uris)) {
-            return $source_uris;
-        }
+        $images = array_filter($images, function ($image) {
+            return $image['coyote_id'] === null;
+        });
 
         $api_client = self::get_api_client();
-        $coyote_resources = $api_client->get_resources_by_source_uris($source_uris);
+        $coyote_resources = $api_client->batch_create($images);
 
         return array_map(function ($image) use ($coyote_resources) {
             $resource = array_key_exists($image['src'], $coyote_resources)
@@ -103,11 +93,6 @@ class ImageResource {
             // already exist in the database
             $record = DB::get_image_by_hash($hash);
 
-            if (!$record) {
-                // No database or coyote record - create a resource.
-                $record = $this->create_and_insert($hash, $this->image['src'], $alt);
-            }
-
             if ($record === null) {
                 Logger::log("No resource could be created for \"" . $this->image['src'] . "\"");
                 return;
@@ -117,27 +102,5 @@ class ImageResource {
         $this->coyote_resource_id = $record->coyote_resource_id;
         $this->coyote_description = $record->coyote_description;
         $this->original_description = $record->original_description;
-    }
-
-    private function create_and_insert(string $hash, string $src, string $alt) {
-        //no resource for this image existed in coyote
-
-        $resource_id = self::get_api_client()->create_new_resource($src, $alt);
-
-        // failed. Client configuration error?
-        if ($resource_id === null) {
-            Logger::log("Failed to create resource for source_uri \"{$src}\"");
-            return null;
-        }
-
-        Logger::log("Created resource for source_uri \"{$src}\": {$resource_id}");
-
-        DB::insert_image($hash, $src, $alt, $resource_id, null);
-
-        return (object) array(
-            "coyote_resource_id" => $resource_id,
-            "coyote_description" => null,
-            "original_description" => $alt
-        );
     }
 }
