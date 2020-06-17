@@ -5,7 +5,6 @@
  * @package Coyote\Plugin
  */
 
-
 namespace Coyote;
 
 // Exit if accessed directly.
@@ -30,10 +29,11 @@ class Plugin {
     private $version;
 
     public $config = [
-        'CoyoteApiVersion' => "1",
-        'CoyoteApiToken' => null,
-        'CoyoteApiEndpoint' => "",
-        'CoyoteOrganizationId' => null
+        'CoyoteApiVersion'      => "1",
+        'CoyoteApiToken'        => null,
+        'CoyoteApiEndpoint'     => "",
+        'CoyoteOrganizationId'  => null,
+        'AsyncMethod'           => 'post'
     ];
 
     public $is_configured = false;
@@ -57,6 +57,8 @@ class Plugin {
         $_config['CoyoteApiToken']       = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
         $_config['CoyoteApiEndpoint']    = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
         $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
+        $_config['AsyncMethod']          = get_option('coyote__api_settings_method', $_config['AsyncMethod']);
+
 
         if (get_option('coyote__api_profile')) {
             $this->is_configured = true;
@@ -80,25 +82,32 @@ class Plugin {
             return;
         }
 
+        // add settings link to plugin page
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
 
         if ($this->is_admin) {
             (new SettingsController($this->version));
-            $this->async_restore_request = new AsyncRestoreRequest();
+            $this->async_restore_request = new AsyncRestoreRequest($this->config['AsyncMethod']);
         }
 
         if (!$this->is_configured) {
             return;
         }
 
+        // allow remote updates
         (new RestApiController($this->version));
+
+        // handle updates to posts made by the front-end
         add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+
         add_action('plugins_loaded', array($this, 'loaded'), 10, 0);
 
         // only allow post processing if there is a valid api configuration
         // and there is not already a post-processing in place.
         add_action('coyote_process_existing_posts', array($this, 'process_existing_posts'), 10, 1);
-        $this->async_process_request = new AsyncProcessRequest();
+
+        // allow asynchronous post processing to take place
+        $this->async_process_request = new AsyncProcessRequest($this->config['AsyncMethod']);
     }
 
     public function loaded() {
@@ -110,9 +119,9 @@ class Plugin {
         if (BatchRestoreState::has_stale_state()) {
             do_action('coyote_restore_posts');
         }
-
     }
 
+    // add setting quicklink to plugin listing entry
     public function add_action_links($links) {
         $settings_links = array(
             '<a href="' . admin_url('options-general.php?page=coyote_fields') . '"> ' . __('Settings') . '</a>',
@@ -153,16 +162,23 @@ class Plugin {
         $this->run_sql_query($sql); 
     }
 
-    public function process_existing_posts($batch_size = 5) {
-        $batch_size = isset($_POST['batchSize']) ? intval($_POST['batchSize']) : $batch_size;
+    public function process_existing_posts($default_batch_size = 5) {
+        $batch_size = isset($_POST['batchSize']) ? $_POST['batchSize'] : $default_batch_size;
+
+        $batch_size = intval($batch_size);
 
         // minimum batch size
         if ($batch_size < 1) { $batch_size = 1; }
 
-        // maximum batch size
+        // maximum batch size, to keep from running out of memory
         else if ($batch_size > 500) { $batch_size = 500; }
 
-        $this->async_process_request->data(array('batch_size' => $batch_size));
+        if ($this->config['AsyncMethod'] === 'get') {
+            $this->async_process_request->query_args = ['batch_size' => $batch_size];
+        } else {
+            $this->async_process_request->data(array('batch_size' => $batch_size));
+        }
+
         $this->async_process_request->dispatch();
     }
 
@@ -183,6 +199,7 @@ class Plugin {
 
     public function deactivate() {
         Logger::log("Deactivating plugin");
+
         // don't trigger update filters when removing coyote ids
         remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
 

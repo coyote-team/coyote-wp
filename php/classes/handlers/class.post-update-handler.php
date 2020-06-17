@@ -46,12 +46,12 @@ class PostUpdateHandler {
         $helper = new ContentHelper($content);
         $images = $helper->get_images();
 
-        $resources = ImageResource::map($images);
+        $resources = ImageResource::resources_from_images($images);
         $associated = array();
 
         foreach ($resources as $resource) {
             if ($resource->image["coyote_id"] !== null) {
-                //already linked
+                // The resource is already linked -- skip
                 continue;
             }
 

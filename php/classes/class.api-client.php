@@ -126,6 +126,7 @@ class ApiClient {
 
         foreach ($json->data as $item) {
             $alt_representations = [];
+
             if ($item->relationships->representations->meta->included) {
                 $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
             }

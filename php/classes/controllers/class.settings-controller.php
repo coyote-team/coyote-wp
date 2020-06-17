@@ -180,7 +180,6 @@ class SettingsController {
         }
 
         $title  = __("Tools", self::i18n_ns);
-        $action = plugins_url(COYOTE_PLUGIN_NAME . "/php/public/tools.php");
 
         $state = BatchProcessExistingState::load($refresh = false);
 
@@ -199,7 +198,7 @@ class SettingsController {
             <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" class=\"button button-primary\">" . __('Process existing posts', self::i18n_ns) . "</button>
             <div class=\"form-group\">
                 <label for=\"\">" . __('Batch size', self::i18n_ns) . "</label>
-                <input {$disabled} id=\"batch_size\" type=\"text\" size=\"2\" maxlength=\"2\" value=\"{$batch_size}\">
+                <input {$disabled} id=\"batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
             </div>
         ";
 
@@ -229,6 +228,7 @@ class SettingsController {
 
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
+        register_setting(self::page_slug, 'coyote__api_settings_method');
 
         if ($this->profile) {
             register_setting(self::page_slug, 'coyote__api_settings_organization_id');
@@ -259,6 +259,15 @@ class SettingsController {
             array('label_for' => 'coyote__api_settings_token')
         );
 
+        add_settings_field(
+            'coyote__api_settings_method',
+            __('Request method', self::i18n_ns),
+            array($this, 'api_settings_method_cb'),
+            self::page_slug,
+            self::api_settings_section,
+            array('label_for' => 'coyote__api_settings_method')
+        );
+
         if (!$this->profile) {
             return;
         }
@@ -284,6 +293,19 @@ class SettingsController {
 
     public function api_settings_token_cb() {
         echo '<input name="coyote__api_settings_token" id="coyote__api_settings_token" type="text" value="' . get_option('coyote__api_settings_token') . '" size="30"/>';
+    }
+
+    public function api_settings_method_cb() {
+        $method = get_option('coyote__api_settings_method', 'post');
+
+        echo '<p>' . __('Some platforms (e.g. WPEngine) don\'t handle POST requests well.', self::i18n_ns) . '</p>';
+        echo '<select name="coyote__api_settings_method" id="coyote__api_settings_method">';
+
+        foreach ([['id' => 'get', 'label' => 'GET'],['id' => 'post', 'label' => 'POST']] as $option) {
+            $selected = $option['id'] === $method ? 'selected' : '';
+            echo "<option {$selected} value=\"" . $option['id'] ."\">" . htmlspecialchars($option['label']). "</option>";
+        }
+        echo '</select>';
     }
 
     public function api_settings_organization_id_cb() {

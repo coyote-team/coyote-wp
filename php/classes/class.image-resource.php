@@ -35,7 +35,7 @@ class ImageResource {
         $this->process();
     }
 
-    public static function map(array $images) {
+    public static function resources_from_images(array $images) {
         $images = array_filter($images, function ($image) {
             return $image['coyote_id'] === null;
         });
@@ -66,7 +66,7 @@ class ImageResource {
     }
 
     private function process() {
-        $alt = $this->image['alt'] ? $this->image['alt'] : '';
+        $alt = $this->image['alt'] ?: '';
         $hash = sha1($this->image['src']);
 
         // coyote knows this image source uri

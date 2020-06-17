@@ -2,6 +2,11 @@
 
 namespace Coyote;
 
+// Exit if accessed directly.
+if (!defined( 'ABSPATH')) {
+    exit;
+}
+
 use Coyote\Logger;
 
 class BatchRestoreState extends BatchProcessorState {

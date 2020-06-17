@@ -154,6 +154,8 @@ class ContentHelper {
         $filtered = array_filter($images, function($item) use($coyote_id) {
             return strpos($item, "data-coyote-id=\"{$coyote_id}\"") !== false;
         });
+
+        // there should only be one image found with this ID
         return count($filtered) === 1 ? array_shift($filtered) : null;
     }
 

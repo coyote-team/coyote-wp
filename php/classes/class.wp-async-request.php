@@ -53,6 +53,18 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                 protected $data = array();
 
                 /**
+                 * Request method ('get' or 'post')
+                 *
+                 * (default value: 'post')
+                 *
+                 * @var string
+                 * @access protected
+                 */
+                protected $request_method = 'post';
+
+
+
+                /**
                  * Initiate new async request
                  */
                 public function __construct() {
@@ -82,8 +94,14 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                  */
                 public function dispatch() {
                         $url  = add_query_arg( $this->get_query_args(), $this->get_query_url() );
-                        $request = wp_remote_get( esc_url_raw( $url ));
-                        return $request;
+
+                        if ($this->request_method === 'post') {
+                                $args = $this->get_post_args();
+                                return wp_remote_post( esc_url_raw( $url ), $args );
+                        }
+
+                        $args = $this->get_get_args();
+                        return wp_remote_get( esc_url_raw( $url ), $args);
                 }
 
                 /**
@@ -93,7 +111,10 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                  */
                 protected function get_query_args() {
                         if ( property_exists( $this, 'query_args' ) ) {
-                                return $this->query_args;
+                                return array_merge($this->query_args, array(
+                                    'action' => $this->identifier,
+                                    'nonce'  => wp_create_nonce( $this->identifier ),
+                                ));
                         }
 
                         return array(
@@ -115,6 +136,24 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                         return admin_url( 'admin-ajax.php' );
                 }
 
+
+                protected function request_args() {
+			return array(
+				'timeout'   => 0,
+				'blocking'  => false,
+				'cookies'   => $_COOKIE,
+				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			);
+                }
+
+                protected function get_get_args() {
+                        if ( property_exists( $this, 'get_args' ) ) {
+                                return $this->get_args;
+                        }
+
+                        return array_merge($this->request_args(), array());
+                }
+
                 /**
                  * Get post args
                  *
@@ -125,13 +164,7 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                                 return $this->post_args;
                         }
 
-                        return array(
-                                'timeout'   => 0,
-                                'blocking'  => false,
-                                'body'      => $this->data,
-                                'cookies'   => $_COOKIE,
-                                'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
-                        );
+                        return array_merge($this->request_args(), array('body' => $this->data));
                 }
 
                 /**

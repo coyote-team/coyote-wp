@@ -65,7 +65,7 @@ class BatchPostProcessor extends BatchProcessor {
             }
         }
 
-        $resources = ImageResource::map(array_values($all_images));
+        $resources = ImageResource::resources_from_images(array_values($all_images));
 
         return array_reduce($resources, function($carry, $resource) {
             $carry[$resource->image['src']] = array(
