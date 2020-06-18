@@ -36,6 +36,8 @@ class Plugin {
         'AsyncMethod'           => 'post'
     ];
 
+    public $instance_domain = 'https://coyote.staging.pics';
+
     public $is_configured = false;
 
     public function __construct(string $file, string $version, bool $is_admin = false) {

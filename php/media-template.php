@@ -14,11 +14,13 @@ add_action('wp_enqueue_media', function() {
 
 function my_print_media_templates() {
     global $coyote_plugin;
-    // TODO get the staging prefix from here
+    $prefix = $coyote_plugin->instance_domain;
+    // get the staging prefix from here
 
     $replacements = array(
         '/aria-describedby="alt-text-description"\s+\/>/' => 'aria-describedby="alt-text-description" readonly />',
-        '/<p class="description" id="alt-text-description">.*?<\/p>/' => '<p class="description" id="alt-text-description">{{{ data.model.coyoteManagementUrl(\'https://staging.coyote.pics\') }}}</p>',
+        '/<p class="description" id="alt-text-description">.*?<\/p>/' => '<p class="description" id="alt-text-description">{{{ data.model.coyoteManagementUrl(\'' . $prefix . '\') }}}</p>',
+
     );
 
     // start output buffering
