@@ -60,7 +60,7 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                  * @var string
                  * @access protected
                  */
-                protected $request_method = 'post';
+                protected $post = true;
 
 
 
@@ -95,13 +95,15 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
                 public function dispatch() {
                         $url  = add_query_arg( $this->get_query_args(), $this->get_query_url() );
 
-                        if ($this->request_method === 'post') {
+                        if ($this->post) {
                                 $args = $this->get_post_args();
                                 return wp_remote_post( esc_url_raw( $url ), $args );
                         }
 
-                        $args = $this->get_get_args();
-                        return wp_remote_get( esc_url_raw( $url ), $args);
+                        return wp_remote_get(
+                            esc_url_raw( $url ), 
+                            ['cookies' => $_COOKIE, 'blocking' => false, 'timeout' => 0, 'sslverify' => apply_filters( 'https_local_ssl_verify', false )]
+                        );
                 }
 
                 /**
@@ -138,20 +140,12 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
 
 
                 protected function request_args() {
-			return array(
-				'timeout'   => 0,
-				'blocking'  => false,
-				'cookies'   => $_COOKIE,
-				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
-			);
-                }
-
-                protected function get_get_args() {
-                        if ( property_exists( $this, 'get_args' ) ) {
-                                return $this->get_args;
-                        }
-
-                        return array_merge($this->request_args(), array());
+                        return array(
+                                'timeout'   => false,
+                                'blocking'  => false,
+                                'cookies'   => $_COOKIE,
+                                'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+                        );
                 }
 
                 /**
@@ -193,3 +187,4 @@ if ( ! class_exists( 'WP_Async_Request' ) ) {
 
         }
 }
+
