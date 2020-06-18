@@ -67,7 +67,7 @@ class ApiClient {
             $resource = [
                 'name' => $name,
                 'source_uri' => $i['src'],
-                'resource_type' => 'still_image',
+                'resource_type' => 'image',
             ];
 
             if (isset($i['alt']) && strlen($i['alt'])) {
@@ -92,7 +92,7 @@ class ApiClient {
             }
 
             return $this->json_to_id_and_alt($json);
-        } catch (Exception $error) {
+        } catch (Exception | Error $error) {
             Logger::log("Error batch creating resources: " . $error->get_error_message());
             return array();
         }
