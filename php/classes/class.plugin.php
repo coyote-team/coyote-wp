@@ -108,6 +108,8 @@ class Plugin {
 
         // allow asynchronous post processing to take place
         $this->async_process_request = new AsyncProcessRequest($this->config['AsyncMethod']);
+
+        add_action('admin_init', [$this, 'add_tinymce_plugin']);
     }
 
     public function loaded() {
@@ -119,6 +121,13 @@ class Plugin {
         if (BatchRestoreState::has_stale_state()) {
             do_action('coyote_restore_posts');
         }
+    }
+
+    public function add_tinymce_plugin() {
+        add_filter( 'mce_external_plugins', function($plugins) {
+            $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
+            return $plugins;
+        });
     }
 
     // add setting quicklink to plugin listing entry
