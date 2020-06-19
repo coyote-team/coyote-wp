@@ -40,7 +40,7 @@ class ApiClient {
             'timeout'  => 20.0,
             // disable exceptions, handle http 4xx-5xx internally
             'exceptions' => false,
-            'headers' => ['Authorization' => $token]
+            'headers' => ['Authorization' => $token, 'Accept' => 'application/json']
         ]);
 
         $this->organization_id = $organization_id;
