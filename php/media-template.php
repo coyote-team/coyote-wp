@@ -14,7 +14,7 @@ add_action('wp_enqueue_media', function() {
 
 function my_print_media_templates() {
     global $coyote_plugin;
-    $prefix = $coyote_plugin->instance_domain;
+    $prefix = $coyote_plugin->config['CoyoteApiEndpoint'];
     // get the staging prefix from here
 
     $replacements = array(
