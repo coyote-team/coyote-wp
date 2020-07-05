@@ -20,6 +20,12 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
+use Coyote\BatchProcessorState;
+use Coyote\Helpers\PostHelper;
+
+use Coyote\ImageResource;
+use Coyote\Helpers\ContentHelper;
+
 class Plugin {
     private $is_activated = false;
     private $is_admin = false;
@@ -100,7 +106,7 @@ class Plugin {
         (new RestApiController($this->version));
 
         // handle updates to posts made by the front-end
-        add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+//        add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
 
         add_action('plugins_loaded', array($this, 'loaded'), 10, 0);
 
@@ -112,7 +118,238 @@ class Plugin {
         $this->async_process_request = new AsyncProcessRequest($this->config['AsyncMethod']);
 
         add_action('admin_init', [$this, 'add_tinymce_plugin']);
+
+        add_action( 'wp_ajax_coyote_load_process_batch', array( $this, 'load_process_batch' ) );
+        add_action( 'wp_ajax_nopriv_coyote_load_process_batch', array( $this, 'load_process_batch' ) );
+
+        add_action( 'wp_ajax_coyote_load_restore_batch', array( $this, 'load_restore_batch' ) );
+        add_action( 'wp_ajax_nopriv_coyote_load_restore_batch', array( $this, 'load_restore_batch' ) );
+
+        add_action( 'wp_ajax_coyote_process_post', array( $this, 'process_post' ) );
+        add_action( 'wp_ajax_nopriv_coyote_process_post', array( $this, 'process_post' ) );
+
+        add_action( 'wp_ajax_coyote_restore_post', array( $this, 'restore_post' ) );
+        add_action( 'wp_ajax_nopriv_coyote_restore_post', array( $this, 'restore_post' ) );
     }
+
+    public function load_process_batch() {
+        // Don't lock up other requests while processing
+        session_write_close();
+
+//        check_ajax_referer('coyote_process_existing_posts', 'nonce');
+
+        $batch_size = $_GET['size'];
+
+        echo json_encode($this->get_process_batch($batch_size));
+
+        wp_die();
+    }
+
+    public function load_restore_batch() {
+        // Don't lock up other requests while processing
+        session_write_close();
+
+//        check_ajax_referer('coyote_process_existing_posts', 'nonce');
+
+        $batch_size = $_GET['size'];
+
+        echo json_encode($this->get_restore_batch($batch_size));
+
+        wp_die();
+    }
+
+
+    public function restore_post($post) {
+        session_write_close();
+
+        $post_id = $_GET['post_id'];
+        Logger::log("Restoring post {$post_id}");
+
+        set_transient('post_restore_' . $post_id, true);
+
+        $post = get_post($post_id);
+
+        $resources = DB::get_resources_for_post($post->ID);
+        $helper = new ContentHelper($post->post_content);
+
+        foreach ($resources as $resource) {
+            $helper->restore_resource($resource->coyote_resource_id, $resource->original_description);
+        }
+
+        $post->post_content = $helper->get_content();
+
+        wp_update_post($post);
+        wp_save_post_revision($post->ID);
+
+        delete_transient('post_restore_' . $post_id);
+
+        wp_die();
+    }
+
+    public function process_post() {
+        session_write_close();
+
+        $post_id = $_GET['post_id'];
+        Logger::log("Processing post {$post_id}");
+
+        set_transient('post_process_' . $post_id, true);
+
+        $post = get_post($post_id);
+
+        $helper = new ContentHelper($post->post_content);
+        $images = $helper->get_images();
+
+        $associated = array();
+
+        $resources = get_transient('process_batch_resources');
+
+        foreach ($images as $image) {
+            if ($image['coyote_id'] !== null) {
+                continue;
+            }
+
+            if ($resource = $resources[$image['src']]) {
+                if (!$resource['id']) {
+                    Logger::log("Resource for {$image['src']} has no id? Skipping");
+                    continue;
+                }
+                $alt = $resource['alt'] === null ? '' : $resource['alt'];
+                $helper->set_coyote_id_and_alt($image['element'], $resource['id'], $alt);
+                Logger::log("Associated {$resource['id']} with image {$image['src']} in post {$post->ID}");
+                array_push($associated, $resource['id']);
+            } else {
+                Logger::log("Couldn't find resource for {$image['src']}?");
+                continue;
+            }
+        }
+
+        if (!$helper->content_is_modified) {
+            Logger::log("No modifications made, done.");
+            return;
+        }
+
+        $post->post_content = $helper->get_content();
+        $result = wp_update_post($post, true);
+
+        delete_transient('post_process_' . $post_id);
+
+        if (is_wp_error($result)) {
+            throw $result;
+        } else {
+            wp_save_post_revision($post->ID);
+            //if the post update succeeded, then associate the resources with the post
+            DB::associate_resource_ids_with_post($associated, $post->ID);
+        }
+
+        wp_die();
+    }
+
+    private function get_restore_batch($size) {
+        $post_types = ['page', 'post'];
+
+        $offset = get_transient('restore_batch_offset');
+
+        $response = [];
+
+        $post_ids = DB::get_edited_post_ids();
+
+        if ($offset === false) {
+            $offset = 0;
+            $response['total'] = count($post_ids);
+        }
+
+        $batch = get_posts(array(
+            'order'       => 'ASC',
+            'order_by'    => 'ID',
+            'offset'      => $offset,
+            'numberposts' => $size,
+            'post_type'   => $post_types,
+            'post_status' => 'publish',
+            'post_in'     => $post_ids
+        ));
+
+        $ids = wp_list_pluck($batch, 'ID');
+
+        $response['ids'] = $ids;
+
+        if (count($batch) === 0) {
+            // no more posts
+            delete_transient('restore_batch_offset');
+        } else {
+            set_transient('restore_batch_offset', $offset + count($batch));
+        }
+
+        return $response;
+    }
+
+
+    private function get_process_batch($size) {
+        $post_types = ['page', 'post'];
+
+        $offset = get_transient('process_batch_offset');
+
+        $response = [];
+
+        if ($offset === false) {
+            $offset = 0;
+
+            $total_posts = array_reduce($post_types, function($carry, $type) {
+                return $carry + wp_count_posts($type)->publish;
+            }, 0);
+
+            $response['total'] = $total_posts;
+        }
+
+        $batch = get_posts(array(
+            'order'       => 'ASC',
+            'order_by'    => 'ID',
+            'offset'      => $offset,
+            'numberposts' => $size,
+            'post_type'   => $post_types,
+            'post_status' => 'publish'
+        ));
+
+        $resources = $this->fetch_resources($batch);
+
+        set_transient('process_batch_resources', $resources);
+
+        $ids = wp_list_pluck($batch, 'ID');
+
+        $response['ids'] = $ids;
+
+        if (count($batch) === 0) {
+            // no more posts
+            delete_transient('process_batch_offset');
+        } else {
+            set_transient('process_batch_offset', $offset + count($batch));
+        }
+
+        return $response;
+    }
+
+    private function fetch_resources($posts) {
+        $all_images = array();
+
+        foreach ($posts as $post) {
+            $helper = new ContentHelper($post->post_content);
+            $images = $helper->get_images();
+            foreach ($images as $image) {
+                $all_images[$image['src']] = $image;
+            }
+        }
+
+        $resources = ImageResource::resources_from_images(array_values($all_images));
+
+        return array_reduce($resources, function($carry, $resource) {
+            $carry[$resource->image['src']] = array(
+                'id'  => $resource->coyote_resource_id,
+                'alt' => $resource->coyote_description
+            );
+
+            return $carry;
+        }, array());
+    }
+
 
     public function loaded() {
         // The loading order for this is important, otherwise required WP functions aren't available

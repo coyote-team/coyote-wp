@@ -152,7 +152,7 @@ class ContentHelper {
     public function find_resource_image($coyote_id) {
         $images = $this->get_images();
         $filtered = array_filter($images, function($item) use($coyote_id) {
-            return strpos($item, "data-coyote-id=\"{$coyote_id}\"") !== false;
+            return $images['coyote_id'] === $coyote_id;
         });
 
         // there should only be one image found with this ID
@@ -162,7 +162,7 @@ class ContentHelper {
     public function restore_resource($coyote_id, $alt) {
         if ($image = $this->find_resource_image($coyote_id)) {
             // first the alt, then the coyote ID so we can ensure no double replacements
-            $replaced = $this->replace_img_alt($image, $alt);
+            $replaced = $this->replace_img_alt($image['element'], $alt);
             $replaced = $this->remove_coyote_id($replaced, $coyote_id);
         }
     }

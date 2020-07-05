@@ -17,15 +17,22 @@ window.addEventListener('DOMContentLoaded', function () {
     };
 
     const startProcessing = function () {
-        const formData = new FormData();
+        disable('#coyote_process_existing_posts');
 
-        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-        formData.append('action', 'coyote_process_existing_posts');
-        formData.append('batchSize', document.getElementById('batch_size').value);
+        const data = {
+            nonce: coyote_ajax_obj.nonce,
+            action: 'process',
+            host: coyote_ajax_obj.ajax_url,
+            batchSize: document.getElementById('batch_size').value
+        }
 
-        fetch(coyote_ajax_obj.ajax_url, {
+        fetch('https://99e56d95d155.ngrok.io/jobs', {
+            mode: 'cors',
             method: 'POST',
-            body: formData
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+            },
         })
         .then(response => response.text())
         .then(reply => {
