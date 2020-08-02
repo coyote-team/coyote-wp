@@ -16,8 +16,34 @@ window.addEventListener('DOMContentLoaded', function () {
         return url;
     };
 
+    const setProcessingJob = function (responseText) {
+        try {
+            const data = JSON.parse(responseText);
+
+            const formData = new FormData();
+            formData.append('action', 'coyote_set_batch_job');
+            formData.append('job_id', data.id);
+            formData.append('job_type', 'process');
+            formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+
+            return fetch(coyote_ajax_obj.ajax_url, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                console.debug(response);
+                coyote_ajax_obj['job_id'] = data.id;
+                coyote_ajax_obj['job_type'] = 'process';
+                return response.text();
+            });
+        } catch (e) {
+            console.error(e);
+            return Promise.reject("Invalid json");
+        }
+    }
+
     const startProcessing = function () {
         disable('#coyote_process_existing_posts');
+        enable('#coyote_cancel_processing');
 
         const data = {
             nonce: coyote_ajax_obj.nonce,
@@ -26,7 +52,7 @@ window.addEventListener('DOMContentLoaded', function () {
             batchSize: document.getElementById('batch_size').value
         }
 
-        fetch('https://99e56d95d155.ngrok.io/jobs', {
+        fetch(`${coyote_ajax_obj.endpoint}/jobs/`, {
             mode: 'cors',
             method: 'POST',
             body: JSON.stringify(data),
@@ -35,6 +61,7 @@ window.addEventListener('DOMContentLoaded', function () {
             },
         })
         .then(response => response.text())
+        .then(setProcessingJob)
         .then(reply => {
             if (reply == "1") {
                 processExistingPostsButton.setAttribute('disabled', '');
@@ -43,50 +70,84 @@ window.addEventListener('DOMContentLoaded', function () {
                 show('#coyote_processing');
                 updateProgress();
             }
+        })
+        .catch((error) => {
+            console.debug("Error: ", error);
         });
     };
+
+    const cancelJob = function () {
+        if (coyote_ajax_obj.job_id) {
+            return fetch(`${coyote_ajax_obj.endpoint}/jobs/${coyote_ajax_obj.job_id}`, {
+                mode: 'cors',
+                method: 'DELETE',
+            });
+        }
+        return Promise.resolve();
+    }
 
     const cancelProcessing = function () {
         const formData = new FormData();
 
         formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-        formData.append('action', 'coyote_cancel_processing');
+        formData.append('action', 'coyote_cancel_batch_job');
 
-        fetch(coyote_ajax_obj.ajax_url, {
+        cancelJob().then(() => {
+            fetch(coyote_ajax_obj.ajax_url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(reply => {
+                enable('#coyote_process_existing_posts');
+                disable('#coyote_cancel_processing');
+            });
+        });
+    }
+
+    const clearBatchJob = function () {
+        const formData = new FormData();
+
+        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+        formData.append('action', 'coyote_clear_batch_job');
+
+        return fetch(coyote_ajax_obj.ajax_url, {
             method: 'POST',
             body: formData
-        })
-        .then(response => response.text())
-        .then(reply => {
-            enable('#coyote_process_existing_posts');
-            disable('#coyote_cancel_processing');
-            hide('#coyote_processing_complete');
-            hide('#coyote_processing_status');
-            hide('#coyote_processing');
         });
     }
 
     const updateProgress = function () {
-        const percentage = document.querySelector('#coyote_processing_status span');
+        const percentage = document.querySelector('#coyote_processing span');
+        const status = document.querySelector('#coyote_job_status span');
 
         const update = (url) => {
             fetch(url)
             .then(response => response.text())
             .then(data => {
+                console.debug(data);
+
                 if (data.length) {
-                    percentage.textContent = data;
-                    setTimeout(() => update(url), 1000);
-                    return;
+                    data = JSON.parse(data);
+                    status.textContent = data.status;
+                    percentage.textContent = data.progress;
+                    if (data.progress < 100) {
+                        setTimeout(() => update(url), 1000);
+                        return;
+                    }
                 }
 
-                percentage.textContent = 100;
-                processExistingPostsButton.removeAttribute('disabled');
-                hide('#coyote_processing');
-                show('#coyote_processing_complete');
+                clearBatchJob().then(() => {
+                    percentage.textContent = 100;
+                    processExistingPostsButton.removeAttribute('disabled');
+                    hide('#coyote_processing');
+                    show('#coyote_processing_complete');
+                });
             });
         };
 
-        const url = ajaxUrl('coyote_get_processing_progress');
+        // get this from the ajaxObj; job_id, job_type
+        const url = `${coyote_ajax_obj.endpoint}/jobs/${coyote_ajax_obj.job_id}`;
         update(url);
     };
 
@@ -95,9 +156,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
     if (processExistingPostsButton) {
         processExistingPostsButton.addEventListener('click', startProcessing);
-        //cancelProcessingButton.addEventListener('click', cancelProcessing);
+        cancelProcessingButton.addEventListener('click', cancelProcessing);
 
         if (processExistingPostsButton.hasAttribute('disabled')) {
+            cancelProcessingButton.removeAttribute('disabled');
             return updateProgress();
         }
     }

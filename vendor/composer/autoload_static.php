@@ -53,14 +53,7 @@ class ComposerStaticInitc555c4ce2a58b6dac4b7bd17e9d6428a
     public static $classMap = array (
         'ContentHelperTest' => __DIR__ . '/../..' . '/php/tests/ContentHelperTest.php',
         'Coyote\\ApiClient' => __DIR__ . '/../..' . '/php/classes/class.api-client.php',
-        'Coyote\\AsyncProcessRequest' => __DIR__ . '/../..' . '/php/classes/class.async-process-request.php',
-        'Coyote\\AsyncRestoreRequest' => __DIR__ . '/../..' . '/php/classes/class.async-restore-request.php',
-        'Coyote\\BatchPostProcessor' => __DIR__ . '/../..' . '/php/classes/class.batch-post-processor.php',
-        'Coyote\\BatchProcessExistingState' => __DIR__ . '/../..' . '/php/classes/class.batch-processor-state.php',
-        'Coyote\\BatchProcessor' => __DIR__ . '/../..' . '/php/classes/class.batch-processor.php',
-        'Coyote\\BatchProcessorState' => __DIR__ . '/../..' . '/php/classes/class.batch-processor-state.php',
-        'Coyote\\BatchRestoreProcessor' => __DIR__ . '/../..' . '/php/classes/class.batch-restore-processor.php',
-        'Coyote\\BatchRestoreState' => __DIR__ . '/../..' . '/php/classes/class.batch-processor-state.php',
+        'Coyote\\Batching' => __DIR__ . '/../..' . '/php/classes/class.batching.php',
         'Coyote\\Controllers\\RestApiController' => __DIR__ . '/../..' . '/php/classes/controllers/class.rest-api-controller.php',
         'Coyote\\Controllers\\SettingsController' => __DIR__ . '/../..' . '/php/classes/controllers/class.settings-controller.php',
         'Coyote\\DB' => __DIR__ . '/../..' . '/php/classes/class.db.php',
@@ -72,7 +65,6 @@ class ComposerStaticInitc555c4ce2a58b6dac4b7bd17e9d6428a
         'Coyote\\ImageResource' => __DIR__ . '/../..' . '/php/classes/class.image-resource.php',
         'Coyote\\Logger' => __DIR__ . '/../..' . '/php/classes/class.logger.php',
         'Coyote\\Plugin' => __DIR__ . '/../..' . '/php/classes/class.plugin.php',
-        'WP_Async_Request' => __DIR__ . '/../..' . '/php/classes/class.wp-async-request.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

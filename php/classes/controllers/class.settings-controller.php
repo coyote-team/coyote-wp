@@ -8,8 +8,8 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\Logger;
+use Coyote\Batching;
 use Coyote\ApiClient;
-use Coyote\BatchProcessExistingState;
 
 class SettingsController {
     private $version;
@@ -38,6 +38,8 @@ class SettingsController {
         $this->profile_fetch_failed = false;
         $this->profile = $this->get_profile();
 
+        $this->batch_job = Batching::get_batch_job();
+
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
         add_action('admin_init', array($this, 'init'));
@@ -46,49 +48,6 @@ class SettingsController {
         add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
 
-        if ($this->profile) {
-            add_action('wp_ajax_coyote_process_existing_posts', array($this, 'ajax_process_existing_posts'));
-            add_action('wp_ajax_coyote_get_processing_progress', array($this, 'ajax_get_processing_progress'));
-            add_action('wp_ajax_coyote_cancel_processing', array($this, 'ajax_cancel_processing'));
-        }
-    }
-
-    public function ajax_cancel_processing() {
-        check_ajax_referer('coyote-settings-ajax');
-
-        if ($state = BatchProcessExistingState::load($refresh = false)) {
-            $state->cancel();
-            echo true;
-        }
-        return wp_die();
-    }
-
-    public function ajax_process_existing_posts() {
-        check_ajax_referer('coyote-settings-ajax');
-
-        // verify it's a POST request
-        if(!$_POST['action']) {
-            return wp_die(-1, 404);
-        }
-
-        if (BatchProcessExistingState::exists()) {
-            echo false;
-            return wp_die();
-        }
-
-        do_action('coyote_process_existing_posts');
-        echo true;
-        wp_die();
-    }
-
-    public function ajax_get_processing_progress() {
-        check_ajax_referer('coyote-settings-ajax');
-
-        if ($state = BatchProcessExistingState::load($refresh = false)) {
-            echo $state->get_progress_percentage();
-        }
-
-        wp_die();
     }
 
     public function enqueue_scripts() {
@@ -100,7 +59,10 @@ class SettingsController {
 
         wp_localize_script('coyote_settings_js', 'coyote_ajax_obj', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('coyote-settings-ajax')
+            'nonce' => wp_create_nonce('coyote_ajax'),
+            'endpoint' => get_option('coyote_processor_endpoint'),
+            'job_id' => $this->batch_job ? $this->batch_job['id'] : null,
+            'job_type' => $this->batch_job ? $this->batch_job['type'] : null
         ));
     }
 
@@ -181,12 +143,9 @@ class SettingsController {
 
         $title  = __("Tools", self::i18n_ns);
 
-        $state = BatchProcessExistingState::load($refresh = false);
-
-        $progress = $state !== null && !$state->is_cancelled() ? $state->get_progress_percentage() : '';
-
-        $disabled = ($state !== null && !$state->is_cancelled()) ? 'disabled' : '';
-
+        $process_disabled = $this->batch_job ? 'disabled' : '';
+        $cancel_disabled = $this->batch_job ? '' : 'disabled';
+        
         $batch_size = get_option('coyote__processing_batch_size', 50);
 
         echo "
@@ -195,18 +154,20 @@ class SettingsController {
         ";
 
         echo "
-            <button id=\"coyote_process_existing_posts\" {$disabled} type=\"submit\" class=\"button button-primary\">" . __('Process existing posts', self::i18n_ns) . "</button>
+            <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Process existing posts', self::i18n_ns) . "</button>
+            <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing', self::i18n_ns). "</button>
             <div class=\"form-group\">
                 <label for=\"\">" . __('Batch size', self::i18n_ns) . "</label>
-                <input {$disabled} id=\"batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
+                <input {$process_disabled} id=\"batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
             </div>
         ";
 
-        $hidden = $disabled ? '' : 'hidden';
+        $hidden = $process_disabled ? '' : 'hidden';
 
         echo "
             <div id=\"coyote_processing_status\" {$hidden} aria-live=\"assertive\" aria-atomic=\"true\">
-                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span>{$progress}</span>%</strong>
+                <strong id=\"coyote_job_status\">" . __('Status', 'coyote') . ": <span></span></strong>
+                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span></span>%</strong>
                 <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
             </div>
         ";
@@ -228,7 +189,8 @@ class SettingsController {
 
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
-        register_setting(self::page_slug, 'coyote__api_settings_method');
+
+        register_setting(self::page_slug, 'coyote_processor_endpoint');
 
         if ($this->profile) {
             register_setting(self::page_slug, 'coyote__api_settings_organization_id');
@@ -259,15 +221,6 @@ class SettingsController {
             array('label_for' => 'coyote__api_settings_token')
         );
 
-        add_settings_field(
-            'coyote__api_settings_method',
-            __('Request method', self::i18n_ns),
-            array($this, 'api_settings_method_cb'),
-            self::page_slug,
-            self::api_settings_section,
-            array('label_for' => 'coyote__api_settings_method')
-        );
-
         if (!$this->profile) {
             return;
         }
@@ -281,10 +234,22 @@ class SettingsController {
             array('label_for' => 'coyote__api_settings_organization_id')
         );
 
+        add_settings_field(
+            'coyote_processor_endpoint',
+            __('Processor endpoint', self::i18n_ns),
+            array($this, 'processor_endpoint_cb'),
+            self::page_slug,
+            self::api_settings_section,
+            array('label_for' => 'coyote_processor_endpoint')
+        );
     }
 
     public function api_settings_cb() {
         //TODO refactor into generator
+    }
+
+    public function processor_endpoint_cb() {
+        echo '<input name="coyote_processor_endpoint" id="coyote_processor_endpoint" type="text" value="' . get_option('coyote_processor_endpoint', 'https://processor.coyote.pics') . '" size="50"/>';
     }
 
     public function api_settings_endpoint_cb() {
