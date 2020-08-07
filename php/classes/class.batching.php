@@ -152,6 +152,7 @@ class Batching {
                         Logger::log("Resource for {$image['src']} has no id? Skipping");
                         continue;
                     }
+
                     $alt = $resource['alt'] === null ? '' : $resource['alt'];
                     $helper->set_coyote_id_and_alt($image['element'], $resource['id'], $alt);
                     Logger::log("Associated {$resource['id']} with image {$image['src']} in post {$post->ID}");
@@ -226,7 +227,6 @@ class Batching {
 
         return $response;
     }
-
 
     public static function _get_process_batch($size) {
         $post_types = ['page', 'post'];

@@ -3,11 +3,14 @@
      tinymce.create('tinymce.plugins.Coyote', {
           init : function(ed, url) {
             wp.media.events.on('editor:image-edit', function (arg) {
-                var getManagementUrl = function (prefix) {
-                    if (arg.image.dataset.coyoteId) {
+                var getManagementUrl = function () {
+                    var prefix = coyote.classic_editor.prefix;
+                    var coyoteId = coyote.classic_editor.mapping[arg.image.src];
+
+                    if (coyoteId !== undefined) {
                         url = 
                             '<a target="_blank" href="' +
-                            prefix + '/resources/' + arg.image.dataset.coyoteId +
+                            prefix + '/resources/' + coyoteId +
                             '">Manage image on Coyote website</a>';
                         return url;
                     }

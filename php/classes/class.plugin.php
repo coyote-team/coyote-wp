@@ -127,6 +127,29 @@ class Plugin {
 
     }
 
+    public function classic_editor_data() {
+        global $post;
+        $prefix = $this->config['CoyoteApiEndpoint'];
+        $helper = new ContentHelper($post->post_content);
+        $images = $helper->get_images();
+        $mapping = array_reduce($images, function ($set, $image) {
+            $set[$image['src']] = $image['coyote_id'];
+            return $set;
+        }, []);
+        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return <<<js
+<script>
+    window.coyote = {};
+    window.coyote.classic_editor = {
+        postId: "{$post->ID}",
+        prefix: "{$prefix}",
+        mapping: $json_mapping
+    };
+</script>
+js;
+    }
+
     public function add_tinymce_plugin() {
         add_filter( 'mce_external_plugins', function($plugins) {
             $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
