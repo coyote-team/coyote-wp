@@ -29,8 +29,7 @@ class PostUpdateHandler {
         }
 
         try {
-            $processed = self::process(wp_unslash($data['post_content']), $post_id);
-            $data['post_content'] = wp_slash($processed);
+            self::process(wp_unslash($data['post_content']), $post_id);
         } catch (Exception $error) {
             Logger::log("Error processing post update for {$post_id}: " . $error->get_error_message());
         }
@@ -45,8 +44,6 @@ class PostUpdateHandler {
         $images = $helper->get_images();
 
         ImageResource::resources_from_images($images);
-
-        return $content;
     }
 
 }

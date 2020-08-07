@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Afford custom Coyote callback endpoint on WP REST API
  *
@@ -9,7 +8,6 @@
  */
 
 namespace Coyote\Controllers;
-
 
 // Exit if accessed directly.
 if (!defined( 'ABSPATH')) {
@@ -81,9 +79,6 @@ class RestApiController {
             Logger::log("Update contained no alt text, setting to empty string");
             $update['alt'] = "";
         }
-
-        // disable the post update hook
-        remove_action('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'));
 
         return ResourceUpdateHandler::run($update['id'], $update['alt']);
     }
