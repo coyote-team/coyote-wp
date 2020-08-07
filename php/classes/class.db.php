@@ -75,6 +75,26 @@ class DB {
         return self::get_image_by_hash($hash);
     }
 
+    public static function get_coyote_alt_by_hash($hash) {
+        $row = self::get_image_by_hash($hash);
+
+        if ($row) {
+            return $row->coyote_description;
+        }
+
+        return null;
+    }
+
+    public static function get_coyote_id_by_hash($hash) {
+        $row = self::get_image_by_hash($hash);
+
+        if ($row) {
+            return $row->coyote_resource_id;
+        }
+
+        return null;
+    }
+
     public static function get_image_by_hash($hash) {
         global $wpdb;
         

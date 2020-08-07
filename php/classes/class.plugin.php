@@ -125,17 +125,20 @@ class Plugin {
         add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
 
+        add_filter('the_content', [$this, 'filter_post_content'], 1);
+
+    }
+
+    public function filter_post_content($post_content) {
+        $helper = new ContentHelper($post_content);
+        return $helper->replace_image_alts();
     }
 
     public function classic_editor_data() {
         global $post;
         $prefix = $this->config['CoyoteApiEndpoint'];
         $helper = new ContentHelper($post->post_content);
-        $images = $helper->get_images();
-        $mapping = array_reduce($images, function ($set, $image) {
-            $set[$image['src']] = $image['coyote_id'];
-            return $set;
-        }, []);
+        $mapping = $helper->get_src_and_coyote_id();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return <<<js

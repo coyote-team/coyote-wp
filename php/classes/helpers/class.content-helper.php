@@ -8,6 +8,7 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\Logger;
+use Coyote\DB;
 
 class ContentHelper {
     private $content;
@@ -29,6 +30,62 @@ class ContentHelper {
 
     function __construct(string $content) {
         $this->content = $content;
+    }
+
+    function replace_image_alts() {
+        $matches = array();
+        preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
+
+        $match_count = count($matches[0]);
+
+        for ($i = 0; $i < $match_count; $i++) {
+            if (isset($matches[2][$i]) && strlen($matches[2][$i])) {
+                // this one has a caption
+                $element = $matches[1][$i];
+            } else {
+                $element = $matches[0][$i];
+            }
+
+            $src = self::get_img_src($element);
+
+            $alt = DB::get_coyote_alt_by_hash(sha1(($src)));
+
+            if ($alt === null) {
+                continue;
+            }
+
+            $this->replace_img_alt($element, $alt);
+        }
+
+        return $this->content;
+    }
+
+    function get_src_and_coyote_id() {
+        $matches = array();
+        preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
+
+        $match_count = count($matches[0]);
+        $images = [];
+
+        for ($i = 0; $i < $match_count; $i++) {
+            if (isset($matches[2][$i]) && strlen($matches[2][$i])) {
+                // this one has a caption
+                $element = $matches[1][$i];
+            } else {
+                $element = $matches[0][$i];
+            }
+
+            $src = self::get_img_src($element);
+            $coyote_id = DB::get_coyote_id_by_hash(sha1($src));
+
+            if ($coyote_id === null) {
+                continue;
+            }
+
+            $images[$src] = $coyote_id;
+        }
+
+        return $images;
     }
 
     function get_images() {
