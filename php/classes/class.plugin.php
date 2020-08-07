@@ -113,9 +113,6 @@ class Plugin {
         add_action('wp_ajax_coyote_process_post', array('Coyote\Batching', 'process_post'));
         add_action('wp_ajax_nopriv_coyote_process_post', array('Coyote\Batching', 'process_post'));
 
-        add_action('wp_ajax_coyote_restore_post', array('Coyote\Batching', 'restore_post'));
-        add_action('wp_ajax_nopriv_coyote_restore_post', array('Coyote\Batching', 'restore_post'));
-
         add_action('wp_ajax_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
         add_action('wp_ajax_nopriv_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
 

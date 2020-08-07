@@ -36,10 +36,6 @@ class ImageResource {
     }
 
     public static function resources_from_images(array $images) {
-        $images = array_filter($images, function ($image) {
-            return $image['coyote_id'] === null;
-        });
-
         $api_client = self::get_api_client();
         $coyote_resources = $api_client->batch_create($images);
 

@@ -28,49 +28,6 @@ class ResourceUpdateHandler {
             // no updates? That's ok, but leave posts alone
             return true;
         }
-
-        try {
-            return self::update_posts_with_resource($id, $alt);
-        } catch (Exception $error) {
-            Logger::Log("Error updating post: " . $error->get_error_message());
-            return false;
-        }
-    }
-
-    public static function update_posts_with_resource($id, $alt) {
-        $post_ids = DB::get_post_ids_using_resource_id($id);
-
-        foreach ($post_ids as $post_id) {
-            $post = get_post($post_id);
-
-            if (!$post) {
-                throw new Exception("Unable to load post {$post_id}");
-            }
-            
-            $helper = new ContentHelper($post->post_content);
-            $images = $helper->get_images();
-
-            foreach ($images as $image) {
-                if ($image['coyote_id'] !== $id) {
-                    continue;
-                }
-
-                $helper->replace_img_alt($image['element'], $alt);
-                Logger::log("Updated {$image['src']} alt with \"{$alt}\" in post {$post->ID}");
-            }
-
-            $post->post_content = $helper->get_content();
-            $result = wp_update_post($post, true);
-
-            if (is_wp_error($result)) {
-                throw $result;
-            }
-
-            wp_save_post_revision($post_id);
-        }
-
-        return true;
     }
 }
-
 

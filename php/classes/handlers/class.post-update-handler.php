@@ -44,32 +44,9 @@ class PostUpdateHandler {
         $helper = new ContentHelper($content);
         $images = $helper->get_images();
 
-        $resources = ImageResource::resources_from_images($images);
-        $associated = array();
+        ImageResource::resources_from_images($images);
 
-        foreach ($resources as $resource) {
-            if ($resource->image["coyote_id"] !== null) {
-                // The resource is already linked -- skip
-                continue;
-            }
-
-            // The retrieval or creation of the coyote resource was successful
-            if ($resource->coyote_resource_id !== null) {
-                $alt = $resource->coyote_description !== null ? $resource->coyote_description : "";
-                $helper->set_coyote_id_and_alt($resource->image["element"], $resource->coyote_resource_id, $alt);
-                array_push($associated, $resource->coyote_resource_id);
-            }
-        }
-
-        if (!$helper->content_is_modified) {
-            Logger::log("No modifications made, done.");
-            return $helper->get_content();
-        }
-
-        //if the post update succeeded, then associate the resources with the post
-        DB::associate_resource_ids_with_post($associated, $post_id);
-
-        return $helper->get_content();
+        return $content;
     }
 
 }
