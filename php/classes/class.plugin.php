@@ -71,7 +71,6 @@ class Plugin {
         // $wpdb becomes available here
         global $wpdb;
         define('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . 'coyote_image_resource');
-        define('COYOTE_JOIN_TABLE_NAME', $wpdb->prefix . 'coyote_resource_post_jt');
 
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
@@ -169,14 +168,12 @@ js;
 
         $search_strings = array(
             '%image_resource_table_name%',
-            '%resource_post_join_table_name%',
             '%wp_post_table_name%',
             '%charset_collate%'
         );
         
         $replace_strings = array(
             COYOTE_IMAGE_TABLE_NAME,
-            COYOTE_JOIN_TABLE_NAME,
             $wpdb->prefix . 'posts',
             $wpdb->get_charset_collate()
         );
