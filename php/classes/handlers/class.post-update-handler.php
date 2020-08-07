@@ -11,7 +11,7 @@ use Coyote\Batching;
 use Coyote\Logger;
 use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
-use Coyote\ImageResource;
+use Coyote\CoyoteResource;
 
 class PostUpdateHandler {
 
@@ -43,7 +43,7 @@ class PostUpdateHandler {
         $helper = new ContentHelper($content);
         $images = $helper->get_images();
 
-        ImageResource::resources_from_images($images);
+        CoyoteResource::resources_from_images($images);
     }
 
 }

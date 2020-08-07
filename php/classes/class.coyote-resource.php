@@ -11,7 +11,7 @@ use Coyote\DB;
 use Coyote\Logger;
 use Coyote\ApiClient;
 
-class ImageResource {
+class CoyoteResource {
     public $image;
     private $resource = null;
 
@@ -45,7 +45,7 @@ class ImageResource {
                 : null
             ;
 
-            return new ImageResource($image, $resource);
+            return new CoyoteResource($image, $resource);
         }, $images);
     }
 

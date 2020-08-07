@@ -2,7 +2,6 @@
 
 namespace Coyote;
 
-
 // Exit if accessed directly.
 if (!defined( 'ABSPATH')) {
     exit;
@@ -10,11 +9,9 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Helpers\ContentHelper;
 use Coyote\Logger;
+use Coyote\CoyoteResource;
 
 class Batching {
-    public static function is_processing($post_id) {
-        return get_transient('coyote_post_restore_' . $post_id) || get_transient('coyote_post_process_' . $post_id);
-    }
 
     public static function ajax_set_batch_job() {
         // Don't lock up other requests while processing
@@ -47,8 +44,7 @@ class Batching {
 
     public static function clear_batch_job() {
         delete_transient('coyote_batch_job');
-        delete_transient('coyote_restore_batch_offset');
-        delete_transient('coyote_process_batch_offset');
+        delete_transient('coyote_batch_offset');
     }
 
     public static function set_batch_job($id, $type) {
@@ -75,7 +71,7 @@ class Batching {
     public static function _get_process_batch($size) {
         $post_types = ['page', 'post'];
 
-        $offset = get_transient('coyote_process_batch_offset');
+        $offset = get_transient('coyote_batch_offset');
 
         $response = [];
 
@@ -106,9 +102,9 @@ class Batching {
 
         if (count($batch) === 0) {
             // no more posts
-            delete_transient('coyote_process_batch_offset');
+            delete_transient('coyote_batch_offset');
         } else {
-            set_transient('coyote_process_batch_offset', $offset + count($batch));
+            set_transient('coyote_batch_offset', $offset + count($batch));
         }
 
         return $response;
@@ -125,7 +121,7 @@ class Batching {
             }
         }
 
-        $resources = ImageResource::resources_from_images(array_values($all_images));
+        $resources = CoyoteResource::resources_from_images(array_values($all_images));
     }
 
 }

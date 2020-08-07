@@ -14,7 +14,6 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Logger;
 use Coyote\Batching;
-use Coyote\ImageResource;
 use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
