@@ -107,12 +107,6 @@ class Plugin {
         add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
         add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
 
-        add_action('wp_ajax_coyote_load_restore_batch', array('Coyote\Batching', 'load_restore_batch'));
-        add_action('wp_ajax_nopriv_coyote_load_restore_batch', array('Coyote\Batching', 'load_restore_batch'));
-
-        add_action('wp_ajax_coyote_process_post', array('Coyote\Batching', 'process_post'));
-        add_action('wp_ajax_nopriv_coyote_process_post', array('Coyote\Batching', 'process_post'));
-
         add_action('wp_ajax_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
         add_action('wp_ajax_nopriv_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
 
@@ -123,7 +117,11 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
 
         add_filter('the_content', [$this, 'filter_post_content'], 1);
+        add_filter('the_editor_content', [$this, 'filter_editor_post_content'], 1);
+    }
 
+    public function filter_editor_post_content($post_content) {
+        return $this->filter_post_content($post_content);
     }
 
     public function filter_post_content($post_content) {
@@ -133,7 +131,7 @@ class Plugin {
 
     public function classic_editor_data() {
         global $post;
-        $prefix = $this->config['CoyoteApiEndpoint'];
+        $prefix = $this->config['CoyoteApiEndpoint'] . implode('/', ['organizations', $this->config['CoyoteOrganizationId']]);
         $helper = new ContentHelper($post->post_content);
         $mapping = $helper->get_src_and_coyote_id();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -207,18 +205,12 @@ js;
         Logger::log("Activating plugin");
         // for some weird reason you can't create multiple tables at once?
         $this->run_plugin_sql(coyote_sql_file('create_resource_table.sql'));
-        $this->run_plugin_sql(coyote_sql_file('create_join_table.sql'));
-
         $this->is_activated = true;
         add_option('coyote_plugin_is_activated', $this->is_activated);
     }
 
     public function deactivate() {
         Logger::log("Deactivating plugin");
-
-        // don't trigger update filters when removing coyote ids
-        remove_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10);
-
         $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
         delete_option('coyote_plugin_is_activated');
     }

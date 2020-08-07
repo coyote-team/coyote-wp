@@ -94,7 +94,7 @@ class RestApiController {
 
         $alt_representations = array_filter($json->included, function ($item) {
             return $item->type === 'representation' &&
-                   $item->attributes->metum === 'Alt';
+                   $item->attributes->metum === 'Alt (short)';
         });
 
 
