@@ -18,7 +18,6 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 use Coyote\Helpers\ContentHelper;
-use Coyote\Helpers\PostHelper;
 
 class Plugin {
     private $is_activated = false;
