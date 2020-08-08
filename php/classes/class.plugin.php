@@ -30,7 +30,8 @@ class Plugin {
         'CoyoteApiVersion'      => "1",
         'CoyoteApiToken'        => null,
         'CoyoteApiEndpoint'     => "",
-        'CoyoteOrganizationId'  => null,
+        'CoyoteApiMetum'        => 'Alt (short)',
+        'CoyoteOrganizationId'  => null
     ];
 
     public $instance_domain = 'https://coyote.staging.pics';
@@ -55,8 +56,8 @@ class Plugin {
         $_config['CoyoteApiVersion']     = get_option('coyote__api_settings_version', $_config['CoyoteApiVersion']);
         $_config['CoyoteApiToken']       = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
         $_config['CoyoteApiEndpoint']    = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteApiMetum']       = get_option('coyote__api_settings_metum', $_config['CoyoteApiMetum']);
         $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
-
 
         if (get_option('coyote__api_profile')) {
             $this->is_configured = true;

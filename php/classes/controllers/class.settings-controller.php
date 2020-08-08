@@ -28,6 +28,7 @@ class SettingsController {
 
     function __construct(string $version) {
         $this->version = $version;
+        // TODO ditch
         $this->setup();
     }
 
@@ -47,7 +48,6 @@ class SettingsController {
 
         add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
-
     }
 
     public function enqueue_scripts() {

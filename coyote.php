@@ -21,9 +21,6 @@ define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('COYOTE_VERSION', '0.0.1');
 
-// after two minutes a post-processing batch goes stale
-define('COYOTE_BATCH_STALE_SECONDS', 3*60);
-
 function coyote_plugin_file(string $path) {
     return _coyote_file('php', $path);
 }

@@ -61,7 +61,7 @@ class Batching {
 
 //        check_ajax_referer('coyote_ajax');
 
-        $batch_size = $_POST['size'];
+        $batch_size = $_GET['size'];
 
         echo json_encode(self::_get_process_batch($batch_size));
 
@@ -94,11 +94,12 @@ class Batching {
             'post_status' => 'publish'
         ));
 
-        self::create_resources($batch);
+        $resources = self::create_resources($batch);
 
-        $ids = wp_list_pluck($batch, 'ID');
+        $response['size'] = count($batch);
+        $response['resources'] = count($resources);
 
-        $response['ids'] = $ids;
+        Logger::log($response);
 
         if (count($batch) === 0) {
             // no more posts
@@ -121,7 +122,7 @@ class Batching {
             }
         }
 
-        $resources = CoyoteResource::resources_from_images(array_values($all_images));
+        return CoyoteResource::resources_from_images(array_values($all_images));
     }
 
 }
