@@ -22,6 +22,7 @@ use Coyote\Helpers\ContentHelper;
 class Plugin {
     private $is_activated = false;
     private $is_admin = false;
+    private $has_filters_enabled = false;
 
     private $file;
     private $version;
@@ -74,6 +75,8 @@ class Plugin {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
+        $this->has_filters_enabled = get_option('coyote_filters_enabled', true);
+
         $this->load_config();
 
         if (!$this->is_activated) {
@@ -82,6 +85,21 @@ class Plugin {
 
         // add settings link to plugin page
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
+
+        if ($this->has_filters_enabled) {
+            Logger::log('Filters enabled.');
+
+            // handle updates to posts made by the front-end
+            add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+
+            add_filter('the_content', [$this, 'filter_post_content'], 1);
+            add_filter('the_editor_content', [$this, 'filter_post_content'], 1);
+
+            // allow custom resource management link in tinymce
+            add_action('admin_init', [$this, 'add_tinymce_plugin']);
+        } else {
+            Logger::log('Filters disabled.');
+        }
 
         if ($this->is_admin) {
             (new SettingsController($this->version));
@@ -94,14 +112,6 @@ class Plugin {
         // allow remote updates
         (new RestApiController($this->version));
 
-        // handle updates to posts made by the front-end
-        add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
-
-        // allow custom resource management link in tinymce
-        add_action('admin_init', [$this, 'add_tinymce_plugin']);
-
-        // allow asynchronous post processing to take place
-
         add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
         add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
 
@@ -113,13 +123,6 @@ class Plugin {
 
         add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-
-        add_filter('the_content', [$this, 'filter_post_content'], 1);
-        add_filter('the_editor_content', [$this, 'filter_editor_post_content'], 1);
-    }
-
-    public function filter_editor_post_content($post_content) {
-        return $this->filter_post_content($post_content);
     }
 
     public function filter_post_content($post_content) {
@@ -170,7 +173,7 @@ js;
             '%wp_post_table_name%',
             '%charset_collate%'
         );
-        
+
         $replace_strings = array(
             COYOTE_IMAGE_TABLE_NAME,
             $wpdb->prefix . 'posts',
@@ -189,7 +192,7 @@ js;
     private function run_plugin_sql(string $path) {
         $file_sql = file_get_contents($path);
         $sql = $this->replace_sql_variables($file_sql);
-        $this->run_sql_query($sql); 
+        $this->run_sql_query($sql);
     }
 
     public function activate() {

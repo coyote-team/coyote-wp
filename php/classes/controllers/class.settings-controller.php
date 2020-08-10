@@ -22,6 +22,7 @@ class SettingsController {
     const icon       = 'dashicon-admin-plugins';
     const position   = 250;
 
+    const settings_section = 'settings_section';
     const api_settings_section = 'api_settings_section';
 
     function __construct() {
@@ -137,7 +138,7 @@ class SettingsController {
 
         $process_disabled = $this->batch_job ? 'disabled' : '';
         $cancel_disabled = $this->batch_job ? '' : 'disabled';
-        
+
         $batch_size = get_option('coyote__processing_batch_size', 50);
 
         echo "
@@ -187,19 +188,46 @@ class SettingsController {
     public function init() {
         // TODO generate this from static typedef
 
+        register_setting(self::page_slug, 'coyote_filters_enabled');
+        register_setting(self::page_slug, 'coyote_processor_endpoint');
+
         register_setting(self::page_slug, 'coyote__api_settings_endpoint');
         register_setting(self::page_slug, 'coyote__api_settings_token');
 
-        register_setting(self::page_slug, 'coyote_processor_endpoint');
 
         if ($this->profile) {
             register_setting(self::page_slug, 'coyote__api_settings_organization_id');
         }
 
         add_settings_section(
-            self::api_settings_section, 
+            self::settings_section,
+            __('Plugin settings', self::i18n_ns),
+            [$this, 'setting_section_cb'],
+            self::page_slug
+        );
+
+        add_settings_field(
+            'coyote_filters_enabled',
+            __('Enable filters', self::i18n_ns),
+            array($this, 'settings_filters_enabled_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_filters_enabled')
+        );
+
+        add_settings_field(
+            'coyote_processor_endpoint',
+            __('Processor endpoint', self::i18n_ns),
+            array($this, 'processor_endpoint_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_processor_endpoint')
+        );
+
+        add_settings_section(
+            self::api_settings_section,
             __('API settings', self::i18n_ns),
-            array($this, 'api_settings_cb'),
+            array($this, 'setting_section_cb'),
             self::page_slug
         );
 
@@ -212,14 +240,6 @@ class SettingsController {
             array('label_for' => 'coyote__api_settings_endpoint')
         );
 
-        add_settings_field(
-            'coyote_processor_endpoint',
-            __('Processor endpoint', self::i18n_ns),
-            array($this, 'processor_endpoint_cb'),
-            self::page_slug,
-            self::api_settings_section,
-            array('label_for' => 'coyote_processor_endpoint')
-        );
 
         add_settings_field(
             'coyote__api_settings_token',
@@ -245,7 +265,7 @@ class SettingsController {
 
     }
 
-    public function api_settings_cb() {
+    public function setting_section_cb() {
         //TODO refactor into generator
     }
 
@@ -283,6 +303,12 @@ class SettingsController {
             echo "<option {$selected} value=\"" . $org['id'] ."\">" . htmlspecialchars($org['name']). "</option>";
         }
         echo '</select>';
+    }
+
+    public function settings_filters_enabled_cb() {
+        $setting = get_option('coyote_filters_enabled', true);
+        $checked = $setting ? 'checked' : '';
+        echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked}>";
     }
 
 }
