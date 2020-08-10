@@ -14,10 +14,8 @@ use Coyote\CoyoteResource;
 class Batching {
 
     public static function ajax_set_batch_job() {
-        // Don't lock up other requests while processing
         session_write_close();
-
-        //check_ajax_referer('coyote_ajax');
+        check_ajax_referer('coyote_ajax');
 
         $job_id = $_POST['job_id'];  
         $job_type = $_POST['job_type'];
@@ -30,10 +28,8 @@ class Batching {
     }
 
     public static function ajax_clear_batch_job() {
-        // Don't lock up other requests while processing
         session_write_close();
-
-        //check_ajax_referer('coyote_ajax');
+        check_ajax_referer('coyote_ajax');
 
         self::clear_batch_job();
 
@@ -56,10 +52,7 @@ class Batching {
     }
 
     public static function load_process_batch() {
-        // Don't lock up other requests while processing
         session_write_close();
-
-//        check_ajax_referer('coyote_ajax');
 
         $batch_size = $_GET['size'];
 
@@ -98,8 +91,6 @@ class Batching {
 
         $response['size'] = count($batch);
         $response['resources'] = count($resources);
-
-        Logger::log($response);
 
         if (count($batch) === 0) {
             // no more posts

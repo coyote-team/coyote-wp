@@ -12,8 +12,6 @@ use Coyote\Batching;
 use Coyote\ApiClient;
 
 class SettingsController {
-    private $version;
-
     private $page_title;
     private $menu_title;
     private $profile;
@@ -26,13 +24,7 @@ class SettingsController {
 
     const api_settings_section = 'api_settings_section';
 
-    function __construct(string $version) {
-        $this->version = $version;
-        // TODO ditch
-        $this->setup();
-    }
-
-    private function setup() {
+    function __construct() {
         $this->page_title = __('Coyote settings', self::i18n_ns);
         $this->menu_title = __('Coyote', self::i18n_ns);
 
@@ -166,9 +158,17 @@ class SettingsController {
 
         echo "
             <div id=\"coyote_processing_status\" {$hidden} aria-live=\"assertive\" aria-atomic=\"true\">
-                <strong id=\"coyote_job_status\">" . __('Status', 'coyote') . ": <span></span></strong>
-                <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span></span>%</strong>
-                <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
+                <div>
+                    <strong id=\"coyote_job_status\">" . __('Status', 'coyote') . ": <span></span></strong>
+                </div>
+
+                <div>
+                    <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span></span>%</strong>
+                </div>
+
+                <div>
+                    <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
+                </div>
             </div>
         ";
     }
@@ -213,6 +213,15 @@ class SettingsController {
         );
 
         add_settings_field(
+            'coyote_processor_endpoint',
+            __('Processor endpoint', self::i18n_ns),
+            array($this, 'processor_endpoint_cb'),
+            self::page_slug,
+            self::api_settings_section,
+            array('label_for' => 'coyote_processor_endpoint')
+        );
+
+        add_settings_field(
             'coyote__api_settings_token',
             __('Token', self::i18n_ns),
             array($this, 'api_settings_token_cb'),
@@ -234,14 +243,6 @@ class SettingsController {
             array('label_for' => 'coyote__api_settings_organization_id')
         );
 
-        add_settings_field(
-            'coyote_processor_endpoint',
-            __('Processor endpoint', self::i18n_ns),
-            array($this, 'processor_endpoint_cb'),
-            self::page_slug,
-            self::api_settings_section,
-            array('label_for' => 'coyote_processor_endpoint')
-        );
     }
 
     public function api_settings_cb() {
