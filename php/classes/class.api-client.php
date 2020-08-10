@@ -67,6 +67,7 @@ class ApiClient {
             $resource = [
                 'name' => $name,
                 'source_uri' => $i['src'],
+                'host_uris' => [$i['host_uri']],
                 'resource_type' => 'image',
             ];
 
@@ -147,7 +148,13 @@ class ApiClient {
     }
 
     public function get_profile() {
-        $response = $this->guzzle_client->get('profile');
+        try {
+            $response = $this->guzzle_client->get('profile');
+        } catch (\Exception $e) {
+            Logger::log("Error fetching profile: {$e->getMessage()}");
+            return null;
+        }
+
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {

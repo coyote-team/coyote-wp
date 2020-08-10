@@ -109,6 +109,7 @@ class Batching {
             $helper = new ContentHelper($post->post_content);
             $images = $helper->get_images();
             foreach ($images as $image) {
+                $image['host_uri'] = get_permalink($post);
                 $all_images[$image['src']] = $image;
             }
         }

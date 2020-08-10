@@ -40,8 +40,13 @@ class PostUpdateHandler {
     public static function process($content, $post_id) {
         Logger::log("Processing update on post " . $post_id);
 
+        $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);
-        $images = $helper->get_images();
+
+        $images = array_map(function ($image) using ($permalink) {
+            $image['host_uri'] = $permalink;
+            return $image;
+        }, $helper->get_images());
 
         CoyoteResource::resources_from_images($images);
     }
