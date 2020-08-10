@@ -15,7 +15,6 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\Logger;
-use Coyote\ApiClient;
 use Coyote\Handlers\ResourceUpdateHandler;
 
 use WP_REST_Server;
@@ -49,7 +48,7 @@ class RestApiController {
             'callback',
             array(
                 'methods' => WP_REST_Server::CREATABLE,
-                'callback' => array($this, 'update_resource_in_posts'),
+                'callback' => array($this, 'update_resource'),
                 'permission_callback' => array($this, 'check_callback_permission')
             )
         );
@@ -64,7 +63,7 @@ class RestApiController {
         );
     }
 
-    public function update_resource_in_posts(WP_Rest_Request $request) {
+    public function update_resource(WP_Rest_Request $request) {
         $body = $request->get_body();
         $json = json_decode($body);
 

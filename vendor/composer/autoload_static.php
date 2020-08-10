@@ -51,7 +51,6 @@ class ComposerStaticInitc555c4ce2a58b6dac4b7bd17e9d6428a
     );
 
     public static $classMap = array (
-        'ContentHelperTest' => __DIR__ . '/../..' . '/php/tests/ContentHelperTest.php',
         'Coyote\\ApiClient' => __DIR__ . '/../..' . '/php/classes/class.api-client.php',
         'Coyote\\Batching' => __DIR__ . '/../..' . '/php/classes/class.batching.php',
         'Coyote\\Controllers\\RestApiController' => __DIR__ . '/../..' . '/php/classes/controllers/class.rest-api-controller.php',
@@ -59,6 +58,7 @@ class ComposerStaticInitc555c4ce2a58b6dac4b7bd17e9d6428a
         'Coyote\\CoyoteResource' => __DIR__ . '/../..' . '/php/classes/class.coyote-resource.php',
         'Coyote\\DB' => __DIR__ . '/../..' . '/php/classes/class.db.php',
         'Coyote\\Handlers\\PostUpdateHandler' => __DIR__ . '/../..' . '/php/classes/handlers/class.post-update-handler.php',
+        'Coyote\\Handlers\\ResourceUpdateHandler' => __DIR__ . '/../..' . '/php/classes/handlers/class.resource-update-handler.php',
         'Coyote\\Helpers\\ContentHelper' => __DIR__ . '/../..' . '/php/classes/helpers/class.content-helper.php',
         'Coyote\\Logger' => __DIR__ . '/../..' . '/php/classes/class.logger.php',
         'Coyote\\Plugin' => __DIR__ . '/../..' . '/php/classes/class.plugin.php',

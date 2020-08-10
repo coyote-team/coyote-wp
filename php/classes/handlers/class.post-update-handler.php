@@ -23,11 +23,6 @@ class PostUpdateHandler {
             return $data;
         }
 
-        if (Batching::is_processing($post_id)) {
-            Logger::log("Firing PostUpdateHandler while processing existing post {$post_id}, skipping");
-            return $data;
-        }
-
         try {
             self::process(wp_unslash($data['post_content']), $post_id);
         } catch (Exception $error) {
@@ -43,7 +38,7 @@ class PostUpdateHandler {
         $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);
 
-        $images = array_map(function ($image) using ($permalink) {
+        $images = array_map(function ($image) use ($permalink) {
             $image['host_uri'] = $permalink;
             return $image;
         }, $helper->get_images());

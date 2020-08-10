@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ContentHelperTest' => $baseDir . '/php/tests/ContentHelperTest.php',
     'Coyote\\ApiClient' => $baseDir . '/php/classes/class.api-client.php',
     'Coyote\\Batching' => $baseDir . '/php/classes/class.batching.php',
     'Coyote\\Controllers\\RestApiController' => $baseDir . '/php/classes/controllers/class.rest-api-controller.php',
@@ -14,6 +13,7 @@ return array(
     'Coyote\\CoyoteResource' => $baseDir . '/php/classes/class.coyote-resource.php',
     'Coyote\\DB' => $baseDir . '/php/classes/class.db.php',
     'Coyote\\Handlers\\PostUpdateHandler' => $baseDir . '/php/classes/handlers/class.post-update-handler.php',
+    'Coyote\\Handlers\\ResourceUpdateHandler' => $baseDir . '/php/classes/handlers/class.resource-update-handler.php',
     'Coyote\\Helpers\\ContentHelper' => $baseDir . '/php/classes/helpers/class.content-helper.php',
     'Coyote\\Logger' => $baseDir . '/php/classes/class.logger.php',
     'Coyote\\Plugin' => $baseDir . '/php/classes/class.plugin.php',

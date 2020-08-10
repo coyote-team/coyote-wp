@@ -137,7 +137,7 @@ class Plugin {
 
     public function classic_editor_data() {
         global $post;
-        $prefix = $this->config['CoyoteApiEndpoint'] . implode('/', ['organizations', $this->config['CoyoteOrganizationId']]);
+        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteOrganizationId']]);
         $helper = new ContentHelper($post->post_content);
         $mapping = $helper->get_src_and_coyote_id();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
