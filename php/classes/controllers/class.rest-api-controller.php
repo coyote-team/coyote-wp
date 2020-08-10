@@ -25,8 +25,9 @@ class RestApiController {
      * @var $namespace string API path namespace
      */
     private $namespace;
-
     private $plugin_version;
+    private $organization_id;
+    private $metum;
 
     /**
      * Constructor
@@ -34,9 +35,11 @@ class RestApiController {
      * @param string $plugin_version    Local Plugin version
      * @param string $api_version       Remote Coyote API version
      */
-    public function __construct($plugin_version, $api_version = 1) {
+    public function __construct($plugin_version, $api_version = 1, $organization_id, $metum = 'Alt (short)') {
         $this->plugin_version = $plugin_version;
         $this->namespace = "coyote/v{$api_version}";
+        $this->organization_id = $organization_id;
+        $this->metum = $metum;
 
         // Appropriate registration hook
         add_action('rest_api_init', array($this, 'register_rest_routes'));
@@ -83,12 +86,9 @@ class RestApiController {
     }
 
     public function parse_update($json) {
-
-        $organization = $json->data->relationships->organization->data->id;
-
         $alt_representations = array_filter($json->included, function ($item) {
             return $item->type === 'representation' &&
-                   $item->attributes->metum === 'Alt (short)';
+                   $item->attributes->metum === $this->metum;
         });
 
 
@@ -101,10 +101,14 @@ class RestApiController {
     }
 
     public function check_callback_permission(WP_Rest_Request $request) {
-        // perform authentication header checks
-        // TODO verify API token in header
-        // TODO verify organization ID
-        return true;
+        $body = $request->get_body();
+        $json = json_decode($body);
+
+        $req_org_id = intval($json->data->relationships->organization->data->id);
+
+        // TODO verify by header token as well
+
+        return $req_org_id === intval($this->organization_id);
     }
 
     public function provide_status(WP_Rest_Request $request) {
