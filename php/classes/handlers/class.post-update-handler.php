@@ -7,9 +7,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Batching;
 use Coyote\Logger;
-use Coyote\DB;
 use Coyote\Helpers\ContentHelper;
 use Coyote\CoyoteResource;
 
