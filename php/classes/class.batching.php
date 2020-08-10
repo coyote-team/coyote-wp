@@ -54,7 +54,13 @@ class Batching {
     public static function load_process_batch() {
         session_write_close();
 
-        $batch_size = $_GET['size'];
+        $batch_size = intval($_GET['size']);
+
+        if ($batch_size < 10) {
+            $batch_size = 10;
+        } else if ($batch_size > 200) {
+            $batch_size = 200;
+        }
 
         echo json_encode(self::_get_process_batch($batch_size));
 
