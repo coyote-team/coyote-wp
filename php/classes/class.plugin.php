@@ -95,6 +95,9 @@ class Plugin {
             add_filter('the_content', [$this, 'filter_post_content'], 1);
             add_filter('the_editor_content', [$this, 'filter_post_content'], 1);
 
+            add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
+            add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
+
             // allow custom resource management link in tinymce
             add_action('admin_init', [$this, 'add_tinymce_plugin']);
         } else {
@@ -130,8 +133,17 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
     }
 
+    public function filter_gutenberg_content($response, $post, $request) {
+	if (in_array('content', $response->data)) {
+	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
+        }
+
+	return $response;
+    }
+
     public function filter_post_content($post_content) {
         $helper = new ContentHelper($post_content);
+        Logger::log($helper->replace_image_alts());
         return $helper->replace_image_alts();
     }
 
