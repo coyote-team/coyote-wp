@@ -23,6 +23,7 @@ class Plugin {
     private $is_activated = false;
     private $is_admin = false;
     private $has_filters_enabled = false;
+    private $has_updates_enabled = true;
 
     private $file;
     private $version;
@@ -74,6 +75,7 @@ class Plugin {
         register_deactivation_hook($this->file, array($this, 'deactivate'));
 
         $this->has_filters_enabled = get_option('coyote_filters_enabled', true);
+        $this->has_updates_enabled = get_option('coyote_updates_enabled', true);
 
         $this->load_config();
 
@@ -107,8 +109,13 @@ class Plugin {
             return;
         }
 
-        // allow remote updates
-        (new RestApiController($this->version));
+        if ($this->has_updates_enabled) {
+            Logger::log('Updates enabled.');
+            // allow remote updates
+            (new RestApiController($this->version));
+        } else {
+            Logger::log('Updates disabled.');
+        }
 
         add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
         add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
@@ -216,8 +223,7 @@ js;
         $options = [
             'coyote_api_version', 'coyote_api_token', 'coyote_api_endpoint', 'coyote_api_metum', 'coyote_api_organization_id',
             'coyote_api_profile',
-            'coyote_filters_enabled',
-            'coyote_processor_endpoint',
+            'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
             'coyote_plugin_is_activated'
         ];
 

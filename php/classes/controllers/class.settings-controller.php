@@ -190,6 +190,7 @@ class SettingsController {
         // TODO generate this from static typedef
 
         register_setting(self::page_slug, 'coyote_filters_enabled');
+        register_setting(self::page_slug, 'coyote_updates_enabled');
         register_setting(self::page_slug, 'coyote_processor_endpoint');
 
         register_setting(self::page_slug, 'coyote_api_endpoint');
@@ -214,6 +215,15 @@ class SettingsController {
             self::page_slug,
             self::settings_section,
             array('label_for' => 'coyote_filters_enabled')
+        );
+
+        add_settings_field(
+            'coyote_updates_enabled',
+            __('Enable remote updates', self::i18n_ns),
+            array($this, 'settings_updates_enabled_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_updates_enabled')
         );
 
         add_settings_field(
@@ -311,5 +321,12 @@ class SettingsController {
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked}>";
     }
+
+    public function settings_updates_enabled_cb() {
+        $setting = get_option('coyote_updates_enabled', true);
+        $checked = $setting ? 'checked' : '';
+        echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked}>";
+    }
+
 
 }
