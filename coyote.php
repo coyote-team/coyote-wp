@@ -13,6 +13,17 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+if (PHP_MAJOR_VERSION === null || PHP_MAJOR_VERSION < 7) {
+    error_log('Coyote plugin requires at least PHP 7.0');
+    return;
+}
+
+global $wp_version;
+if (!version_compare($wp_version, '5.0.0', '>=')) {
+    error_log('Coyote plugin requires at least WordPress 5.0.0');
+    return;
+}
+
 require_once('vendor/autoload.php');
 require_once('php/media-template.php');
 
