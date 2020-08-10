@@ -35,8 +35,6 @@ class Plugin {
         'CoyoteOrganizationId'  => null
     ];
 
-    public $instance_domain = 'https://coyote.staging.pics';
-
     public $is_configured = false;
 
     public function __construct(string $file, string $version, bool $is_admin = false) {
@@ -54,13 +52,13 @@ class Plugin {
     private function load_config() {
         $_config = $this->config;
 
-        $_config['CoyoteApiVersion']     = get_option('coyote__api_settings_version', $_config['CoyoteApiVersion']);
-        $_config['CoyoteApiToken']       = get_option('coyote__api_settings_token', $_config['CoyoteApiToken']);
-        $_config['CoyoteApiEndpoint']    = get_option('coyote__api_settings_endpoint', $_config['CoyoteApiEndpoint']);
-        $_config['CoyoteApiMetum']       = get_option('coyote__api_settings_metum', $_config['CoyoteApiMetum']);
-        $_config['CoyoteOrganizationId'] = get_option('coyote__api_settings_organization_id', $_config['CoyoteOrganizationId']);
+        $_config['CoyoteApiVersion']     = get_option('coyote_api_version',         $_config['CoyoteApiVersion']);
+        $_config['CoyoteApiToken']       = get_option('coyote_api_token',           $_config['CoyoteApiToken']);
+        $_config['CoyoteApiEndpoint']    = get_option('coyote_api_endpoint',        $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteApiMetum']       = get_option('coyote_api_metum',           $_config['CoyoteApiMetum']);
+        $_config['CoyoteOrganizationId'] = get_option('coyote_api_organization_id', $_config['CoyoteOrganizationId']);
 
-        if (get_option('coyote__api_profile')) {
+        if (get_option('coyote_api_profile')) {
             $this->is_configured = true;
         }
 
@@ -210,8 +208,22 @@ js;
 
     public function deactivate() {
         Logger::log("Deactivating plugin");
+
+        Logger::log("Deleting table");
         $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
-        delete_option('coyote_plugin_is_activated');
+
+        Logger::log("Deleting options");
+        $options = [
+            'coyote_api_version', 'coyote_api_token', 'coyote_api_endpoint', 'coyote_api_metum', 'coyote_api_organization_id',
+            'coyote_api_profile',
+            'coyote_filters_enabled',
+            'coyote_processor_endpoint',
+            'coyote_plugin_is_activated'
+        ];
+
+        foreach ($options as $option) {
+            delete_option($option);
+        }
     }
 }
 

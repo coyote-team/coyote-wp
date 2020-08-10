@@ -39,8 +39,8 @@ class SettingsController {
         add_action('admin_init', array($this, 'init'));
         add_action('admin_menu', array($this, 'menu'));
 
-        add_action('update_option_coyote__api_settings_token', array($this, 'verify_settings'), 10, 3);
-        add_action('update_option_coyote__api_settings_endpoint', array($this, 'verify_settings'), 10, 3);
+        add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
+        add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
     }
 
     public function enqueue_scripts() {
@@ -60,41 +60,42 @@ class SettingsController {
     }
 
     public function verify_settings($old, $new, $option) {
-        $token = get_option('coyote__api_settings_token');
-        $endpoint = get_option('coyote__api_settings_endpoint');
+        $token = get_option('coyote_api_token');
+        $endpoint = get_option('coyote_api_endpoint');
         $client = new ApiClient($endpoint, $token);
 
         $profile = $client->get_profile();
 
         if ($profile) {
-            $stored_profile = get_option('coyote__api_profile');
-            update_option('coyote__api_profile', $profile);
+            $stored_profile = get_option('coyote_api_profile');
+            update_option('coyote_api_profile', $profile);
 
             if ($stored_profile && $profile->id !== $stored_profile->id) {
                 $this->profile = $profile;
-                update_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
+                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             } else if (!$stored_profile) {
                 Logger::log($profile->organizations[0]['id']);
-                update_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
+                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             }
         } else {
             $this->profile_fetch_failed = true;
-            delete_option('coyote__api_profile');
-            delete_option('coyote__api_settings_organization_id');
+            delete_option('coyote_api_profile');
+            delete_option('coyote_api_organization_id');
         }
     }
 
     private function get_profile() {
-        $token = get_option('coyote__api_settings_token');
-        $endpoint = get_option('coyote__api_settings_endpoint');
-        $client = new ApiClient($endpoint, $token);
+        $token = get_option('coyote_api_token');
+        $endpoint = get_option('coyote_api_endpoint');
 
-        $profile = get_option('coyote__api_profile', null);
+        $profile = get_option('coyote_api_profile', null);
 
         if (!$profile) {
+            $client = new ApiClient($endpoint, $token);
+
             if ($profile = $client->get_profile()) {
-                add_option('coyote__api_profile', $profile);
-                add_option('coyote__api_settings_organization_id', $profile->organizations[0]['id']);
+                add_option('coyote_api_profile', $profile);
+                add_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             } else if ($endpoint && $token) {
                 $this->profile_fetch_failed = true;
             }
@@ -139,7 +140,7 @@ class SettingsController {
         $process_disabled = $this->batch_job ? 'disabled' : '';
         $cancel_disabled = $this->batch_job ? '' : 'disabled';
 
-        $batch_size = get_option('coyote__processing_batch_size', 50);
+        $batch_size = get_option('coyote_processing_batch_size', 50);
 
         echo "
             <hr>
@@ -191,12 +192,12 @@ class SettingsController {
         register_setting(self::page_slug, 'coyote_filters_enabled');
         register_setting(self::page_slug, 'coyote_processor_endpoint');
 
-        register_setting(self::page_slug, 'coyote__api_settings_endpoint');
-        register_setting(self::page_slug, 'coyote__api_settings_token');
-
+        register_setting(self::page_slug, 'coyote_api_endpoint');
+        register_setting(self::page_slug, 'coyote_api_token');
+        register_setting(self::page_slug, 'coyote_api_metum');
 
         if ($this->profile) {
-            register_setting(self::page_slug, 'coyote__api_settings_organization_id');
+            register_setting(self::page_slug, 'coyote_api_organization_id');
         }
 
         add_settings_section(
@@ -232,22 +233,31 @@ class SettingsController {
         );
 
         add_settings_field(
-            'coyote__api_settings_endpoint',
+            'coyote_api_endpoint',
             __('Endpoint', self::i18n_ns),
-            array($this, 'api_settings_endpoint_cb'),
+            array($this, 'api_endpoint_cb'),
             self::page_slug,
             self::api_settings_section,
-            array('label_for' => 'coyote__api_settings_endpoint')
+            array('label_for' => 'coyote_api_endpoint')
         );
 
 
         add_settings_field(
-            'coyote__api_settings_token',
+            'coyote_api_token',
             __('Token', self::i18n_ns),
-            array($this, 'api_settings_token_cb'),
+            array($this, 'api_token_cb'),
             self::page_slug,
             self::api_settings_section,
-            array('label_for' => 'coyote__api_settings_token')
+            array('label_for' => 'coyote_api_token')
+        );
+
+        add_settings_field(
+            'coyote_api_metum',
+            __('Metum', self::i18n_ns),
+            array($this, 'api_metum_cb'),
+            self::page_slug,
+            self::api_settings_section,
+            array('label_for' => 'coyote_api_metum')
         );
 
         if (!$this->profile) {
@@ -255,12 +265,12 @@ class SettingsController {
         }
 
         add_settings_field(
-            'coyote__api_settings_organization_id',
+            'coyote_api_organization_id',
             __('Organization', self::i18n_ns),
-            array($this, 'api_settings_organization_id_cb'),
+            array($this, 'api_organization_id_cb'),
             self::page_slug,
             self::api_settings_section,
-            array('label_for' => 'coyote__api_settings_organization_id')
+            array('label_for' => 'coyote_api_organization_id')
         );
 
     }
@@ -273,31 +283,22 @@ class SettingsController {
         echo '<input name="coyote_processor_endpoint" id="coyote_processor_endpoint" type="text" value="' . get_option('coyote_processor_endpoint', 'https://processor.coyote.pics') . '" size="50"/>';
     }
 
-    public function api_settings_endpoint_cb() {
-        echo '<input name="coyote__api_settings_endpoint" id="coyote__api_settings_endpoint" type="text" value="' . get_option('coyote__api_settings_endpoint', 'https://staging.coyote.pics') . '" size="50"/>';
+    public function api_endpoint_cb() {
+        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . get_option('coyote_api_endpoint', 'https://api.coyote.pics') . '" size="50"/>';
     }
 
-    public function api_settings_token_cb() {
-        echo '<input name="coyote__api_settings_token" id="coyote__api_settings_token" type="text" value="' . get_option('coyote__api_settings_token') . '" size="30"/>';
+    public function api_token_cb() {
+        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . get_option('coyote_api_token') . '" size="30"/>';
     }
 
-    public function api_settings_method_cb() {
-        $method = get_option('coyote__api_settings_method', 'post');
-
-        echo '<p>' . __('Some platforms (e.g. WPEngine) don\'t handle POST requests well.', self::i18n_ns) . '</p>';
-        echo '<select name="coyote__api_settings_method" id="coyote__api_settings_method">';
-
-        foreach ([['id' => 'get', 'label' => 'GET'],['id' => 'post', 'label' => 'POST']] as $option) {
-            $selected = $option['id'] === $method ? 'selected' : '';
-            echo "<option {$selected} value=\"" . $option['id'] ."\">" . htmlspecialchars($option['label']). "</option>";
-        }
-        echo '</select>';
+    public function api_metum_cb() {
+        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . get_option('coyote_api_metum', 'Alt') . '" size="50"/>';
     }
 
-    public function api_settings_organization_id_cb() {
-        $organization_id = get_option('coyote__api_settings_organization_id');
+    public function api_organization_id_cb() {
+        $organization_id = get_option('coyote_api_organization_id');
 
-        echo '<select name="coyote__api_settings_organization_id" id="coyote__api_settings_organization_id">';
+        echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id">';
         foreach ($this->profile->organizations as $org) {
             $selected = $org['id'] === $organization_id ? 'selected' : '';
             echo "<option {$selected} value=\"" . $org['id'] ."\">" . htmlspecialchars($org['name']). "</option>";
