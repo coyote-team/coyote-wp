@@ -65,13 +65,16 @@ class ApiClient {
         $language = $this->language;
 
         $resources = array_map(function ($i) use ($language) {
-            $name = isset($i['caption']) ? $i['caption'] : $i['src'];
+            $name = !empty($i['caption']) ? $i['caption'] : $i['src'];
             $resource = [
                 'name' => $name,
                 'source_uri' => $i['src'],
-                'host_uris' => [$i['host_uri']],
                 'resource_type' => 'image',
             ];
+
+            if (!empty($i['host_uri'])) {
+                $resource['host_uris'] = [$i['host_uri']];
+            }
 
             if (isset($i['alt']) && strlen($i['alt'])) {
                 $resource['representations'] = [
