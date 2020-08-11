@@ -134,8 +134,25 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
     }
 
+    // used in the media template
     public function filter_attachment_for_js($response, $attachment, $meta) {
-        // TODO load coyote alt by attachment URL
+        $data = CoyoteResource::get_coyote_id_and_alt([
+            'src'       => $response['url'],
+            'alt'       => $response['alt'],
+            'caption'   => $response['caption'],
+            'element'   => null,
+            'host_uri'  => null
+        ]);
+
+        if (!$data) {
+            return $response;
+        }
+
+        $response['alt'] = $data['alt'];
+        $response['coyoteManagementUrl'] = implode('/', [
+            $this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteOrganizationId'], 'resources', $data['id']
+        ]);
+
         return $response;
     }
 

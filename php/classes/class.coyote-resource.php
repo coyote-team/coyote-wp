@@ -49,13 +49,41 @@ class CoyoteResource {
         }, $images);
     }
 
+    public static function get_coyote_id_and_alt($image) {
+        $hash = sha1($image['src']);
+
+        $record = DB::get_image_by_hash($hash);
+
+        if ($record) {
+            return [
+                'id'    => $record->coyote_resource_id,
+                'alt'   => $record->coyote_description
+            ];
+        }
+
+        $resources = self::resources_from_images([$image]);
+
+        if (count($resources) !== 1) {
+            return null;
+        }
+
+        $resource = array_pop($resources);
+
+        return [
+            'id'  => $resource->coyote_resource_id,
+            'alt' => $resource->coyote_description
+        ];
+    }
+
     public static function get_api_client() {
         global $coyote_plugin;
         $client = new ApiClient(
             $coyote_plugin->config["CoyoteApiEndpoint"],
             $coyote_plugin->config["CoyoteApiToken"],
             $coyote_plugin->config["CoyoteOrganizationId"],
-            $coyote_plugin->config["CoyoteApiVersion"]
+            $coyote_plugin->config["CoyoteApiVersion"],
+            'en',
+            $coyote_plugin->config["CoyoteApiMetum"],
         );
 
         return $client;

@@ -30,11 +30,12 @@ class ApiClient {
     private $organization_id = null;
     private $language;
     private $guzzle_client;
+    private $metum;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
-    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = '1', $language = 'en') {
+    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = '1', $language = 'en', $metum = "Alt") {
         $this->guzzle_client = new \GuzzleHttp\Client([
             'base_uri' => ($endpoint . '/api/' . 'v' . $api_version . '/'),
             'timeout'  => 20.0,
@@ -45,6 +46,7 @@ class ApiClient {
 
         $this->organization_id = $organization_id;
         $this->language = $language;
+        $this->metum = $metum;
     }
 
     private function get_response_json($expected_code, $response) {
@@ -75,7 +77,7 @@ class ApiClient {
                 $resource['representations'] = [
                     [
                         'text' => $i['alt'],
-                        'metum' => 'Alt',
+                        'metum' => $this->metum,
                         'language' => $language
                     ]
                 ];
@@ -110,7 +112,7 @@ class ApiClient {
                     return
                         $item->id === $representation->id &&
                         $item->type === "representation" &&
-                        $item->attributes->metum === "Alt" &&
+                        $item->attributes->metum === $this->metum &&
                         $item->attributes->status === "approved"
                     ;
                 });
