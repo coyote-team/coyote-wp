@@ -84,16 +84,17 @@ class Plugin {
         }
 
         // add settings link to plugin page
-        add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'add_action_links'));
+        add_filter('plugin_action_links_' . plugin_basename($this->file), [$this, 'add_action_links']);
 
         if ($this->has_filters_enabled) {
             Logger::log('Filters enabled.');
 
             // handle updates to posts made by the front-end
-            add_filter('wp_insert_post_data', array('Coyote\Handlers\PostUpdateHandler', 'run'), 10, 2);
+            add_filter('wp_insert_post_data', ['Coyote\Handlers\PostUpdateHandler', 'run'], 10, 2);
 
-            add_filter('the_content', [$this, 'filter_post_content'], 1);
-            add_filter('the_editor_content', [$this, 'filter_post_content'], 1);
+            add_filter('the_content', [$this, 'filter_post_content'], 10, 1);
+            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
+            add_filter('wp_prepare_attachment_for_js', [$this, 'filter_attachment_for_js'], 10, 3);
 
             add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
             add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
@@ -133,6 +134,11 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
     }
 
+    public function filter_attachment_for_js($response, $attachment, $meta) {
+        // TODO load coyote alt by attachment URL
+        return $response;
+    }
+
     public function filter_gutenberg_content($response, $post, $request) {
 	if (in_array('content', $response->data)) {
 	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
@@ -143,12 +149,20 @@ class Plugin {
 
     public function filter_post_content($post_content) {
         $helper = new ContentHelper($post_content);
-        Logger::log($helper->replace_image_alts());
         return $helper->replace_image_alts();
     }
 
     public function classic_editor_data() {
         global $post;
+
+        if (empty($post)) {
+            return;
+        }
+
+        if (empty($post->post_type)) {
+            return;
+        }
+
         $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteOrganizationId']]);
         $helper = new ContentHelper($post->post_content);
         $mapping = $helper->get_src_and_coyote_id();
@@ -167,7 +181,7 @@ js;
     }
 
     public function add_tinymce_plugin() {
-        add_filter( 'mce_external_plugins', function($plugins) {
+        add_filter('mce_external_plugins', function($plugins) {
             $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
             return $plugins;
         });
