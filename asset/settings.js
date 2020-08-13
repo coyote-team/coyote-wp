@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', function () {
         const data = {
             nonce: coyote_ajax_obj.nonce,
             host: coyote_ajax_obj.ajax_url,
-            batchSize: byId('batch_size').value
+            batchSize: byId('coyote_batch_size').value
         };
 
         fetch(`${coyote_ajax_obj.endpoint}/jobs/`, {

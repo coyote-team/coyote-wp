@@ -1,0 +1,11 @@
+#process-existing-posts label {
+    font-weight: bold;
+}
+
+#process-existing-posts .form-group + .form-group {
+    margin-top: .5em;
+}
+
+#process-controls {
+    margin: 1em 0;
+}

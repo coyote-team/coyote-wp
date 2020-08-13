@@ -50,6 +50,12 @@ class SettingsController {
             false
         );
 
+        wp_enqueue_style(
+            'coyote_settings_css',
+            coyote_asset_url('settings.css'),
+            false
+        );
+
         wp_localize_script('coyote_settings_js', 'coyote_ajax_obj', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('coyote_ajax'),
@@ -142,7 +148,7 @@ class SettingsController {
             return;
         }
 
-        $title  = __("Tools", self::i18n_ns);
+        $title  = __("Process existing posts", self::i18n_ns);
 
         $process_disabled = $this->batch_job ? 'disabled' : '';
         $cancel_disabled = $this->batch_job ? '' : 'disabled';
@@ -154,12 +160,24 @@ class SettingsController {
             <h2>{$title}</h2>
         ";
 
+        $processor_endpoint = get_option('coyote_processor_endpoint', 'https://processor.coyote.pics');
+
         echo "
-            <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Process existing posts', self::i18n_ns) . "</button>
-            <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing', self::i18n_ns). "</button>
-            <div class=\"form-group\">
-                <label for=\"\">" . __('Batch size', self::i18n_ns) . "</label>
-                <input {$process_disabled} id=\"batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
+            <div id=\"process-existing-posts\">
+                <div class=\"form-group\">
+                    <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', self::i18n_ns) . ":</label>
+                    <input {$process_disabled} id=\"coyote_processor_endpoint\" name=\"coyote_processor_endpoint\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"{$processor_endpoint}\">
+                </div>
+
+                <div class=\"form-group\">
+                    <label for=\"coyote_batch_size\">" . __('Batch size', self::i18n_ns) . ":</label>
+                    <input {$process_disabled} id=\"coyote_batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
+                </div>
+
+                <div id=\"process-controls\">
+                    <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Start processing job', self::i18n_ns) . "</button>
+                    <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing job', self::i18n_ns). "</button>
+                </div>
             </div>
         ";
 
@@ -233,14 +251,6 @@ class SettingsController {
             array('label_for' => 'coyote_updates_enabled')
         );
 
-        add_settings_field(
-            'coyote_processor_endpoint',
-            __('Processor endpoint', self::i18n_ns),
-            array($this, 'processor_endpoint_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_processor_endpoint')
-        );
 
         add_settings_section(
             self::api_settings_section,
@@ -294,10 +304,6 @@ class SettingsController {
 
     public function setting_section_cb() {
         //TODO refactor into generator
-    }
-
-    public function processor_endpoint_cb() {
-        echo '<input name="coyote_processor_endpoint" id="coyote_processor_endpoint" type="text" value="' . get_option('coyote_processor_endpoint', 'https://processor.coyote.pics') . '" size="50"/>';
     }
 
     public function api_endpoint_cb() {
