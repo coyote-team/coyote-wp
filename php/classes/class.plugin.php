@@ -20,7 +20,7 @@ use Coyote\Controllers\SettingsController;
 use Coyote\Helpers\ContentHelper;
 
 class Plugin {
-    private $is_activated = false;
+    private $is_installed = false;
     private $is_admin = false;
     private $has_filters_enabled = false;
     private $has_updates_enabled = true;
@@ -39,8 +39,8 @@ class Plugin {
     public $is_configured = false;
 
     public function __construct(string $file, string $version, bool $is_admin = false) {
-        if(get_option('coyote_plugin_is_activated', null) !== null) {
-            $this->is_activated = true;
+        if(get_option('coyote_plugin_is_installed', null) !== null) {
+            $this->is_installed = true;
         }
 
         $this->file = $file;
@@ -71,15 +71,16 @@ class Plugin {
         global $wpdb;
         define('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . 'coyote_image_resource');
 
-        register_activation_hook($this->file, array($this, 'activate'));
-        register_deactivation_hook($this->file, array($this, 'deactivate'));
+        register_activation_hook($this->file, [$this, 'activate']);
+        register_deactivation_hook($this->file, [$this, 'deactivate']);
+        register_uninstall_hook($this->file, ['Coyote\Plugin', 'uninstall']);
 
         $this->has_filters_enabled = get_option('coyote_filters_enabled', true);
         $this->has_updates_enabled = get_option('coyote_updates_enabled', true);
 
         $this->load_config();
 
-        if (!$this->is_activated) {
+        if (!$this->is_installed) {
             return;
         }
 
@@ -244,30 +245,35 @@ js;
     }
 
     public function activate() {
-        if ($this->is_activated) {
-            Logger::log("Plugin already active");
+        if ($this->is_installed) {
+            Logger::log("Plugin was active previously, not adding table");
             return;
         }
 
         Logger::log("Activating plugin");
         // for some weird reason you can't create multiple tables at once?
         $this->run_plugin_sql(coyote_sql_file('create_resource_table.sql'));
-        $this->is_activated = true;
-        add_option('coyote_plugin_is_activated', $this->is_activated);
+        $this->is_installed = true;
+
+        add_option('coyote_plugin_is_installed', $this->is_installed);
     }
 
     public function deactivate() {
-        Logger::log("Deactivating plugin");
+        Logger::log('Deactivating plugin');
+    }
+
+    public static function uninstall() {
+        Logger::log("Uninstalling plugin");
 
         Logger::log("Deleting table");
-        $this->run_plugin_sql(coyote_sql_file('deactivate_plugin.sql'));
+        $this->run_plugin_sql(coyote_sql_file('uninstall_plugin.sql'));
 
         Logger::log("Deleting options");
         $options = [
             'coyote_api_version', 'coyote_api_token', 'coyote_api_endpoint', 'coyote_api_metum', 'coyote_api_organization_id',
             'coyote_api_profile',
             'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
-            'coyote_plugin_is_activated'
+            'coyote_plugin_is_installed'
         ];
 
         foreach ($options as $option) {

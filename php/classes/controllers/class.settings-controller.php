@@ -74,7 +74,6 @@ class SettingsController {
                 $this->profile = $profile;
                 update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             } else if (!$stored_profile) {
-                Logger::log($profile->organizations[0]['id']);
                 update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             }
         } else {
@@ -85,20 +84,28 @@ class SettingsController {
     }
 
     private function get_profile() {
-        $token = get_option('coyote_api_token');
-        $endpoint = get_option('coyote_api_endpoint');
-
         $profile = get_option('coyote_api_profile', null);
 
         if (!$profile) {
+            $token = get_option('coyote_api_token');
+            $endpoint = get_option('coyote_api_endpoint');
+
+            if (empty($token) || empty($endpoint)) {
+                return;
+            }
+
             $client = new ApiClient($endpoint, $token);
 
             if ($profile = $client->get_profile()) {
                 add_option('coyote_api_profile', $profile);
                 add_option('coyote_api_organization_id', $profile->organizations[0]['id']);
-            } else if ($endpoint && $token) {
+                Logger::log('Fetched profile successfully');
+            } else {
                 $this->profile_fetch_failed = true;
+                Logger::log('Fetching profile failed');
             }
+        } else {
+            Logger::log('Found stored profile');
         }
 
         return $profile;
