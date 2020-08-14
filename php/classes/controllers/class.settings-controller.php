@@ -371,9 +371,11 @@ class SettingsController {
             $setting = [$setting];
         }
 
-        $types = get_post_types(['public' => true], 'objects');
+        $custom_types = get_post_types(['public' => true, '_builtin' => false], 'objects', 'or');
+        $builtin_types = get_post_types(['public' => true, '_builtin' => true], 'objects', 'and');
+
         echo "<select multiple name=\"coyote_post_types[]\" id=\"coyote_post_types\">";
-        foreach ($types as $slug => $type) {
+        foreach (array_merge($custom_types, $builtin_types) as $slug => $type) {
             $selected = in_array($slug, $setting) ? 'selected' : '';
             echo "<option {$selected} value=\"{$slug}\">{$type->label}</option>";
         }

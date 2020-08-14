@@ -32,8 +32,10 @@ class Plugin {
         'CoyoteApiVersion'      => "1",
         'CoyoteApiToken'        => null,
         'CoyoteApiEndpoint'     => "",
-        'CoyoteApiMetum'        => 'Alt (short)',
-        'CoyoteOrganizationId'  => null
+        'CoyoteApiMetum'        => 'Alt',
+        'CoyoteOrganizationId'  => null,
+        'ProcessTypes'          => ['page', 'post'],
+        'ProcessStatuses'       => ['publish'],
     ];
 
     public $is_configured = false;
@@ -58,6 +60,9 @@ class Plugin {
         $_config['CoyoteApiEndpoint']    = get_option('coyote_api_endpoint',        $_config['CoyoteApiEndpoint']);
         $_config['CoyoteApiMetum']       = get_option('coyote_api_metum',           $_config['CoyoteApiMetum']);
         $_config['CoyoteOrganizationId'] = get_option('coyote_api_organization_id', $_config['CoyoteOrganizationId']);
+
+        $_config['ProcessTypes']    = get_option('coyote_post_types',    $_config['ProcessTypes']);
+        $_config['ProcessStatuses'] = get_option('coyote_post_statuses', $_config['ProcessStatuses']);
 
         if (get_option('coyote_api_profile')) {
             $this->is_configured = true;

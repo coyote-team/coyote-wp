@@ -68,7 +68,10 @@ class Batching {
     }
 
     public static function _get_process_batch($size) {
-        $post_types = ['page', 'post'];
+        global $coyote_plugin;
+
+        $post_types = $coyote_plugin->config['ProcessTypes'];
+        $post_statuses = $coyote_plugin->config['ProcessStatuses'];
 
         $offset = get_transient('coyote_batch_offset');
 
@@ -90,7 +93,7 @@ class Batching {
             'offset'      => $offset,
             'numberposts' => $size,
             'post_type'   => $post_types,
-            'post_status' => 'publish'
+            'post_status' => $post_statuses
         ));
 
         $resources = self::create_resources($batch);
