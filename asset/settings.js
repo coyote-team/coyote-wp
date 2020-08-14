@@ -20,6 +20,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const percentageSpan = $('#coyote_processing span');
     const statusSpan = $('#coyote_job_status span');
 
+    const processorEndpoint = byId('coyote_processor_endpoint').value;
 
     const load = () => {
         if (processExistingPostsButton) {
@@ -43,7 +44,7 @@ window.addEventListener('DOMContentLoaded', function () {
             batchSize: byId('coyote_batch_size').value
         };
 
-        fetch(`${coyote_ajax_obj.endpoint}/jobs/`, {
+        fetch(`${processorEndpoint}/jobs/`, {
             mode: 'cors',
             method: 'POST',
             body: JSON.stringify(data),
@@ -92,7 +93,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const cancelJob = function () {
         if (coyote_ajax_obj.job_id) {
-            return fetch(`${coyote_ajax_obj.endpoint}/jobs/${coyote_ajax_obj.job_id}`, {
+            return fetch(`${processorEndpoint}/jobs/${coyote_ajax_obj.job_id}`, {
                 mode: 'cors',
                 method: 'DELETE',
             });
@@ -161,7 +162,7 @@ window.addEventListener('DOMContentLoaded', function () {
         };
 
         // get this from the ajaxObj; job_id, job_type
-        const url = `${coyote_ajax_obj.endpoint}/jobs/${coyote_ajax_obj.job_id}`;
+        const url = `${processorEndpoint}/jobs/${coyote_ajax_obj.job_id}`;
 
         update(url);
     };

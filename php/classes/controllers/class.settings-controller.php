@@ -160,7 +160,7 @@ class SettingsController {
             <h2>{$title}</h2>
         ";
 
-        $processor_endpoint = get_option('coyote_processor_endpoint', 'https://processor.coyote.pics');
+        $processor_endpoint = 'https://processor.coyote.pics';
 
         echo "
             <div id=\"process-existing-posts\">
