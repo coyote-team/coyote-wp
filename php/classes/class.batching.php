@@ -71,7 +71,7 @@ class Batching {
         global $coyote_plugin;
 
         $post_types = $coyote_plugin->config['ProcessTypes'];
-        $post_statuses = $coyote_plugin->config['ProcessStatuses'];
+        $post_statuses = array_merge(['inherit'], $coyote_plugin->config['ProcessStatuses']);
 
         $offset = get_transient('coyote_batch_offset');
 
@@ -80,8 +80,16 @@ class Batching {
         if ($offset === false) {
             $offset = 0;
 
-            $total_posts = array_reduce($post_types, function($carry, $type) {
-                return $carry + wp_count_posts($type)->publish;
+            $total_posts = array_reduce($post_types, function($carry, $type) use ($post_statuses) {
+                $counts = wp_count_posts($type);
+
+                foreach ($post_statuses as $status) {
+                    if (property_exists($counts, $status)) {
+                        $carry += $counts->$status;
+                    }
+                }
+
+                return $carry;
             }, 0);
 
             $response['total'] = $total_posts;
