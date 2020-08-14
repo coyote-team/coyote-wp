@@ -218,6 +218,7 @@ class SettingsController {
         register_setting(self::page_slug, 'coyote_updates_enabled');
         register_setting(self::page_slug, 'coyote_processor_endpoint');
         register_setting(self::page_slug, 'coyote_post_types');
+        register_setting(self::page_slug, 'coyote_post_statuses');
 
         register_setting(self::page_slug, 'coyote_api_endpoint');
         register_setting(self::page_slug, 'coyote_api_token');
@@ -261,7 +262,14 @@ class SettingsController {
             array('label_for' => 'coyote_post_types')
         );
 
-
+        add_settings_field(
+            'coyote_post_statuses',
+            __('Post statuses', self::i18n_ns),
+            array($this, 'settings_post_statuses_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_post_statuses')
+        );
 
         add_settings_section(
             self::api_settings_section,
@@ -372,5 +380,24 @@ class SettingsController {
         echo "</select>";
     }
 
+    public function settings_post_statuses_cb() {
+        $setting = get_option('coyote_post_statuses', ['publish']);
+
+        if (empty($setting)) {
+            $setting = [];
+        }
+
+        if (!is_array($setting)) {
+            $setting = [$setting];
+        }
+
+        $statuses = get_post_statuses();
+        echo "<select multiple name=\"coyote_post_statuses[]\" id=\"coyote_post_statuses\">";
+        foreach ($statuses as $slug => $status) {
+            $selected = in_array($slug, $setting) ? 'selected' : '';
+            echo "<option {$selected} value=\"{$slug}\">{$status}</option>";
+        }
+        echo "</select>";
+    }
 
 }
