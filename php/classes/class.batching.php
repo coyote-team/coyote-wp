@@ -115,8 +115,26 @@ class Batching {
         $all_images = array();
 
         foreach ($posts as $post) {
+            if ($post->post_type === 'attachment' && strpos($post->post_mime_type, 'image/') === 0) {
+                // attachment with mime type image, get alt and caption differently
+                $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
+
+                $image = [
+                    'element' => null,
+                    'src' => $post->guid,
+                    'alt' => $alt,
+                    'caption' => $post->post_excerpt,
+                    'host_uri' => get_permalink($post)
+                ];
+
+                $all_images[$image['src']] = $image;
+
+                continue;
+            }
+
             $helper = new ContentHelper($post->post_content);
             $images = $helper->get_images();
+
             foreach ($images as $image) {
                 $image['host_uri'] = get_permalink($post);
                 $all_images[$image['src']] = $image;
