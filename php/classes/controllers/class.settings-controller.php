@@ -217,6 +217,7 @@ class SettingsController {
         register_setting(self::page_slug, 'coyote_filters_enabled');
         register_setting(self::page_slug, 'coyote_updates_enabled');
         register_setting(self::page_slug, 'coyote_processor_endpoint');
+        register_setting(self::page_slug, 'coyote_post_types');
 
         register_setting(self::page_slug, 'coyote_api_endpoint');
         register_setting(self::page_slug, 'coyote_api_token');
@@ -250,6 +251,16 @@ class SettingsController {
             self::settings_section,
             array('label_for' => 'coyote_updates_enabled')
         );
+
+        add_settings_field(
+            'coyote_post_types',
+            __('Post types', self::i18n_ns),
+            array($this, 'settings_post_types_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_post_types')
+        );
+
 
 
         add_settings_section(
@@ -339,6 +350,26 @@ class SettingsController {
         $setting = get_option('coyote_updates_enabled', true);
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked}>";
+    }
+
+    public function settings_post_types_cb() {
+        $setting = get_option('coyote_post_types', ['page', 'post']);
+
+        if (empty($setting)) {
+            $setting = [];
+        }
+
+        if (!is_array($setting)) {
+            $setting = [$setting];
+        }
+
+        $types = get_post_types(['public' => true], 'objects');
+        echo "<select multiple name=\"coyote_post_types[]\" id=\"coyote_post_types\">";
+        foreach ($types as $slug => $type) {
+            $selected = in_array($slug, $setting) ? 'selected' : '';
+            echo "<option {$selected} value=\"{$slug}\">{$type->label}</option>";
+        }
+        echo "</select>";
     }
 
 
