@@ -127,12 +127,20 @@ class Batching {
                 // attachment with mime type image, get alt and caption differently
                 $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
 
+
+                if ($post->post_status === 'inherit' && $post->parent_post) {
+                    // child of a page
+                    $host_uri = get_permalink($post->parent_post);
+                } else {
+                    $host_uri = get_permalink($post);
+                }
+
                 $image = [
                     'element' => null,
                     'src' => $post->guid,
                     'alt' => $alt,
                     'caption' => $post->post_excerpt,
-                    'host_uri' => get_permalink($post)
+                    'host_uri' => $host_uri
                 ];
 
                 $all_images[$image['src']] = $image;
