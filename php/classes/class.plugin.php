@@ -92,7 +92,7 @@ class Plugin {
         // add settings link to plugin page
         add_filter('plugin_action_links_' . plugin_basename($this->file), [$this, 'add_action_links']);
 
-        if ($this->has_filters_enabled) {
+        if ($this->has_filters_enabled && $this->is_configured) {
             Logger::log('Filters enabled.');
 
             // handle updates to posts made by the front-end

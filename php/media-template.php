@@ -45,8 +45,6 @@ function classic_editor_print_media_templates() {
 }
 
 function media_manager_print_media_templates() {
-    global $current_media_coyote_url;
-    global $post;
     error_log(print_r($post, true));
 
     $replacements = array(
