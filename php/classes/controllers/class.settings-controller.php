@@ -237,7 +237,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_filters_enabled',
-            __('Enable filters', self::i18n_ns),
+            __('Filter images through Coyote', self::i18n_ns),
             array($this, 'settings_filters_enabled_cb'),
             self::page_slug,
             self::settings_section,
@@ -246,7 +246,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_updates_enabled',
-            __('Enable remote updates', self::i18n_ns),
+            __('Enable Coyote remote description updates', self::i18n_ns),
             array($this, 'settings_updates_enabled_cb'),
             self::page_slug,
             self::settings_section,
@@ -255,7 +255,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_post_types',
-            __('Post types', self::i18n_ns),
+            __('Process post types', self::i18n_ns),
             array($this, 'settings_post_types_cb'),
             self::page_slug,
             self::settings_section,
@@ -264,7 +264,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_post_statuses',
-            __('Post statuses', self::i18n_ns),
+            __('Process post statuses', self::i18n_ns),
             array($this, 'settings_post_statuses_cb'),
             self::page_slug,
             self::settings_section,
