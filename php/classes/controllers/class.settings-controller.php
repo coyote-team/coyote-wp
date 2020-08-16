@@ -166,12 +166,12 @@ class SettingsController {
             <div id=\"process-existing-posts\">
                 <div class=\"form-group\">
                     <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', self::i18n_ns) . ":</label>
-                    <input {$process_disabled} id=\"coyote_processor_endpoint\" name=\"coyote_processor_endpoint\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"{$processor_endpoint}\">
+                    <input readonly {$process_disabled} id=\"coyote_processor_endpoint\" name=\"coyote_processor_endpoint\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"{$processor_endpoint}\">
                 </div>
 
                 <div class=\"form-group\">
                     <label for=\"coyote_batch_size\">" . __('Batch size', self::i18n_ns) . ":</label>
-                    <input {$process_disabled} id=\"coyote_batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
+                    <input id=\"coyote_batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
                 </div>
 
                 <div id=\"process-controls\">

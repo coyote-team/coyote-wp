@@ -20,6 +20,8 @@ window.addEventListener('DOMContentLoaded', function () {
     const percentageSpan = $('#coyote_processing span');
     const statusSpan = $('#coyote_job_status span');
 
+    const errorStatus = () => statusSpan.textContent = 'error';
+
     const processorEndpoint = byId('coyote_processor_endpoint').value;
 
     const load = () => {
@@ -28,8 +30,14 @@ window.addEventListener('DOMContentLoaded', function () {
             cancelProcessingButton.addEventListener('click', cancelProcessing);
 
             if (processExistingPostsButton.hasAttribute('disabled')) {
-                cancelProcessingButton.removeAttribute('disabled');
-                return updateProgress();
+                return updateProgress()
+                    .then(() => {
+                        enable(cancelProcessingButton);
+                    })
+                    .catch(() => {
+                        errorStatus();
+                        enable(cancelProcessingButton);
+                    });
             }
         }
     }
@@ -65,6 +73,8 @@ window.addEventListener('DOMContentLoaded', function () {
         })
         .catch((error) => {
             console.debug("Error: ", error);
+            errorStatus();
+            enable(cancelProcessingButton);
         });
     };
 
@@ -86,14 +96,17 @@ window.addEventListener('DOMContentLoaded', function () {
                 return response.text();
             });
         } catch (e) {
-            console.error(e);
+            console.error("Error: ", e);
             return Promise.reject("Invalid json");
         }
     }
 
     const cancelJob = function () {
         if (coyote_ajax_obj.job_id) {
-            return fetch(`${processorEndpoint}/jobs/${coyote_ajax_obj.job_id}`, {
+            job_id = coyote_ajax_obj.job_id;
+            delete coyote_ajax_obj.job_id;
+
+            return fetch(`${processorEndpoint}/jobs/${job_id}`, {
                 mode: 'cors',
                 method: 'DELETE',
             });
@@ -114,6 +127,7 @@ window.addEventListener('DOMContentLoaded', function () {
             })
             .then(response => response.text())
             .then(reply => {
+                statusSpan.innerText = "cancelled";
                 enable(processExistingPostsButton);
                 disable(cancelProcessingButton);
             });
@@ -134,13 +148,22 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const updateProgress = function () {
         const update = (url) => {
-            fetch(url)
+            if (!coyote_ajax_obj.job_id) {
+                return Promise.resolve();
+            }
+
+            return fetch(url)
             .then(response => response.text())
             .then(data => {
                 console.debug(data);
 
                 if (data.length) {
-                    data = JSON.parse(data);
+                    try {
+                        data = JSON.parse(data);
+                    } catch (error) {
+                        console.error("Error:", error);
+                        errorStatus();
+                    }
 
                     statusSpan.textContent = data.status;
                     percentageSpan.textContent = data.progress;
@@ -157,14 +180,18 @@ window.addEventListener('DOMContentLoaded', function () {
                     disable(cancelProcessingButton);
                     hide(processingContainer);
                     show(processingComplete);
-                });
+                }).catch(errorStatus);
+            }).catch(() => {
+                // job does not exist
+                delete coyote_ajax_obj.job_id;
+                cancelProcessing()
             });
         };
 
         // get this from the ajaxObj; job_id, job_type
         const url = `${processorEndpoint}/jobs/${coyote_ajax_obj.job_id}`;
 
-        update(url);
+        return update(url);
     };
 
     load();
