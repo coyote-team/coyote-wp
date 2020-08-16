@@ -361,7 +361,7 @@ class SettingsController {
     }
 
     public function settings_post_types_cb() {
-        $setting = get_option('coyote_post_types', ['page', 'post']);
+        $setting = get_option('coyote_post_types', ['page', 'post', 'attachment']);
 
         if (empty($setting)) {
             $setting = [];
