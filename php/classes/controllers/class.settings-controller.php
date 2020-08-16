@@ -68,18 +68,15 @@ class SettingsController {
     public function verify_settings($old, $new, $option) {
         $token = get_option('coyote_api_token');
         $endpoint = get_option('coyote_api_endpoint');
+
         $client = new ApiClient($endpoint, $token);
 
         $profile = $client->get_profile();
 
         if ($profile) {
-            $stored_profile = get_option('coyote_api_profile');
             update_option('coyote_api_profile', $profile);
-
-            if ($stored_profile && $profile->id !== $stored_profile->id) {
-                $this->profile = $profile;
-                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
-            } else if (!$stored_profile) {
+            if (count($profile->organizations) === 1) {
+                // grab the first organization
                 update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             }
         } else {
@@ -104,10 +101,14 @@ class SettingsController {
 
             if ($profile = $client->get_profile()) {
                 add_option('coyote_api_profile', $profile);
-                add_option('coyote_api_organization_id', $profile->organizations[0]['id']);
+                if (count($profile->organizations) === 1) {
+                    // grab the first organization
+                    update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
+                }
                 Logger::log('Fetched profile successfully');
             } else {
                 $this->profile_fetch_failed = true;
+                delete_option('coyote_api_organization_id');
                 Logger::log('Fetching profile failed');
             }
         } else {
@@ -150,15 +151,20 @@ class SettingsController {
 
         $title  = __("Process existing posts", self::i18n_ns);
 
-        $process_disabled = $this->batch_job ? 'disabled' : '';
-        $cancel_disabled = $this->batch_job ? '' : 'disabled';
-
-        $batch_size = get_option('coyote_processing_batch_size', 50);
-
         echo "
             <hr>
             <h2>{$title}</h2>
         ";
+
+        if (empty(get_option('coyote_api_organization_id'))) {
+            echo __('Please select a Coyote organization to process posts.', self::i18n_ns);
+            return;
+        }
+
+        $process_disabled = $this->batch_job ? 'disabled' : '';
+        $cancel_disabled = $this->batch_job ? '' : 'disabled';
+
+        $batch_size = get_option('coyote_processing_batch_size', 50);
 
         $processor_endpoint = 'https://processor.coyote.pics';
 
@@ -339,12 +345,21 @@ class SettingsController {
 
     public function api_organization_id_cb() {
         $organization_id = get_option('coyote_api_organization_id');
+        $organizations = $this->profile->organizations;
+        $single_org = count($organizations) === 1;
 
         echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id">';
+
+        if (!$single_org) {
+            $default = empty($organization_id) ? 'selected' : '';
+            echo "<option {$default} value=''>" . __('--select an organization--', self::i18n_ns) . "</option>";
+        }
+
         foreach ($this->profile->organizations as $org) {
             $selected = $org['id'] === $organization_id ? 'selected' : '';
             echo "<option {$selected} value=\"" . $org['id'] ."\">" . htmlspecialchars($org['name']). "</option>";
         }
+
         echo '</select>';
     }
 
