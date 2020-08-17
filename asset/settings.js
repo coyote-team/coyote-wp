@@ -22,7 +22,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const errorStatus = () => statusSpan.textContent = 'error';
 
-    const processorEndpoint = byId('coyote_processor_endpoint').value;
+    const processorEndpoint = byId('coyote_processor_endpoint') && byId('coyote_processor_endpoint').value;
 
     const load = () => {
         if (processExistingPostsButton) {
@@ -122,6 +122,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
         cancelJob().then(() => {
             fetch(coyote_ajax_obj.ajax_url, {
+                mode: 'cors',
                 method: 'POST',
                 body: formData
             })
@@ -141,6 +142,7 @@ window.addEventListener('DOMContentLoaded', function () {
         formData.append('action', 'coyote_clear_batch_job');
 
         return fetch(coyote_ajax_obj.ajax_url, {
+            mode: 'cors',
             method: 'POST',
             body: formData
         });
@@ -183,7 +185,6 @@ window.addEventListener('DOMContentLoaded', function () {
                 }).catch(errorStatus);
             }).catch(() => {
                 // job does not exist
-                delete coyote_ajax_obj.job_id;
                 cancelProcessing()
             });
         };
