@@ -50,6 +50,7 @@ class Plugin {
         $this->is_admin = $is_admin;
 
         $this->setup();
+
     }
 
     private function load_config() {
@@ -142,6 +143,10 @@ class Plugin {
 
     // used in the media template
     public function filter_attachment_for_js($response, $attachment, $meta) {
+        if ($response['type'] !== 'image') {
+            return $response;
+        }
+
         $data = CoyoteResource::get_coyote_id_and_alt([
             'src'       => $response['url'],
             'alt'       => $response['alt'],
