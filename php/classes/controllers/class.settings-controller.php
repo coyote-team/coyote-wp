@@ -332,7 +332,7 @@ class SettingsController {
     }
 
     public function api_endpoint_cb() {
-        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . get_option('coyote_api_endpoint', 'https://api.coyote.pics') . '" size="50"/>';
+        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . get_option('coyote_api_endpoint', 'https://staging.coyote.pics') . '" size="50"/>';
     }
 
     public function api_token_cb() {

@@ -45,8 +45,6 @@ function classic_editor_print_media_templates() {
 }
 
 function media_manager_print_media_templates() {
-    error_log(print_r($post, true));
-
     $replacements = array(
         '/aria-describedby="alt-text-description"/' => 'aria-describedby="alt-text-description" readonly',
         '/<p class="description" id="alt-text-description">.*?<\/p>/' => '<p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote</a></p>',
