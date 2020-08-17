@@ -101,7 +101,8 @@ class Batching {
             'offset'      => $offset,
             'numberposts' => $size,
             'post_type'   => $post_types,
-            'post_status' => $post_statuses
+            'post_status' => $post_statuses,
+            'post_parent' => null,
         ));
 
         $resources = self::create_resources($batch);
@@ -137,7 +138,7 @@ class Batching {
 
                 $image = [
                     'element' => null,
-                    'src' => $post->guid,
+                    'src' => wp_get_attachment_url($post->ID),
                     'alt' => $alt,
                     'caption' => $post->post_excerpt,
                     'host_uri' => $host_uri
