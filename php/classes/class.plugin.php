@@ -273,10 +273,11 @@ js;
     }
 
     public static function uninstall() {
+        global $coyote_plugin;
         Logger::log("Uninstalling plugin");
 
         Logger::log("Deleting table");
-        $this->run_plugin_sql(coyote_sql_file('uninstall_plugin.sql'));
+        $coyote_plugin->run_plugin_sql(coyote_sql_file('uninstall_plugin.sql'));
 
         Logger::log("Deleting options");
         $options = [
