@@ -34,7 +34,7 @@ class Plugin {
         'CoyoteApiEndpoint'     => "",
         'CoyoteApiMetum'        => 'Alt',
         'CoyoteOrganizationId'  => null,
-        'ProcessTypes'          => ['page', 'post'],
+        'ProcessTypes'          => ['page', 'post', 'attachment'],
         'ProcessStatuses'       => ['publish'],
     ];
 
