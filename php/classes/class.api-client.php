@@ -81,7 +81,8 @@ class ApiClient {
                     [
                         'text' => $i['alt'],
                         'metum' => $this->metum,
-                        'language' => $language
+                        'language' => $language,
+                        'status' => 'approved'
                     ]
                 ];
             }
