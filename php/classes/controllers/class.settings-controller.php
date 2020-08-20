@@ -223,8 +223,6 @@ class SettingsController {
         register_setting(self::page_slug, 'coyote_filters_enabled');
         register_setting(self::page_slug, 'coyote_updates_enabled');
         register_setting(self::page_slug, 'coyote_processor_endpoint');
-        register_setting(self::page_slug, 'coyote_post_types');
-        register_setting(self::page_slug, 'coyote_post_statuses');
 
         register_setting(self::page_slug, 'coyote_api_endpoint');
         register_setting(self::page_slug, 'coyote_api_token');
@@ -257,24 +255,6 @@ class SettingsController {
             self::page_slug,
             self::settings_section,
             array('label_for' => 'coyote_updates_enabled')
-        );
-
-        add_settings_field(
-            'coyote_post_types',
-            __('Process post types', self::i18n_ns),
-            array($this, 'settings_post_types_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_post_types')
-        );
-
-        add_settings_field(
-            'coyote_post_statuses',
-            __('Process post statuses', self::i18n_ns),
-            array($this, 'settings_post_statuses_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_post_statuses')
         );
 
         add_settings_section(
@@ -373,48 +353,6 @@ class SettingsController {
         $setting = get_option('coyote_updates_enabled', true);
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked}>";
-    }
-
-    public function settings_post_types_cb() {
-        $setting = get_option('coyote_post_types', ['page', 'post', 'attachment']);
-
-        if (empty($setting)) {
-            $setting = [];
-        }
-
-        if (!is_array($setting)) {
-            $setting = [$setting];
-        }
-
-        $custom_types = get_post_types(['public' => true, '_builtin' => false], 'objects', 'or');
-        $builtin_types = get_post_types(['public' => true, '_builtin' => true], 'objects', 'and');
-
-        echo "<select multiple name=\"coyote_post_types[]\" id=\"coyote_post_types\">";
-        foreach (array_merge($custom_types, $builtin_types) as $slug => $type) {
-            $selected = in_array($slug, $setting) ? 'selected' : '';
-            echo "<option {$selected} value=\"{$slug}\">{$type->label}</option>";
-        }
-        echo "</select>";
-    }
-
-    public function settings_post_statuses_cb() {
-        $setting = get_option('coyote_post_statuses', ['publish']);
-
-        if (empty($setting)) {
-            $setting = [];
-        }
-
-        if (!is_array($setting)) {
-            $setting = [$setting];
-        }
-
-        $statuses = get_post_statuses();
-        echo "<select multiple name=\"coyote_post_statuses[]\" id=\"coyote_post_statuses\">";
-        foreach ($statuses as $slug => $status) {
-            $selected = in_array($slug, $setting) ? 'selected' : '';
-            echo "<option {$selected} value=\"{$slug}\">{$status}</option>";
-        }
-        echo "</select>";
     }
 
 }
