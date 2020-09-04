@@ -131,7 +131,14 @@ class Batching {
 
                 if ($post->post_status === 'inherit' && $post->parent_post) {
                     // child of a page
-                    $host_uri = get_permalink($post->parent_post);
+                    $parent_post = get_post($post->parent_post);
+
+                    // only process images in published posts
+                    if ($parent_post->post_status !== 'publish') {
+                        continue;
+                    }
+
+                    $host_uri = get_permalink($parent_post);
                 } else {
                     $host_uri = get_permalink($post);
                 }
