@@ -105,7 +105,7 @@ class CoyoteResource {
                     $this->image['src'],
                     $alt,
                     $this->resource->id,
-                    $this->resource->alt
+                    $this->resource->alt ?: $alt
                 );
 
                 return;

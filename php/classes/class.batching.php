@@ -134,7 +134,7 @@ class Batching {
                     $parent_post = get_post($post->parent_post);
 
                     // only process images in published posts
-                    if ($parent_post->post_status !== 'publish') {
+                    if ($parent_post && $parent_post->post_status !== 'publish') {
                         continue;
                     }
 

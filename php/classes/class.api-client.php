@@ -116,13 +116,13 @@ class ApiClient {
                     return
                         $item->id === $representation->id &&
                         $item->type === "representation" &&
-                        $item->attributes->metum === $this->metum &&
-                        $item->attributes->status === "approved"
+                        $item->attributes->metum === $this->metum
                     ;
                 });
 
-                if (count($matches) === 1) {
-                    array_push($carry, array_shift($matches));
+                if (count($matches)) {
+                    // grab lowest ordinality
+                    array_push($carry, $matches[0]);
                 }
 
                 return $carry;
