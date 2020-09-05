@@ -8,6 +8,12 @@ if (!defined( 'ABSPATH')) {
 }
 
 class DB {
+    public static function clear_resource_table() {
+        global $wpdb;
+        $table = COYOTE_IMAGE_TABLE_NAME;
+        return $wpdb->query("delete from {$table}");
+    }
+
     public static function update_resource_alt($id, $alt) {
         global $wpdb;
 

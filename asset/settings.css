@@ -9,3 +9,7 @@
 #process-controls {
     margin: 1em 0;
 }
+
+[role="alert"] {
+    font-weight: bold;
+}

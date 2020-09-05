@@ -10,6 +10,9 @@ window.addEventListener('DOMContentLoaded', function () {
     const byId = x => document.getElementById(x);
     const $ = x => document.querySelector(x);
 
+    const coyoteOrganizationIdSelect = byId('coyote_api_organization_id');
+    const coyoteOrganizationChangeAlert = byId('coyote_org_change_alert');
+
     const processExistingPostsButton = byId('coyote_process_existing_posts');
     const cancelProcessingButton = byId('coyote_cancel_processing');
 
@@ -25,6 +28,11 @@ window.addEventListener('DOMContentLoaded', function () {
     const processorEndpoint = byId('coyote_processor_endpoint') && byId('coyote_processor_endpoint').value;
 
     const load = () => {
+        const organizationId = coyoteOrganizationIdSelect.value;
+        console.debug(organizationId);
+
+        coyoteOrganizationIdSelect.addEventListener('change', changeOrganization(organizationId).bind(coyoteOrganizationIdSelect));
+
         if (processExistingPostsButton) {
             processExistingPostsButton.addEventListener('click', startProcessing);
             cancelProcessingButton.addEventListener('click', cancelProcessing);
@@ -40,6 +48,19 @@ window.addEventListener('DOMContentLoaded', function () {
                     });
             }
         }
+    }
+
+    const changeOrganization = function (oldId) {
+        const changeAlert = coyoteOrganizationChangeAlert;
+        return function () {
+            const newId = coyoteOrganizationIdSelect.value;
+            if (oldId && (newId != oldId)) {
+                changeAlert.textContent = '';
+                changeAlert.textContent = changeAlert.dataset.message;
+                return;
+            }
+            changeAlert.textContent = '';
+        };
     }
 
     const startProcessing = function () {

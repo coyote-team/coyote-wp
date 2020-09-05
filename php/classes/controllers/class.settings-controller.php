@@ -10,6 +10,7 @@ if (!defined( 'ABSPATH')) {
 use Coyote\Logger;
 use Coyote\Batching;
 use Coyote\ApiClient;
+use Coyote\DB;
 
 class SettingsController {
     private $page_title;
@@ -41,6 +42,7 @@ class SettingsController {
 
         add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
         add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
+        add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
     }
 
     public function enqueue_scripts() {
@@ -84,6 +86,11 @@ class SettingsController {
             delete_option('coyote_api_profile');
             delete_option('coyote_api_organization_id');
         }
+    }
+
+    public function change_organization_id($old, $new, $option) {
+        $deleted = DB::clear_resource_table();
+        Logger::log("Deleted {$deleted} resources");
     }
 
     private function get_profile() {
@@ -341,6 +348,8 @@ class SettingsController {
         }
 
         echo '</select>';
+
+        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', self::i18n_ns) . '"></div>';
     }
 
     public function settings_filters_enabled_cb() {
