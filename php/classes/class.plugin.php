@@ -95,6 +95,13 @@ class Plugin {
         // add settings link to plugin page
         add_filter('plugin_action_links_' . plugin_basename($this->file), [$this, 'add_action_links']);
 
+        // display any errors
+        add_action('admin_notices', [$this, 'display_admin_notices']);
+
+        // api client action handlers
+        add_action('coyote_api_client_error', [$this, 'on_api_client_error']);
+        add_action('coyote_api_client_success', [$this, 'on_api_client_success']);
+
         if ($this->has_filters_enabled && $this->is_configured) {
             Logger::log('Filters enabled.');
 
@@ -143,7 +150,23 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
     }
 
-    public static function on_api_client_error($message) {
+    public function display_admin_notices() {
+        $error_count = intval(get_transient('coyote_api_error_count'));
+
+        if ($error_count >= 10) {
+            delete_transient('coyote_api_error_count');
+            update_option('coyote_standalone_mode', true);
+
+            $message = __("The Coyote API client has thrown 10 consecutive errors, the Coyote plugin has switched to standalone mode.", COYOTE_I18N_NS);
+
+            echo "
+                <div class=\"notice notice-error\">
+                    <p>{$message}</p>
+                </div>";
+        }
+    }
+
+    public function on_api_client_error($message) {
         Logger::log("Coyote API error: ${message}");
 
         $error_count = get_transient('coyote_api_error_count');
@@ -157,6 +180,10 @@ class Plugin {
         Logger::log("Updating API error count to ${error_count}");
 
         set_transient('coyote_api_error_count', $error_count);
+    }
+
+    public function on_api_client_success($message) {
+        delete_transient('coyote_api_error_count');
     }
 
     // used in the media template

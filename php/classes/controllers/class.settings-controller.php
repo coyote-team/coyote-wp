@@ -17,7 +17,6 @@ class SettingsController {
     private $menu_title;
     private $profile;
 
-    const i18n_ns    = 'coyote';
     const capability = 'manage_options';
     const page_slug  = 'coyote_fields';
     const icon       = 'dashicon-admin-plugins';
@@ -27,8 +26,8 @@ class SettingsController {
     const api_settings_section = 'api_settings_section';
 
     function __construct() {
-        $this->page_title = __('Coyote settings', self::i18n_ns);
-        $this->menu_title = __('Coyote', self::i18n_ns);
+        $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
+        $this->menu_title = __('Coyote', COYOTE_I18N_NS);
 
         $this->profile_fetch_failed = false;
         $this->profile = $this->get_profile();
@@ -73,19 +72,22 @@ class SettingsController {
 
         $client = new ApiClient([
             'endpoint' => $endpoint,
-            'token' => $token,
-            'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
+            'token' => $token
         ]);
 
-        $profile = $client->get_profile();
+        try {
+            $profile = $client->get_profile();
 
-        if ($profile) {
             update_option('coyote_api_profile', $profile);
             if (count($profile->organizations) === 1) {
                 // grab the first organization
                 update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
             }
-        } else {
+
+            do_action('coyote_api_client_success');
+        } catch (\Exception $e) {
+            do_action('coyote_api_client_error', $e);
+
             $this->profile_fetch_failed = true;
             delete_option('coyote_api_profile');
             delete_option('coyote_api_organization_id');
@@ -106,16 +108,17 @@ class SettingsController {
         $client = new ApiClient([
             'endpoint' => $endpoint,
             'token'    => $token,
-            'organization_id' => $new,
-            'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
+            'organization_id' => $new
         ]);
 
         $resource_group_address = get_site_url('/wp-json/coyote/v1/callback');
 
-        $group_id = $client->create_resource_group('WordPress', $resource_group_address);
-
-        if ($group_id !== null) {
+        try {
+            $group_id = $client->create_resource_group('WordPress', $resource_group_address);
             update_option('coyote_api_resource_group_id', $group_id);
+            do_action('coyote_api_client_success');
+        } catch (\Exception $e) {
+            do_action('coyote_api_client_error', $e);
         }
     }
 
@@ -132,21 +135,27 @@ class SettingsController {
 
             $client = new ApiClient([
                 'endpoint' => $endpoint,
-                'token' => $token,
-                'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
+                'token' => $token
             ]);
 
-            if ($profile = $client->get_profile()) {
+            try {
+                $profile = $client->get_profile();
+
                 add_option('coyote_api_profile', $profile);
                 if (count($profile->organizations) === 1) {
                     // grab the first organization
                     update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
                 }
+
+                do_action('coyote_api_client_success');
                 Logger::log('Fetched profile successfully');
-            } else {
+            } catch (\Exception $e) {
+                do_action('coyote_api_client_error', $e);
+
                 $this->profile_fetch_failed = true;
                 delete_option('coyote_api_organization_id');
                 Logger::log('Fetching profile failed');
+
             }
         } else {
             Logger::log('Found stored profile');
@@ -168,7 +177,7 @@ class SettingsController {
         if ($this->profile) {
             echo "<p>User: " . $this->profile->name . "</p>";
         } else if ($this->profile_fetch_failed) {
-            echo "<strong>" . __('Unable to load Coyote profile.', self::i18n_ns) . "</strong>";
+            echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
         }
 
         submit_button();
@@ -186,7 +195,7 @@ class SettingsController {
             return;
         }
 
-        $title  = __("Process existing posts", self::i18n_ns);
+        $title  = __("Process existing posts", COYOTE_I18N_NS);
 
         echo "
             <hr>
@@ -194,7 +203,7 @@ class SettingsController {
         ";
 
         if (empty(get_option('coyote_api_organization_id'))) {
-            echo __('Please select a Coyote organization to process posts.', self::i18n_ns);
+            echo __('Please select a Coyote organization to process posts.', COYOTE_I18N_NS);
             return;
         }
 
@@ -208,18 +217,18 @@ class SettingsController {
         echo "
             <div id=\"process-existing-posts\">
                 <div class=\"form-group\">
-                    <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', self::i18n_ns) . ":</label>
+                    <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', COYOTE_I18N_NS) . ":</label>
                     <input readonly {$process_disabled} id=\"coyote_processor_endpoint\" name=\"coyote_processor_endpoint\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"{$processor_endpoint}\">
                 </div>
 
                 <div class=\"form-group\">
-                    <label for=\"coyote_batch_size\">" . __('Batch size', self::i18n_ns) . ":</label>
+                    <label for=\"coyote_batch_size\">" . __('Batch size', COYOTE_I18N_NS) . ":</label>
                     <input id=\"coyote_batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
                 </div>
 
                 <div id=\"process-controls\">
-                    <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Start processing job', self::i18n_ns) . "</button>
-                    <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing job', self::i18n_ns). "</button>
+                    <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Start processing job', COYOTE_I18N_NS) . "</button>
+                    <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing job', COYOTE_I18N_NS). "</button>
                 </div>
             </div>
         ";
@@ -271,14 +280,14 @@ class SettingsController {
 
         add_settings_section(
             self::settings_section,
-            __('Plugin settings', self::i18n_ns),
+            __('Plugin settings', COYOTE_I18N_NS),
             [$this, 'setting_section_cb'],
             self::page_slug
         );
 
         add_settings_field(
             'coyote_filters_enabled',
-            __('Filter images through Coyote', self::i18n_ns),
+            __('Filter images through Coyote', COYOTE_I18N_NS),
             array($this, 'settings_filters_enabled_cb'),
             self::page_slug,
             self::settings_section,
@@ -287,7 +296,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_updates_enabled',
-            __('Enable Coyote remote description updates', self::i18n_ns),
+            __('Enable Coyote remote description updates', COYOTE_I18N_NS),
             array($this, 'settings_updates_enabled_cb'),
             self::page_slug,
             self::settings_section,
@@ -296,14 +305,14 @@ class SettingsController {
 
         add_settings_section(
             self::api_settings_section,
-            __('API settings', self::i18n_ns),
+            __('API settings', COYOTE_I18N_NS),
             array($this, 'setting_section_cb'),
             self::page_slug
         );
 
         add_settings_field(
             'coyote_api_endpoint',
-            __('Endpoint', self::i18n_ns),
+            __('Endpoint', COYOTE_I18N_NS),
             array($this, 'api_endpoint_cb'),
             self::page_slug,
             self::api_settings_section,
@@ -313,7 +322,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_api_token',
-            __('Token', self::i18n_ns),
+            __('Token', COYOTE_I18N_NS),
             array($this, 'api_token_cb'),
             self::page_slug,
             self::api_settings_section,
@@ -322,7 +331,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_api_metum',
-            __('Metum', self::i18n_ns),
+            __('Metum', COYOTE_I18N_NS),
             array($this, 'api_metum_cb'),
             self::page_slug,
             self::api_settings_section,
@@ -335,7 +344,7 @@ class SettingsController {
 
         add_settings_field(
             'coyote_api_organization_id',
-            __('Organization', self::i18n_ns),
+            __('Organization', COYOTE_I18N_NS),
             array($this, 'api_organization_id_cb'),
             self::page_slug,
             self::api_settings_section,
@@ -369,7 +378,7 @@ class SettingsController {
 
         if (!$single_org) {
             $default = empty($organization_id) ? 'selected' : '';
-            echo "<option {$default} value=''>" . __('--select an organization--', self::i18n_ns) . "</option>";
+            echo "<option {$default} value=''>" . __('--select an organization--', COYOTE_I18N_NS) . "</option>";
         }
 
         foreach ($this->profile->organizations as $org) {
@@ -379,7 +388,7 @@ class SettingsController {
 
         echo '</select>';
 
-        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', self::i18n_ns) . '"></div>';
+        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
     }
 
     public function settings_filters_enabled_cb() {

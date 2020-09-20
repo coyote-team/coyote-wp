@@ -32,7 +32,6 @@ class ApiClient {
     private $language;
     private $guzzle_client;
     private $metum;
-    private $on_error_callback;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
@@ -54,19 +53,6 @@ class ApiClient {
         $this->language = $args['language'] ?? "en";
         $this->metum = $args['metum'] ?? "Alt";
         $this->resource_group_id = $args['resource_group_id'] ?? null;
-        $this->on_error_callback = $args['on_error'] ?? null;
-    }
-
-    private function on_error($message) {
-        if (!is_callable($this->on_error_callback)) {
-            return;
-        }
-
-        try {
-            call_user_func($this->on_error_callback, $message);
-        } catch (Exception | Error $error) {
-            error_log("Error running api client error handler: " . $error->get_error_message());
-        }
     }
 
     private function get_response_json($expected_code, $response) {
@@ -82,21 +68,14 @@ class ApiClient {
     }
 
     public function create_resource_group($name, $url) {
-        try {
-            $response = $this->guzzle_client->get("organizations/{$this->organization_id}/resource_groups");
-            $json = $this->get_response_json(self::HTTP_OK, $response);
+        $response = $this->guzzle_client->get("organizations/{$this->organization_id}/resource_groups");
+        $json = $this->get_response_json(self::HTTP_OK, $response);
 
-            if (!$json) {
-                error_log("Failed fetching resource groups?");
-                return null;
-            }
-
-            return $this->ensure_resource_group_exists($json, $name, $url);
-        } catch (Exception | Error $error) {
-            $this->on_error($error->get_error_message());
-            error_log("Error fetching resource groups: " . $error->get_error_message());
-            return null;
+        if (!$json) {
+            throw new Exception("Failed fetching resource groups");
         }
+
+        return $this->ensure_resource_group_exists($json, $name, $url);
     }
 
     private function ensure_resource_group_exists($json, $name, $url) {
@@ -110,28 +89,21 @@ class ApiClient {
             return $group->id;
         }
 
-        try {
-            $payload = [
-                "name" => $name,
-                "webhook_uri" => $url
-            ];
+        $payload = [
+            "name" => $name,
+            "webhook_uri" => $url
+        ];
 
-            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resource_groups", ['json' => $payload]);
-            $json = $this->get_response_json(self::HTTP_CREATED, $response);
+        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resource_groups", ['json' => $payload]);
+        $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
-            if (!$json) {
-                error_log("Failed creating resource group?");
-                return null;
-            }
-
-            error_log("Created new resource group: {$json->data->id}");
-
-            return $json->data->id;
-        } catch (Exception | Error $error) {
-            $this->on_error($error->get_error_message());
-            error_log("Error fetching resource groups: " . $error->get_error_message());
-            return null;
+        if (!$json) {
+            throw new Exception("Failed to create new resource group");
         }
+
+        error_log("Created new resource group: {$json->data->id}");
+
+        return $json->data->id;
     }
 
     public function batch_create(array $images) {
@@ -167,20 +139,14 @@ class ApiClient {
             return $resource;
         }, $images);
 
-        try {
-            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/create", ['json' => ['resources' => $resources]]);
-            $json = $this->get_response_json(self::HTTP_CREATED, $response);
+        $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resources/create", ['json' => ['resources' => $resources]]);
+        $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
-            if (!$json) {
-                return [];
-            }
-
-            return $this->json_to_id_and_alt($json);
-        } catch (Exception | Error $error) {
-            $this->on_error($error->get_error_message());
-            error_log("Error batch creating resources: " . $error->get_error_message());
-            return array();
+        if (!$json) {
+            throw new Exception('Unexpected response when creating resources');
         }
+
+        return $this->json_to_id_and_alt($json);
     }
 
     private function json_to_id_and_alt($json) {
@@ -232,18 +198,12 @@ class ApiClient {
     }
 
     public function get_profile() {
-        try {
-            $response = $this->guzzle_client->get('profile');
-        } catch (\Exception $error) {
-            $this->on_error($error->getMessage());
-            error_log("Error fetching profile: {$error->getMessage()}");
-            return null;
-        }
+        $response = $this->guzzle_client->get('profile');
 
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
-            return null;
+            throw new Exception('Unexpected response when loading profile');
         }
 
         return (object) array(

@@ -37,16 +37,25 @@ class CoyoteResource {
 
     public static function resources_from_images(array $images) {
         $api_client = self::get_api_client();
-        $coyote_resources = $api_client->batch_create($images);
 
-        return array_map(function ($image) use ($coyote_resources) {
-            $resource = array_key_exists($image['src'], $coyote_resources)
-                ? $coyote_resources[$image['src']]
-                : null
-            ;
+        try {
+            $created_resources = $api_client->batch_create($images);
 
-            return new CoyoteResource($image, $resource);
-        }, $images);
+            $coyote_resources = array_map(function ($image) use ($created_resources) {
+                $resource = array_key_exists($image['src'], $created_resources)
+                    ? $created_resources[$image['src']]
+                    : null
+                ;
+
+                return new CoyoteResource($image, $resource);
+            }, $images);
+
+            do_action('coyote_api_client_success');
+
+            return $coyote_resources;;
+        } catch ($e) {
+            do_action('coyote_api_client_error', $e);
+        }
     }
 
     public static function get_coyote_id_and_alt($image) {
@@ -86,8 +95,7 @@ class CoyoteResource {
             'api_version' => $cfg["CoyoteApiVersion"],
             'language' => 'en',
             'metum' => $cfg["CoyoteApiMetum"],
-            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"],
-            'on_error' => [$coyote_plugin, 'on_api_client_error']
+            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
         ]);
 
         return $client;
