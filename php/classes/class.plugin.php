@@ -143,6 +143,22 @@ class Plugin {
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
     }
 
+    public static function on_api_client_error($message) {
+        Logger::log("Coyote API error: ${message}");
+
+        $error_count = get_transient('coyote_api_error_count');
+
+        if ($error_count === false) {
+            $error_count = 1;
+        } else {
+            $error_count = intval($error_count) + 1;
+        }
+
+        Logger::log("Updating API error count to ${error_count}");
+
+        set_transient('coyote_api_error_count', $error_count);
+    }
+
     // used in the media template
     public function filter_attachment_for_js($response, $attachment, $meta) {
         if ($response['type'] !== 'image') {

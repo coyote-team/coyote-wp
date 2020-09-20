@@ -86,7 +86,8 @@ class CoyoteResource {
             'api_version' => $cfg["CoyoteApiVersion"],
             'language' => 'en',
             'metum' => $cfg["CoyoteApiMetum"],
-            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
+            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"],
+            'on_error' => [$coyote_plugin, 'on_api_client_error']
         ]);
 
         return $client;

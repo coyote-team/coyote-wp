@@ -73,7 +73,8 @@ class SettingsController {
 
         $client = new ApiClient([
             'endpoint' => $endpoint,
-            'token' => $token
+            'token' => $token,
+            'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
         ]);
 
         $profile = $client->get_profile();
@@ -105,7 +106,8 @@ class SettingsController {
         $client = new ApiClient([
             'endpoint' => $endpoint,
             'token'    => $token,
-            'organization_id' => $new
+            'organization_id' => $new,
+            'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
         ]);
 
         $resource_group_address = get_site_url('/wp-json/coyote/v1/callback');
@@ -130,7 +132,8 @@ class SettingsController {
 
             $client = new ApiClient([
                 'endpoint' => $endpoint,
-                'token' => $token
+                'token' => $token,
+                'on_error' => ['\Coyote\Plugin', 'on_api_client_error']
             ]);
 
             if ($profile = $client->get_profile()) {

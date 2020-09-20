@@ -65,7 +65,7 @@ class ApiClient {
         try {
             call_user_func($this->on_error_callback, $message);
         } catch (Exception | Error $error) {
-            Logger::log("Error running api client error handler: " . $error->get_error_message());
+            error_log("Error running api client error handler: " . $error->get_error_message());
         }
     }
 
@@ -87,14 +87,14 @@ class ApiClient {
             $json = $this->get_response_json(self::HTTP_OK, $response);
 
             if (!$json) {
-                Logger::log("Failed fetching resource groups?");
+                error_log("Failed fetching resource groups?");
                 return null;
             }
 
             return $this->ensure_resource_group_exists($json, $name, $url);
         } catch (Exception | Error $error) {
             $this->on_error($error->get_error_message());
-            Logger::log("Error fetching resource groups: " . $error->get_error_message());
+            error_log("Error fetching resource groups: " . $error->get_error_message());
             return null;
         }
     }
@@ -106,7 +106,7 @@ class ApiClient {
 
         if (count($matches)) {
             $group = array_shift($matches);
-            Logger::log("Found existing resource_group {$group->id}");
+            error_log("Found existing resource_group {$group->id}");
             return $group->id;
         }
 
@@ -120,16 +120,16 @@ class ApiClient {
             $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
             if (!$json) {
-                Logger::log("Failed creating resource group?");
+                error_log("Failed creating resource group?");
                 return null;
             }
 
-            Logger::log("Created new webhook: {$json->data->id}");
+            error_log("Created new resource group: {$json->data->id}");
 
             return $json->data->id;
         } catch (Exception | Error $error) {
             $this->on_error($error->get_error_message());
-            Logger::log("Error fetching resource groups: " . $error->get_error_message());
+            error_log("Error fetching resource groups: " . $error->get_error_message());
             return null;
         }
     }
@@ -178,7 +178,7 @@ class ApiClient {
             return $this->json_to_id_and_alt($json);
         } catch (Exception | Error $error) {
             $this->on_error($error->get_error_message());
-            Logger::log("Error batch creating resources: " . $error->get_error_message());
+            error_log("Error batch creating resources: " . $error->get_error_message());
             return array();
         }
     }
@@ -219,7 +219,7 @@ class ApiClient {
             $alt = count($alt_representations) ? $alt_representations[0]->attributes->text : null;
             $uri = $item->attributes->source_uri;
 
-            Logger::log("New resource {$item->id}: {$uri} => \"{$alt}\"");
+            error_log("New resource {$item->id}: {$uri} => \"{$alt}\"");
 
             $list[$uri] = (object) array(
                 'id' => $item->id,
@@ -234,8 +234,9 @@ class ApiClient {
     public function get_profile() {
         try {
             $response = $this->guzzle_client->get('profile');
-        } catch (\Exception $e) {
-            Logger::log("Error fetching profile: {$e->getMessage()}");
+        } catch (\Exception $error) {
+            $this->on_error($error->getMessage());
+            error_log("Error fetching profile: {$error->getMessage()}");
             return null;
         }
 
