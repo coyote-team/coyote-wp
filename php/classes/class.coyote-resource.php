@@ -77,14 +77,17 @@ class CoyoteResource {
 
     public static function get_api_client() {
         global $coyote_plugin;
-        $client = new ApiClient(
-            $coyote_plugin->config["CoyoteApiEndpoint"],
-            $coyote_plugin->config["CoyoteApiToken"],
-            $coyote_plugin->config["CoyoteOrganizationId"],
-            $coyote_plugin->config["CoyoteApiVersion"],
-            'en',
-            $coyote_plugin->config["CoyoteApiMetum"],
-        );
+        $cfg = $coyote_plugin->config;
+
+        $client = new ApiClient([
+            'endpoint' => $cfg["CoyoteApiEndpoint"],
+            'token' => $cfg["CoyoteApiToken"],
+            'organization_id' => $cfg["CoyoteApiOrganizationId"],
+            'api_version' => $cfg["CoyoteApiVersion"],
+            'language' => 'en',
+            'metum' => $cfg["CoyoteApiMetum"],
+            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
+        ]);
 
         return $client;
     }

@@ -29,11 +29,12 @@ class Plugin {
     private $version;
 
     public $config = [
-        'CoyoteApiVersion'      => "1",
-        'CoyoteApiToken'        => null,
-        'CoyoteApiEndpoint'     => "",
-        'CoyoteApiMetum'        => 'Alt',
-        'CoyoteOrganizationId'  => null,
+        'CoyoteApiVersion'         => "1",
+        'CoyoteApiToken'           => null,
+        'CoyoteApiEndpoint'        => "",
+        'CoyoteApiMetum'           => 'Alt',
+        'CoyoteApiOrganizationId'  => null,
+        'CoyoteApiResourceGroupId' => null,
         'ProcessTypes'          => ['page', 'post', 'attachment'],
         'ProcessStatuses'       => ['publish'],
     ];
@@ -56,11 +57,12 @@ class Plugin {
     private function load_config() {
         $_config = $this->config;
 
-        $_config['CoyoteApiVersion']     = get_option('coyote_api_version',         $_config['CoyoteApiVersion']);
-        $_config['CoyoteApiToken']       = get_option('coyote_api_token',           $_config['CoyoteApiToken']);
-        $_config['CoyoteApiEndpoint']    = get_option('coyote_api_endpoint',        $_config['CoyoteApiEndpoint']);
-        $_config['CoyoteApiMetum']       = get_option('coyote_api_metum',           $_config['CoyoteApiMetum']);
-        $_config['CoyoteOrganizationId'] = get_option('coyote_api_organization_id', $_config['CoyoteOrganizationId']);
+        $_config['CoyoteApiVersion']         = get_option('coyote_api_version',           $_config['CoyoteApiVersion']);
+        $_config['CoyoteApiToken']           = get_option('coyote_api_token',             $_config['CoyoteApiToken']);
+        $_config['CoyoteApiEndpoint']        = get_option('coyote_api_endpoint',          $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteApiMetum']           = get_option('coyote_api_metum',             $_config['CoyoteApiMetum']);
+        $_config['CoyoteApiOrganizationId']  = get_option('coyote_api_organization_id',   $_config['CoyoteApiOrganizationId']);
+        $_config['CoyoteApiResourceGroupId'] = get_option('coyote_api_resource_group_id', $_config['CoyoteApiResourceGroupId']);
 
         $_config['ProcessTypes']    = get_option('coyote_post_types',    $_config['ProcessTypes']);
         $_config['ProcessStatuses'] = get_option('coyote_post_statuses', $_config['ProcessStatuses']);
@@ -123,7 +125,7 @@ class Plugin {
         if ($this->has_updates_enabled) {
             Logger::log('Updates enabled.');
             // allow remote updates
-            (new RestApiController($this->version, 1, $this->config['CoyoteOrganizationId'], $this->config['CoyoteApiMetum']));
+            (new RestApiController($this->version, 1, $this->config['CoyoteApiOrganizationId'], $this->config['CoyoteApiMetum']));
         } else {
             Logger::log('Updates disabled.');
         }
@@ -161,7 +163,7 @@ class Plugin {
 
         $response['alt'] = $data['alt'];
         $response['coyoteManagementUrl'] = implode('/', [
-            $this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteOrganizationId'], 'resources', $data['id']
+            $this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId'], 'resources', $data['id']
         ]);
 
         return $response;
@@ -191,7 +193,7 @@ class Plugin {
             return;
         }
 
-        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteOrganizationId']]);
+        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
         $helper = new ContentHelper($post->post_content);
         $mapping = $helper->get_src_and_coyote_id();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

@@ -71,7 +71,10 @@ class SettingsController {
         $token = get_option('coyote_api_token');
         $endpoint = get_option('coyote_api_endpoint');
 
-        $client = new ApiClient($endpoint, $token);
+        $client = new ApiClient([
+            'endpoint' => $endpoint,
+            'token' => $token
+        ]);
 
         $profile = $client->get_profile();
 
@@ -91,6 +94,27 @@ class SettingsController {
     public function change_organization_id($old, $new, $option) {
         $deleted = DB::clear_resource_table();
         Logger::log("Deleted {$deleted} resources");
+
+        $token = get_option('coyote_api_token');
+        $endpoint = get_option('coyote_api_endpoint');
+
+        if (empty($token) || empty($endpoint)) {
+            return;
+        }
+
+        $client = new ApiClient([
+            'endpoint' => $endpoint,
+            'token'    => $token,
+            'organization_id' => $new
+        ]);
+
+        $resource_group_address = get_site_url('/wp-json/coyote/v1/callback');
+
+        $group_id = $client->create_resource_group('WordPress', $resource_group_address);
+
+        if ($group_id !== null) {
+            update_option('coyote_api_resource_group_id', $group_id);
+        }
     }
 
     private function get_profile() {
@@ -104,7 +128,10 @@ class SettingsController {
                 return;
             }
 
-            $client = new ApiClient($endpoint, $token);
+            $client = new ApiClient([
+                'endpoint' => $endpoint,
+                'token' => $token
+            ]);
 
             if ($profile = $client->get_profile()) {
                 add_option('coyote_api_profile', $profile);

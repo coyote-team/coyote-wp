@@ -28,6 +28,7 @@ class ApiClient {
      */
 
     private $organization_id = null;
+    private $resource_group_id = null;
     private $language;
     private $guzzle_client;
     private $metum;
@@ -35,18 +36,25 @@ class ApiClient {
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
-    public function __construct(string $endpoint, string $token, string $organization_id = null, string $api_version = '1', $language = 'en', $metum = "Alt") {
+    public function __construct($args) {
+        if (!isset($args['endpoint']) || !isset($args['token'])) {
+            throw new \Exception("Provide at least an endpoint and token!");
+        }
+
+        Logger::log($args);
+
         $this->guzzle_client = new \GuzzleHttp\Client([
-            'base_uri' => ($endpoint . '/api/' . 'v' . $api_version . '/'),
+            'base_uri' => ($args['endpoint'] . '/api/' . 'v' . ($args['api_version'] ?? 1). '/'),
             'timeout'  => 20.0,
             // disable exceptions, handle http 4xx-5xx internally
             'exceptions' => false,
-            'headers' => ['Authorization' => $token, 'Accept' => 'application/json']
+            'headers' => ['Authorization' => $args['token'], 'Accept' => 'application/json']
         ]);
 
-        $this->organization_id = $organization_id;
-        $this->language = $language;
-        $this->metum = $metum;
+        $this->organization_id = $args['organization_id'] ?? null;
+        $this->language = $args['language'] ?? "en";
+        $this->metum = $args['metum'] ?? "Alt";
+        $this->resource_group_id = $args['resource_group_id'] ?? null;
     }
 
     private function get_response_json($expected_code, $response) {
@@ -61,6 +69,57 @@ class ApiClient {
         return null;
     }
 
+    public function create_resource_group($name, $url) {
+        try {
+            $response = $this->guzzle_client->get("organizations/{$this->organization_id}/resource_groups");
+            $json = $this->get_response_json(self::HTTP_OK, $response);
+
+            if (!$json) {
+                Logger::log("Failed fetching resource groups?");
+                return null;
+            }
+
+            return $this->ensure_resource_group_exists($json, $name, $url);
+        } catch (Exception | Error $error) {
+            Logger::log("Error fetching resource groups: " . $error->get_error_message());
+            return null;
+        }
+    }
+
+    private function ensure_resource_group_exists($json, $name, $url) {
+        $matches = array_filter($json->data, function ($group) use($url) {
+            return $group->attributes->webhook_uri === $url;
+        });
+
+        if (count($matches)) {
+            $group = array_shift($matches);
+            Logger::log("Found existing resource_group {$group->id}");
+            return $group->id;
+        }
+
+        try {
+            $payload = [
+                "name" => $name,
+                "webhook_uri" => $url
+            ];
+
+            $response = $this->guzzle_client->post("organizations/{$this->organization_id}/resource_groups", ['json' => $payload]);
+            $json = $this->get_response_json(self::HTTP_CREATED, $response);
+
+            if (!$json) {
+                Logger::log("Failed creating resource group?");
+                return null;
+            }
+
+            Logger::log("Created new webhook: {$json->data->id}");
+
+            return $json->data->id;
+        } catch (Exception | Error $error) {
+            Logger::log("Error fetching resource groups: " . $error->get_error_message());
+            return null;
+        }
+    }
+
     public function batch_create(array $images) {
         $language = $this->language;
 
@@ -71,6 +130,10 @@ class ApiClient {
                 'source_uri' => $i['src'],
                 'resource_type' => 'image',
             ];
+
+            if ($this->resource_group_id) {
+                $resource['resource_group_id'] = $this->resource_group_id;
+            }
 
             if (!empty($i['host_uri'])) {
                 $resource['host_uris'] = [$i['host_uri']];
