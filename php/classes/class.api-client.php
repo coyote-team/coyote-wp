@@ -32,6 +32,7 @@ class ApiClient {
     private $language;
     private $guzzle_client;
     private $metum;
+    private $on_error_callback;
 
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
@@ -40,8 +41,6 @@ class ApiClient {
         if (!isset($args['endpoint']) || !isset($args['token'])) {
             throw new \Exception("Provide at least an endpoint and token!");
         }
-
-        Logger::log($args);
 
         $this->guzzle_client = new \GuzzleHttp\Client([
             'base_uri' => ($args['endpoint'] . '/api/' . 'v' . ($args['api_version'] ?? 1). '/'),
@@ -55,6 +54,19 @@ class ApiClient {
         $this->language = $args['language'] ?? "en";
         $this->metum = $args['metum'] ?? "Alt";
         $this->resource_group_id = $args['resource_group_id'] ?? null;
+        $this->on_error_callback = $args['on_error'] ?? null;
+    }
+
+    private function on_error($message) {
+        if (!is_callable($this->on_error_callback)) {
+            return;
+        }
+
+        try {
+            call_user_func($this->on_error_callback, $message);
+        } catch (Exception | Error $error) {
+            Logger::log("Error running api client error handler: " . $error->get_error_message());
+        }
     }
 
     private function get_response_json($expected_code, $response) {
@@ -81,6 +93,7 @@ class ApiClient {
 
             return $this->ensure_resource_group_exists($json, $name, $url);
         } catch (Exception | Error $error) {
+            $this->on_error($error->get_error_message());
             Logger::log("Error fetching resource groups: " . $error->get_error_message());
             return null;
         }
@@ -115,6 +128,7 @@ class ApiClient {
 
             return $json->data->id;
         } catch (Exception | Error $error) {
+            $this->on_error($error->get_error_message());
             Logger::log("Error fetching resource groups: " . $error->get_error_message());
             return null;
         }
@@ -163,6 +177,7 @@ class ApiClient {
 
             return $this->json_to_id_and_alt($json);
         } catch (Exception | Error $error) {
+            $this->on_error($error->get_error_message());
             Logger::log("Error batch creating resources: " . $error->get_error_message());
             return array();
         }
