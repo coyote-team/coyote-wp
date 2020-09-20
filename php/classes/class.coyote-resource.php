@@ -58,7 +58,7 @@ class CoyoteResource {
         }
     }
 
-    public static function get_coyote_id_and_alt($image) {
+    public static function get_coyote_id_and_alt($image, $create_if_missing) {
         $hash = sha1($image['src']);
 
         $record = DB::get_image_by_hash($hash);
@@ -68,6 +68,10 @@ class CoyoteResource {
                 'id'    => $record->coyote_resource_id,
                 'alt'   => $record->coyote_description
             ];
+        }
+
+        if (!$create_if_missing) {
+            return null;
         }
 
         $resources = self::resources_from_images([$image]);

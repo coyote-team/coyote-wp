@@ -22,8 +22,9 @@ use Coyote\Helpers\ContentHelper;
 class Plugin {
     private $is_installed = false;
     private $is_admin = false;
+    private $is_standalone = false;
     private $has_filters_enabled = false;
-    private $has_updates_enabled = true;
+    private $has_updates_enabled = false;
 
     private $file;
     private $version;
@@ -49,9 +50,9 @@ class Plugin {
         $this->file = $file;
         $this->version = $version;
         $this->is_admin = $is_admin;
+        $this->is_standalone = get_option('coyote_is_standalone', false);
 
         $this->setup();
-
     }
 
     private function load_config() {
@@ -83,8 +84,12 @@ class Plugin {
         register_deactivation_hook($this->file, [$this, 'deactivate']);
         register_uninstall_hook($this->file, ['Coyote\Plugin', 'uninstall']);
 
-        $this->has_filters_enabled = get_option('coyote_filters_enabled', true);
-        $this->has_updates_enabled = get_option('coyote_updates_enabled', true);
+        $this->has_filters_enabled = get_option('coyote_filters_enabled', false);
+
+        // only load updates option if we're not in standalone mode
+        if (!$this->is_standalone) {
+            $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
+        }
 
         $this->load_config();
 
@@ -98,15 +103,14 @@ class Plugin {
         // display any errors
         add_action('admin_notices', [$this, 'display_admin_notices']);
 
-        // api client action handlers
-        add_action('coyote_api_client_error', [$this, 'on_api_client_error']);
-        add_action('coyote_api_client_success', [$this, 'on_api_client_success']);
+        if (!$this->is_standalone) {
+            // api client action handlers
+            add_action('coyote_api_client_error', [$this, 'on_api_client_error']);
+            add_action('coyote_api_client_success', [$this, 'on_api_client_success']);
+        }
 
         if ($this->has_filters_enabled && $this->is_configured) {
             Logger::log('Filters enabled.');
-
-            // handle updates to posts made by the front-end
-            add_filter('wp_insert_post_data', ['Coyote\Handlers\PostUpdateHandler', 'run'], 10, 2);
 
             add_filter('the_content', [$this, 'filter_post_content'], 10, 1);
             add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
@@ -115,8 +119,13 @@ class Plugin {
             add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
             add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
 
-            // allow custom resource management link in tinymce
-            add_action('admin_init', [$this, 'add_tinymce_plugin']);
+            if (!$this->is_standalone) {
+                // handle updates to posts made by the front-end
+                add_filter('wp_insert_post_data', ['Coyote\Handlers\PostUpdateHandler', 'run'], 10, 2);
+
+                // allow custom resource management link in tinymce
+                add_action('admin_init', [$this, 'add_tinymce_plugin']);
+            }
         } else {
             Logger::log('Filters disabled.');
         }
@@ -137,17 +146,19 @@ class Plugin {
             Logger::log('Updates disabled.');
         }
 
-        add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
-        add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
+        if (!$this->is_standalone) {
+            add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
+            add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
 
-        add_action('wp_ajax_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
+            add_action('wp_ajax_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
+            add_action('wp_ajax_nopriv_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
 
-        add_action('wp_ajax_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+            add_action('wp_ajax_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+            add_action('wp_ajax_nopriv_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
 
-        add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+            add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+            add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+        }
     }
 
     public function display_admin_notices() {
@@ -198,7 +209,7 @@ class Plugin {
             'caption'   => $response['caption'],
             'element'   => null,
             'host_uri'  => null
-        ]);
+        ], !$this->is_standalone);
 
         if (!$data) {
             return $response;
