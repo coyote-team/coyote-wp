@@ -6,6 +6,14 @@ if (!defined( 'ABSPATH')) {
 }
 
 add_action('wp_enqueue_media', function() {
+    global $coyote_plugin;
+
+    // only patch the html when the plugin has an existing profile
+    // and is not running in standalone mode
+    if (!$coyote_plugin->is_configured || $coyote_plugin->is_standalone) {
+        return;
+    }
+
     $screen = get_current_screen();
 
     if ($screen->id === 'upload') {

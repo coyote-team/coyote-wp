@@ -16,6 +16,7 @@ class SettingsController {
     private $page_title;
     private $menu_title;
     private $profile;
+    private $is_standalone;
 
     const capability = 'manage_options';
     const page_slug  = 'coyote_fields';
@@ -34,14 +35,18 @@ class SettingsController {
 
         $this->batch_job = Batching::get_batch_job();
 
+        $this->is_standalone = get_option('coyote_is_standalone', false);
+
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
         add_action('admin_init', array($this, 'init'));
         add_action('admin_menu', array($this, 'menu'));
 
-        add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
-        add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
-        add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
+        if (!$this->is_standalone) {
+            add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
+            add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
+            add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
+        }
     }
 
     public function enqueue_scripts() {
@@ -125,43 +130,43 @@ class SettingsController {
     private function get_profile() {
         $profile = get_option('coyote_api_profile', null);
 
-        if (!$profile) {
-            $token = get_option('coyote_api_token');
-            $endpoint = get_option('coyote_api_endpoint');
-
-            if (empty($token) || empty($endpoint)) {
-                return;
-            }
-
-            $client = new ApiClient([
-                'endpoint' => $endpoint,
-                'token' => $token
-            ]);
-
-            try {
-                $profile = $client->get_profile();
-
-                add_option('coyote_api_profile', $profile);
-                if (count($profile->organizations) === 1) {
-                    // grab the first organization
-                    update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
-                }
-
-                do_action('coyote_api_client_success');
-                Logger::log('Fetched profile successfully');
-            } catch (\Exception $e) {
-                do_action('coyote_api_client_error', $e);
-
-                $this->profile_fetch_failed = true;
-                delete_option('coyote_api_organization_id');
-                Logger::log('Fetching profile failed');
-
-            }
-        } else {
+        if ($profile) {
             Logger::log('Found stored profile');
+            return $profile;
         }
 
-        return $profile;
+        $token = get_option('coyote_api_token');
+        $endpoint = get_option('coyote_api_endpoint');
+
+        if (empty($token) || empty($endpoint)) {
+            return;
+        }
+
+        $client = new ApiClient([
+            'endpoint' => $endpoint,
+            'token' => $token
+        ]);
+
+        try {
+            $profile = $client->get_profile();
+
+            add_option('coyote_api_profile', $profile);
+            if (count($profile->organizations) === 1) {
+                // grab the first organization
+                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
+            }
+
+            do_action('coyote_api_client_success');
+            Logger::log('Fetched profile successfully');
+
+            return $profile;
+        } catch (\Exception $e) {
+            do_action('coyote_api_client_error', $e);
+
+            $this->profile_fetch_failed = true;
+            delete_option('coyote_api_organization_id');
+            Logger::log('Fetching profile failed');
+        }
     }
 
     public function settings_page_cb() {
@@ -174,20 +179,24 @@ class SettingsController {
         settings_fields(self::page_slug);
         do_settings_sections(self::page_slug);
 
-        if ($this->profile) {
-            echo "<p>User: " . $this->profile->name . "</p>";
-        } else if ($this->profile_fetch_failed) {
-            echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
-        }
+        if (!$this->is_standalone) {
+            if ($this->profile) {
+                echo "<p>User: " . $this->profile->name . "</p>";
+            } else if ($this->profile_fetch_failed) {
+                echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
+            }
 
-        submit_button();
+            submit_button();
+        }
 
         echo "
                 </form>
             </div>
         ";
 
-        $this->tools();
+        if (!$this->is_standalone) {
+            $this->tools();
+        }
     }
 
     public function tools() {
@@ -266,23 +275,40 @@ class SettingsController {
     public function init() {
         // TODO generate this from static typedef
 
-        register_setting(self::page_slug, 'coyote_filters_enabled');
-        register_setting(self::page_slug, 'coyote_updates_enabled');
-        register_setting(self::page_slug, 'coyote_processor_endpoint');
+        register_setting(self::page_slug, 'coyote_is_standalone');
 
-        register_setting(self::page_slug, 'coyote_api_endpoint');
-        register_setting(self::page_slug, 'coyote_api_token');
-        register_setting(self::page_slug, 'coyote_api_metum');
+        if (!$this->is_standalone) {
+            register_setting(self::page_slug, 'coyote_filters_enabled');
+            register_setting(self::page_slug, 'coyote_updates_enabled');
+            register_setting(self::page_slug, 'coyote_processor_endpoint');
 
-        if ($this->profile) {
-            register_setting(self::page_slug, 'coyote_api_organization_id');
+            register_setting(self::page_slug, 'coyote_api_endpoint');
+            register_setting(self::page_slug, 'coyote_api_token');
+            register_setting(self::page_slug, 'coyote_api_metum');
+
+            if ($this->profile) {
+                register_setting(self::page_slug, 'coyote_api_organization_id');
+            }
         }
 
         add_settings_section(
             self::settings_section,
             __('Plugin settings', COYOTE_I18N_NS),
-            [$this, 'setting_section_cb'],
+            [$this, 'plugin_setting_section_cb'],
             self::page_slug
+        );
+
+        if ($this->is_standalone) {
+            return;
+        }
+
+        add_settings_field(
+            'coyote_is_standalone',
+            __('Run in standalone mode', COYOTE_I18N_NS),
+            array($this, 'settings_is_standalone_cb'),
+            self::page_slug,
+            self::settings_section,
+            array('label_for' => 'coyote_is_standalone')
         );
 
         add_settings_field(
@@ -306,7 +332,7 @@ class SettingsController {
         add_settings_section(
             self::api_settings_section,
             __('API settings', COYOTE_I18N_NS),
-            array($this, 'setting_section_cb'),
+            array($this, 'api_setting_section_cb'),
             self::page_slug
         );
 
@@ -318,7 +344,6 @@ class SettingsController {
             self::api_settings_section,
             array('label_for' => 'coyote_api_endpoint')
         );
-
 
         add_settings_field(
             'coyote_api_token',
@@ -350,11 +375,28 @@ class SettingsController {
             self::api_settings_section,
             array('label_for' => 'coyote_api_organization_id')
         );
-
     }
 
-    public function setting_section_cb() {
-        //TODO refactor into generator
+    public function plugin_setting_section_cb() {
+        if ($this->is_standalone) {
+            $heading = __('Standalone mode', COYOTE_I18N_NS);
+            $message = __('Coyote is running in standalone mode. No settings are available, and no remote Coyote API is used to manage resources and descriptions. Any locally stored image descriptions will be used to describe images.', COYOTE_I18N_NS);
+            echo "
+                <div id=\"coyote_is_standalone\">
+                    <h3>{$heading}</h3>
+                    <p>{$message}</p>
+                    <input id=\"coyote_is_standalone\" value=\"false\" type=\"hidden\">
+            ";
+
+            submit_button(__('Turn off standalone mode', COYOTE_I18N_NS));
+
+            echo "
+                </div>
+            ";
+        }
+    }
+
+    public function api_setting_section_cb() {
     }
 
     public function api_endpoint_cb() {
@@ -389,6 +431,12 @@ class SettingsController {
         echo '</select>';
 
         echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
+    }
+
+    public function settings_is_standalone_cb() {
+        $setting = get_option('coyote_is_standalone', true);
+        $checked = $setting ? 'checked' : '';
+        echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked}>";
     }
 
     public function settings_filters_enabled_cb() {

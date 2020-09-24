@@ -28,6 +28,7 @@ require_once('vendor/autoload.php');
 require_once('php/media-template.php');
 
 define('COYOTE_PLUGIN_NAME', 'coyote');
+define('COYOTE_I18N_NS', 'coyote');
 define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('COYOTE_VERSION', '0.0.1');

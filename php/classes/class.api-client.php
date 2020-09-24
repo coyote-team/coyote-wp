@@ -72,7 +72,7 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
-            throw new Exception("Failed fetching resource groups");
+            throw new \Exception("Failed fetching resource groups");
         }
 
         return $this->ensure_resource_group_exists($json, $name, $url);
@@ -98,7 +98,7 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
         if (!$json) {
-            throw new Exception("Failed to create new resource group");
+            throw new \Exception("Failed to create new resource group");
         }
 
         error_log("Created new resource group: {$json->data->id}");
@@ -107,6 +107,10 @@ class ApiClient {
     }
 
     public function batch_create(array $images) {
+        if (!count($images)) {
+            return [];
+        }
+
         $language = $this->language;
 
         $resources = array_map(function ($i) use ($language) {
@@ -143,7 +147,7 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
         if (!$json) {
-            throw new Exception('Unexpected response when creating resources');
+            throw new \Exception('Unexpected response when creating resources');
         }
 
         return $this->json_to_id_and_alt($json);
@@ -203,7 +207,7 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
-            throw new Exception('Unexpected response when loading profile');
+            throw new \Exception('Unexpected response when loading profile');
         }
 
         return (object) array(

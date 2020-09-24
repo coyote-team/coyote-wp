@@ -53,8 +53,9 @@ class CoyoteResource {
             do_action('coyote_api_client_success');
 
             return $coyote_resources;;
-        } catch ($e) {
+        } catch (\Exception $e) {
             do_action('coyote_api_client_error', $e);
+            return [];
         }
     }
 

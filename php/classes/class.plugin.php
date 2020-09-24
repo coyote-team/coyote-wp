@@ -166,7 +166,7 @@ class Plugin {
 
         if ($error_count >= 10) {
             delete_transient('coyote_api_error_count');
-            update_option('coyote_standalone_mode', true);
+            update_option('coyote_is_standalone', true);
 
             $message = __("The Coyote API client has thrown 10 consecutive errors, the Coyote plugin has switched to standalone mode.", COYOTE_I18N_NS);
 
@@ -194,6 +194,7 @@ class Plugin {
     }
 
     public function on_api_client_success($message) {
+        // clear any existing api error count
         delete_transient('coyote_api_error_count');
     }
 
@@ -203,6 +204,8 @@ class Plugin {
             return $response;
         }
 
+        // get a coyote resource for this attachment. If not found, try to create it unless
+        // running in standalone mode.
         $data = CoyoteResource::get_coyote_id_and_alt([
             'src'       => $response['url'],
             'alt'       => $response['alt'],
