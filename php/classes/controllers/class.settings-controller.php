@@ -116,10 +116,11 @@ class SettingsController {
             'organization_id' => $new
         ]);
 
-        $resource_group_address = get_site_url('/wp-json/coyote/v1/callback');
+        $resource_group_url = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
 
         try {
-            $group_id = $client->create_resource_group('WordPress', $resource_group_address);
+            $group_id = $client->create_resource_group('WordPress', $resource_group_url);
+            Logger::log("Resource Group id {$group_id}");
             update_option('coyote_api_resource_group_id', $group_id);
             do_action('coyote_api_client_success');
         } catch (\Exception $e) {
