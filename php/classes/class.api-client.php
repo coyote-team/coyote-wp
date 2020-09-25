@@ -19,12 +19,7 @@ use \GuzzleHttp\Client;
 
 class ApiClient {
     /**
-     * CoyoteApiCLient constructor
-     * 
-     * @param string endpoint the endpoint the API is located at
-     * @param string auth_key API authentication key
-     * @param int organization_id API organization Id
-     * @param int api_version API version to use
+     * CoyoteApiClient constructor
      */
 
     private $organization_id = null;
@@ -42,17 +37,19 @@ class ApiClient {
         }
 
         $this->guzzle_client = new \GuzzleHttp\Client([
-            'base_uri' => ($args['endpoint'] . '/api/' . 'v' . ($args['api_version'] ?? 1). '/'),
+            'base_uri' => ($args['endpoint'] . '/api/' . 'v' . (intval($args['api_version'] ?? 1)). '/'),
             'timeout'  => 20.0,
+            'headers' => ['Authorization' => $args['token'], 'Accept' => 'application/json'],
+
             // disable exceptions, handle http 4xx-5xx internally
-            'exceptions' => false,
-            'headers' => ['Authorization' => $args['token'], 'Accept' => 'application/json']
+            'exceptions' => false
         ]);
 
-        $this->organization_id = $args['organization_id'] ?? null;
+        $this->organization_id = intval($args['organization_id'] ?? null);
+        $this->resource_group_id = intval($args['resource_group_id'] ?? null);
+
         $this->language = $args['language'] ?? "en";
         $this->metum = $args['metum'] ?? "Alt";
-        $this->resource_group_id = $args['resource_group_id'] ?? null;
     }
 
     private function get_response_json($expected_code, $response) {
