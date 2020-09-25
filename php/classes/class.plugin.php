@@ -22,12 +22,13 @@ use Coyote\Helpers\ContentHelper;
 class Plugin {
     private $is_installed = false;
     private $is_admin = false;
-    private $is_standalone = false;
     private $has_filters_enabled = false;
     private $has_updates_enabled = false;
 
     private $file;
     private $version;
+
+    public $is_standalone = false;
 
     public $config = [
         'CoyoteApiVersion'         => "1",
