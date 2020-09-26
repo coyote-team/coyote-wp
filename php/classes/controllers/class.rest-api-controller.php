@@ -17,25 +17,27 @@ if (!defined( 'ABSPATH')) {
 use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
+use Exception;
 use WP_REST_Server;
 use WP_Rest_Request;
 
 class RestApiController {
-    /**
-     * @var $namespace string API path namespace
-     */
+
     private $namespace;
     private $plugin_version;
     private $organization_id;
     private $metum;
 
     /**
-     * Constructor
-     *
-     * @param string $plugin_version    Local Plugin version
-     * @param string $api_version       Remote Coyote API version
+     * RestApiController constructor.
+     * @param int $plugin_version
+     * @param int $api_version
+     * @param int $organization_id
+     * @param string $metum
      */
-    public function __construct($plugin_version, $api_version = 1, $organization_id, $metum = 'Alt (short)') {
+    public function __construct(int $plugin_version, int $api_version, int $organization_id, string $metum = 'Alt') {
+        $api_version = intval($api_version ?? 1);
+
         $this->plugin_version = $plugin_version;
         $this->namespace = "coyote/v{$api_version}";
         $this->organization_id = $organization_id;
@@ -45,7 +47,7 @@ class RestApiController {
         add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
 
-    public function register_rest_routes() {
+    public function register_rest_routes(): void {
         register_rest_route(
             $this->namespace,
             'callback',
@@ -66,7 +68,7 @@ class RestApiController {
         );
     }
 
-    public function update_resource(WP_Rest_Request $request) {
+    public function update_resource(WP_Rest_Request $request): bool {
         $body = $request->get_body();
         $json = json_decode($body);
 
@@ -100,7 +102,7 @@ class RestApiController {
         );
     }
 
-    public function check_callback_permission(WP_Rest_Request $request) {
+    public function check_callback_permission(WP_Rest_Request $request): bool {
         $body = $request->get_body();
         $json = json_decode($body);
 
@@ -111,7 +113,7 @@ class RestApiController {
         return $req_org_id === intval($this->organization_id);
     }
 
-    public function provide_status(WP_Rest_Request $request) {
+    public function provide_status(): string {
         return "Coyote Plugin v{$this->plugin_version} OK";
     }
 

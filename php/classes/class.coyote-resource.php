@@ -3,13 +3,12 @@
 namespace Coyote;
 
 // Exit if accessed directly.
+use Exception;
+use stdClass;
+
 if (!defined( 'ABSPATH')) {
     exit;
 }
-
-use Coyote\DB;
-use Coyote\Logger;
-use Coyote\ApiClient;
 
 class CoyoteResource {
     public $image;
@@ -19,9 +18,7 @@ class CoyoteResource {
     public $coyote_description = null;
     public $coyote_resource_id = null;
 
-    private $api_client;
-
-    public function __construct(array $image, object $resource = null) {
+    public function __construct(array $image, stdClass $resource = null) {
         $this->image = $image;
 
         if ($resource !== null) {
@@ -36,9 +33,9 @@ class CoyoteResource {
     }
 
     public static function resources_from_images(array $images) {
-        $api_client = self::get_api_client();
-
         try {
+            $api_client = self::get_api_client();
+
             $created_resources = $api_client->batch_create($images);
 
             $coyote_resources = array_map(function ($image) use ($created_resources) {
@@ -52,8 +49,8 @@ class CoyoteResource {
 
             do_action('coyote_api_client_success');
 
-            return $coyote_resources;;
-        } catch (\Exception $e) {
+            return $coyote_resources;
+        } catch (Exception $e) {
             do_action('coyote_api_client_error', $e);
             return [];
         }
@@ -93,7 +90,7 @@ class CoyoteResource {
         global $coyote_plugin;
         $cfg = $coyote_plugin->config;
 
-        $client = new ApiClient([
+        return new ApiClient([
             'endpoint' => $cfg["CoyoteApiEndpoint"],
             'token' => $cfg["CoyoteApiToken"],
             'organization_id' => $cfg["CoyoteApiOrganizationId"],
@@ -102,8 +99,6 @@ class CoyoteResource {
             'metum' => $cfg["CoyoteApiMetum"],
             'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
         ]);
-
-        return $client;
     }
 
     private function process() {

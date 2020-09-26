@@ -10,6 +10,7 @@ if (!defined( 'ABSPATH')) {
 use Coyote\Logger;
 use Coyote\Helpers\ContentHelper;
 use Coyote\CoyoteResource;
+use Exception;
 
 class PostUpdateHandler {
 
@@ -24,7 +25,7 @@ class PostUpdateHandler {
         try {
             self::process(wp_unslash($data['post_content']), $post_id);
         } catch (Exception $error) {
-            Logger::log("Error processing post update for {$post_id}: " . $error->get_error_message());
+            Logger::log("Error processing post update for {$post_id}: " . $error->getMessage());
         }
 
         return $data;

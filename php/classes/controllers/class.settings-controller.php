@@ -18,13 +18,16 @@ class SettingsController {
     private $profile;
     private $is_standalone;
 
+    // const icon       = 'dashicon-admin-plugins';
     const capability = 'manage_options';
     const page_slug  = 'coyote_fields';
-    const icon       = 'dashicon-admin-plugins';
     const position   = 250;
 
     const settings_section = 'settings_section';
     const api_settings_section = 'api_settings_section';
+
+    private $batch_job;
+    private $profile_fetch_failed;
 
     function __construct() {
         $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
@@ -140,7 +143,7 @@ class SettingsController {
         $endpoint = get_option('coyote_api_endpoint');
 
         if (empty($token) || empty($endpoint)) {
-            return;
+            return null;
         }
 
         $client = new ApiClient([
@@ -167,15 +170,16 @@ class SettingsController {
             $this->profile_fetch_failed = true;
             delete_option('coyote_api_organization_id');
             Logger::log('Fetching profile failed');
+
+            return null;
         }
     }
 
     public function settings_page_cb() {
-        echo "
-            <div class=\"wrap\">
-                <h2>{$this->page_title}</h2>
+        echo sprintf("<div class=\"wrap\">
+                <h2>%s</h2>
                 <form method=\"post\" action=\"options.php\">
-        ";
+        ", $this->page_title);
 
         settings_fields(self::page_slug);
         do_settings_sections(self::page_slug);
@@ -207,10 +211,9 @@ class SettingsController {
 
         $title  = __("Process existing posts", COYOTE_I18N_NS);
 
-        echo "
-            <hr>
-            <h2>{$title}</h2>
-        ";
+        echo sprintf("<hr>
+            <h2>%s</h2>
+        ", $title);
 
         if (empty(get_option('coyote_api_organization_id'))) {
             echo __('Please select a Coyote organization to process posts.', COYOTE_I18N_NS);
@@ -397,8 +400,7 @@ class SettingsController {
         }
     }
 
-    public function api_setting_section_cb() {
-    }
+    public function api_setting_section_cb() {}
 
     public function api_endpoint_cb() {
         echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . get_option('coyote_api_endpoint', 'https://staging.coyote.pics') . '" size="50"/>';

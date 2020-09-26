@@ -7,7 +7,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Logger;
 use Coyote\DB;
 
 class ContentHelper {
@@ -28,6 +27,9 @@ class ContentHelper {
         $this->content = $content;
     }
 
+    /**
+     * @return string
+     */
     function replace_image_alts() {
         $matches = array();
         preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
@@ -56,6 +58,9 @@ class ContentHelper {
         return $this->content;
     }
 
+    /**
+     * @return array
+     */
     function get_src_and_coyote_id() {
         $matches = array();
         preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
@@ -84,6 +89,9 @@ class ContentHelper {
         return $images;
     }
 
+    /**
+     * @return array|null
+     */
     function get_images() {
         if ($this->images !== null) {
             return $this->images;
@@ -116,6 +124,10 @@ class ContentHelper {
         return $this->images = $images;
     }
 
+    /**
+     * @param string $element
+     * @return mixed|null
+     */
     static function get_img_src(string $element) {
         $matches = array();
         $result = preg_match(self::SRC_REGEX, $element, $matches);
@@ -127,6 +139,10 @@ class ContentHelper {
         return null;
     }
 
+    /**
+     * @param string $element
+     * @return mixed|null
+     */
     static function get_img_alt(string $element) {
         $matches = array();
         $result = preg_match(self::ALT_REGEX, $element, $matches);
@@ -138,6 +154,11 @@ class ContentHelper {
         return null;
     }
 
+    /**
+     * @param string $element
+     * @param string $alt
+     * @return string|string[]|null
+     */
     public function replace_img_alt(string $element, string $alt) {
         $replacement_alt = 'alt="' . htmlspecialchars($alt) . '"';
 
@@ -154,10 +175,6 @@ class ContentHelper {
         $this->content = $replaced;
 
         return $replacement_element;
-    }
-
-    public function get_content() {
-        return $this->content;
     }
 }
 

@@ -12,9 +12,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Logger;
-use Coyote\Batching;
-use Coyote\Handlers\PostUpdateHandler;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 use Coyote\Helpers\ContentHelper;
@@ -43,6 +40,12 @@ class Plugin {
 
     public $is_configured = false;
 
+    /**
+     * Plugin constructor.
+     * @param string $file
+     * @param string $version
+     * @param bool $is_admin
+     */
     public function __construct(string $file, string $version, bool $is_admin = false) {
         if(get_option('coyote_plugin_is_installed', null) !== null) {
             $this->is_installed = true;
@@ -132,7 +135,7 @@ class Plugin {
         }
 
         if ($this->is_admin) {
-            (new SettingsController($this->version));
+            (new SettingsController());
         }
 
         if (!$this->is_configured) {
@@ -171,10 +174,9 @@ class Plugin {
 
             $message = __("The Coyote API client has thrown 10 consecutive errors, the Coyote plugin has switched to standalone mode.", COYOTE_I18N_NS);
 
-            echo "
-                <div class=\"notice notice-error\">
-                    <p>{$message}</p>
-                </div>";
+            echo sprintf("<div class=\"notice notice-error\">
+                    <p>%s</p>
+                </div>", $message);
         }
     }
 
@@ -228,11 +230,11 @@ class Plugin {
     }
 
     public function filter_gutenberg_content($response, $post, $request) {
-	if (in_array('content', $response->data)) {
-	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
+	    if (in_array('content', $response->data)) {
+	        $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
         }
 
-	return $response;
+	    return $response;
     }
 
     public function filter_post_content($post_content) {
@@ -244,11 +246,11 @@ class Plugin {
         global $post;
 
         if (empty($post)) {
-            return;
+            return '';
         }
 
         if (empty($post->post_type)) {
-            return;
+            return '';
         }
 
         $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);

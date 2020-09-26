@@ -15,13 +15,12 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Exception;
 use \GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
+use stdClass;
 
 class ApiClient {
-    /**
-     * CoyoteApiClient constructor
-     */
-
     private $organization_id = null;
     private $resource_group_id = null;
     private $language;
@@ -31,12 +30,27 @@ class ApiClient {
     const HTTP_OK = 200;
     const HTTP_CREATED = 201;
 
+    /**
+     * ApiClient constructor.
+     *
+     * $args parameter consists of:
+     *  - string endpoint, the API endpoint
+     *  - string token, the API usage token
+     *  - int api_version, the api version to use
+     *  - (optional) int organization_id, the organization ID to use
+     *  - (optional) int resource_group_id, the resource group ID under which to create resources
+     *  - (optional) string language, the API language, defaults to "en"
+     *  - (optional) string metum, the metum to use for representations, defaults to "Alt"
+     *
+     * @param $args
+     * @throws Exception
+     */
     public function __construct($args) {
         if (!isset($args['endpoint']) || !isset($args['token'])) {
-            throw new \Exception("Provide at least an endpoint and token!");
+            throw new Exception("Provide at least an endpoint and token!");
         }
 
-        $this->guzzle_client = new \GuzzleHttp\Client([
+        $this->guzzle_client = new Client([
             'base_uri' => ($args['endpoint'] . '/api/' . 'v' . (intval($args['api_version'] ?? 1)). '/'),
             'timeout'  => 20.0,
             'headers' => ['Authorization' => $args['token'], 'Accept' => 'application/json'],
@@ -52,7 +66,7 @@ class ApiClient {
         $this->metum = $args['metum'] ?? "Alt";
     }
 
-    private function get_response_json($expected_code, $response) {
+    private function get_response_json(int $expected_code, ResponseInterface $response): ?stdClass {
         if ($response->getStatusCode() === $expected_code) {
             $json = json_decode($response->getBody());
 
@@ -64,18 +78,18 @@ class ApiClient {
         return null;
     }
 
-    public function create_resource_group($name, $url) {
+    public function create_resource_group(string $name, string $url): int {
         $response = $this->guzzle_client->get("organizations/{$this->organization_id}/resource_groups");
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
-            throw new \Exception("Failed fetching resource groups");
+            throw new Exception("Failed fetching resource groups");
         }
 
         return $this->ensure_resource_group_exists($json, $name, $url);
     }
 
-    private function ensure_resource_group_exists($json, $name, $url) {
+    private function ensure_resource_group_exists(stdClass $json, string $name, string $url): int {
         $matches = array_filter($json->data, function ($group) use($url) {
             return $group->attributes->webhook_uri === $url;
         });
@@ -95,7 +109,7 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
         if (!$json) {
-            throw new \Exception("Failed to create new resource group");
+            throw new Exception("Failed to create new resource group");
         }
 
         error_log("Created new resource group: {$json->data->id}");
@@ -103,7 +117,7 @@ class ApiClient {
         return $json->data->id;
     }
 
-    public function batch_create(array $images) {
+    public function batch_create(array $images): array {
         if (!count($images)) {
             return [];
         }
@@ -144,13 +158,13 @@ class ApiClient {
         $json = $this->get_response_json(self::HTTP_CREATED, $response);
 
         if (!$json) {
-            throw new \Exception('Unexpected response when creating resources');
+            throw new Exception('Unexpected response when creating resources');
         }
 
         return $this->json_to_id_and_alt($json);
     }
 
-    private function json_to_id_and_alt($json) {
+    private function json_to_id_and_alt(stdClass $json) {
         $map_representations = function($representations, $included) {
             return array_reduce($representations, function ($carry, $representation) use ($included) {
                 if ($representation->type !== "representation") {
@@ -198,13 +212,13 @@ class ApiClient {
         return $list;
     }
 
-    public function get_profile() {
+    public function get_profile(): stdClass {
         $response = $this->guzzle_client->get('profile');
 
         $json = $this->get_response_json(self::HTTP_OK, $response);
 
         if (!$json) {
-            throw new \Exception('Unexpected response when loading profile');
+            throw new Exception('Unexpected response when loading profile');
         }
 
         return (object) array(
@@ -214,7 +228,7 @@ class ApiClient {
         );
     }
 
-    private function get_profile_name($json) {
+    private function get_profile_name(stdClass $json): string {
         $data = $json->data;
         return
             $data->attributes->first_name .
@@ -222,7 +236,7 @@ class ApiClient {
             $data->attributes->last_name;
     }
 
-    private function get_profile_organizations($json) {
+    private function get_profile_organizations(stdClass $json): array {
         $reducer = function($carry, $item) {
             if ($item->type === "organization") {
                 array_push($carry, array(

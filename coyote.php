@@ -33,18 +33,35 @@ define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('COYOTE_VERSION', '0.0.1');
 
+/**
+ * @param string $path
+ * @return string
+ */
 function coyote_plugin_file(string $path) {
     return _coyote_file('php', $path);
 }
 
+/**
+ * @param string $path
+ * @return string
+ */
 function coyote_sql_file(string $path) {
     return _coyote_file('sql', $path);
 }
 
+/**
+ * @param string $path
+ * @return string
+ */
 function coyote_asset_url(string $path) {
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
 
+/**
+ * @param string $type
+ * @param string $path
+ * @return string
+ */
 function _coyote_file(string $type, string $path) {
     return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
 }

@@ -11,7 +11,7 @@ use Coyote\Logger;
 use Coyote\DB;
 
 class ResourceUpdateHandler {
-    public static function run($id, $alt) {
+    public static function run(string $id, string $alt): bool {
         Logger::log("Updating: [id] {$id}, [alt] {$alt}");
 
         $update = DB::update_resource_alt($id, $alt);
@@ -27,6 +27,8 @@ class ResourceUpdateHandler {
             // no updates? That's ok, but leave posts alone
             return true;
         }
+
+        return false;
     }
 }
 
