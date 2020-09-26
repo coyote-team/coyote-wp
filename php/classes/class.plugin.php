@@ -66,8 +66,8 @@ class Plugin {
         $_config['CoyoteApiToken']           = get_option('coyote_api_token',             $_config['CoyoteApiToken']);
         $_config['CoyoteApiEndpoint']        = get_option('coyote_api_endpoint',          $_config['CoyoteApiEndpoint']);
         $_config['CoyoteApiMetum']           = get_option('coyote_api_metum',             $_config['CoyoteApiMetum']);
-        $_config['CoyoteApiOrganizationId']  = get_option('coyote_api_organization_id',   $_config['CoyoteApiOrganizationId']);
-        $_config['CoyoteApiResourceGroupId'] = get_option('coyote_api_resource_group_id', $_config['CoyoteApiResourceGroupId']);
+        $_config['CoyoteApiOrganizationId']  = intval(get_option('coyote_api_organization_id',   $_config['CoyoteApiOrganizationId']));
+        $_config['CoyoteApiResourceGroupId'] = intval(get_option('coyote_api_resource_group_id', $_config['CoyoteApiResourceGroupId']));
 
         $_config['ProcessTypes']    = get_option('coyote_post_types',    $_config['ProcessTypes']);
         $_config['ProcessStatuses'] = get_option('coyote_post_statuses', $_config['ProcessStatuses']);

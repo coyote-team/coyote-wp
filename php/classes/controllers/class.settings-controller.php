@@ -38,7 +38,7 @@ class SettingsController {
 
         $this->batch_job = Batching::get_batch_job();
 
-        $this->is_standalone = get_option('coyote_is_standalone', false);
+        $this->is_standalone = !!(get_option('coyote_is_standalone', false));
 
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
@@ -68,7 +68,7 @@ class SettingsController {
         wp_localize_script('coyote_settings_js', 'coyote_ajax_obj', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('coyote_ajax'),
-            'endpoint' => get_option('coyote_processor_endpoint'),
+            'endpoint' => esc_url(get_option('coyote_processor_endpoint')),
             'job_id' => $this->batch_job ? $this->batch_job['id'] : null,
             'job_type' => $this->batch_job ? $this->batch_job['type'] : null
         ));
@@ -223,7 +223,7 @@ class SettingsController {
         $process_disabled = $this->batch_job ? 'disabled' : '';
         $cancel_disabled = $this->batch_job ? '' : 'disabled';
 
-        $batch_size = get_option('coyote_processing_batch_size', 50);
+        $batch_size = esc_html(get_option('coyote_processing_batch_size', 50));
 
         $processor_endpoint = 'https://processor.coyote.pics';
 
@@ -276,22 +276,49 @@ class SettingsController {
         );
     }
 
-    public function init() {
-        // TODO generate this from static typedef
+    public function sanitize_boolean($option) {
+        return !empty($option) ? 'on' : '';
+    }
 
-        register_setting(self::page_slug, 'coyote_is_standalone');
+    public function sanitize_endpoint($endpoint) {
+        if (!empty($endpoint)) {
+            // check if it's a valid url
+            if (filter_var($endpoint, FILTER_VALIDATE_URL) !== false) {
+                return esc_url($endpoint);
+            }
+        }
+
+        return '';
+    }
+
+    public function sanitize_token($token) {
+        return esc_html($token);
+    }
+
+    public function sanitize_metum($metum) {
+        return esc_html($metum);
+    }
+
+    public function sanitize_organization_id($organization_id) {
+        // validate the organization id is valid?
+        return esc_html($organization_id);
+    }
+
+    public function init() {
+        register_setting(self::page_slug, 'coyote_is_standalone', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
 
         if (!$this->is_standalone) {
-            register_setting(self::page_slug, 'coyote_filters_enabled');
-            register_setting(self::page_slug, 'coyote_updates_enabled');
-            register_setting(self::page_slug, 'coyote_processor_endpoint');
+            register_setting(self::page_slug, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+            register_setting(self::page_slug, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
 
-            register_setting(self::page_slug, 'coyote_api_endpoint');
-            register_setting(self::page_slug, 'coyote_api_token');
-            register_setting(self::page_slug, 'coyote_api_metum');
+            register_setting(self::page_slug, 'coyote_processor_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
+
+            register_setting(self::page_slug, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
+            register_setting(self::page_slug, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
+            register_setting(self::page_slug, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
 
             if ($this->profile) {
-                register_setting(self::page_slug, 'coyote_api_organization_id');
+                register_setting(self::page_slug, 'coyote_api_organization_id', ['type' => 'integer', 'sanitize_callback' => [$this, 'sanitize_organization_id']]);
             }
         }
 
@@ -403,19 +430,19 @@ class SettingsController {
     public function api_setting_section_cb() {}
 
     public function api_endpoint_cb() {
-        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . get_option('coyote_api_endpoint', 'https://staging.coyote.pics') . '" size="50"/>';
+        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . esc_url(get_option('coyote_api_endpoint', 'https://staging.coyote.pics')) . '" size="50"/>';
     }
 
     public function api_token_cb() {
-        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . get_option('coyote_api_token') . '" size="30"/>';
+        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . sanitize_text_field(get_option('coyote_api_token')) . '" size="30"/>';
     }
 
     public function api_metum_cb() {
-        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . get_option('coyote_api_metum', 'Alt') . '" size="50"/>';
+        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . sanitize_text_field(get_option('coyote_api_metum', 'Alt')) . '" size="50"/>';
     }
 
     public function api_organization_id_cb() {
-        $organization_id = get_option('coyote_api_organization_id');
+        $organization_id = intval(get_option('coyote_api_organization_id'));
         $organizations = $this->profile->organizations;
         $single_org = count($organizations) === 1;
 
@@ -427,8 +454,8 @@ class SettingsController {
         }
 
         foreach ($this->profile->organizations as $org) {
-            $selected = $org['id'] === $organization_id ? 'selected' : '';
-            echo "<option {$selected} value=\"" . $org['id'] ."\">" . htmlspecialchars($org['name']). "</option>";
+            $selected = intval($org['id']) === $organization_id ? 'selected' : '';
+            echo "<option {$selected} value=\"" . $org['id'] ."\">" . esc_html($org['name']). "</option>";
         }
 
         echo '</select>';
@@ -437,19 +464,19 @@ class SettingsController {
     }
 
     public function settings_is_standalone_cb() {
-        $setting = get_option('coyote_is_standalone', true);
+        $setting = esc_html(get_option('coyote_is_standalone', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked}>";
     }
 
     public function settings_filters_enabled_cb() {
-        $setting = get_option('coyote_filters_enabled', true);
+        $setting = esc_html(get_option('coyote_filters_enabled', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked}>";
     }
 
     public function settings_updates_enabled_cb() {
-        $setting = get_option('coyote_updates_enabled', true);
+        $setting = esc_html(get_option('coyote_updates_enabled', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked}>";
     }

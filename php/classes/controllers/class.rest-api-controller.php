@@ -35,7 +35,7 @@ class RestApiController {
      * @param int $organization_id
      * @param string $metum
      */
-    public function __construct(int $plugin_version, int $api_version, int $organization_id, string $metum = 'Alt') {
+    public function __construct(string $plugin_version, int $api_version, int $organization_id, string $metum = 'Alt') {
         $api_version = intval($api_version ?? 1);
 
         $this->plugin_version = $plugin_version;
