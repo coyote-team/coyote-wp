@@ -181,7 +181,7 @@ class ApiClient {
 
                 if (count($matches)) {
                     // grab lowest ordinality
-                    array_push($carry, $matches[0]);
+                    array_push($carry, array_shift($matches));
                 }
 
                 return $carry;
@@ -193,7 +193,7 @@ class ApiClient {
         foreach ($json->data as $item) {
             $alt_representations = [];
 
-            if ($item->relationships->representations->meta->included) {
+            if (property_exists($item->relationships->representations, 'data')) {
                 $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
             }
 
