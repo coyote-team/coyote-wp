@@ -193,7 +193,7 @@ class ApiClient {
         foreach ($json->data as $item) {
             $alt_representations = [];
 
-            if (property_exists($item->relationships->representations, 'data')) {
+            if (property_exists($item->relationships->representations, 'data') && property_exists($json, 'included')) {
                 $alt_representations = $map_representations($item->relationships->representations->data, $json->included);
             }
 
