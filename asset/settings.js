@@ -28,10 +28,10 @@ window.addEventListener('DOMContentLoaded', function () {
     const processorEndpoint = byId('coyote_processor_endpoint') && byId('coyote_processor_endpoint').value;
 
     const load = () => {
-        const organizationId = coyoteOrganizationIdSelect.value;
-        console.debug(organizationId);
-
-        coyoteOrganizationIdSelect.addEventListener('change', changeOrganization(organizationId).bind(coyoteOrganizationIdSelect));
+        if (coyoteOrganizationIdSelect) {
+            const organizationId = coyoteOrganizationIdSelect.value;
+            coyoteOrganizationIdSelect.addEventListener('change', changeOrganization(organizationId).bind(coyoteOrganizationIdSelect));
+        }
 
         if (processExistingPostsButton) {
             processExistingPostsButton.addEventListener('click', startProcessing);
