@@ -16,7 +16,9 @@ add_action('wp_enqueue_media', function() {
 
     $screen = get_current_screen();
 
-    if ($screen->id === 'upload') {
+    if ($screen->id === 'upload' || $screen->id === 'post') {
+        // print metadata inline
+
         if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
             error_log("remove_action fail");
         }
