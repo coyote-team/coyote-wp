@@ -119,6 +119,7 @@ class Plugin {
             add_filter('the_content', [$this, 'filter_post_content'], 10, 1);
             add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
             add_filter('wp_prepare_attachment_for_js', [$this, 'filter_attachment_for_js'], 10, 3);
+            add_filter('wp_get_attachment_image_attributes', [$this, 'filter_attachment_image_attributes'], 10, 3);
 
             add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
             add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
@@ -201,6 +202,26 @@ class Plugin {
         delete_transient('coyote_api_error_count');
     }
 
+    public function filter_attachment_image_attributes($attr, $attachment, $size) {
+        // get a coyote resource for this attachment. If not found, try to create it unless
+        // running in standalone mode.
+        $url = wp_get_attachment_url($attachment->ID);
+
+        $data = CoyoteResource::get_coyote_id_and_alt([
+            'src'       => $url,
+            'alt'       => '',
+            'caption'   => '',
+            'element'   => null,
+            'host_uri'  => null
+        ], !$this->is_standalone);
+
+        if ($data) {
+            $attr['alt'] = $data['alt'];
+        }
+
+        return $attr;
+    }
+
     // used in the media template
     public function filter_attachment_for_js($response, $attachment, $meta) {
         if ($response['type'] !== 'image') {
@@ -209,8 +230,10 @@ class Plugin {
 
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
+        $url = wp_get_attachment_url($attachment->ID);
+
         $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => $response['url'],
+            'src'       => $url,
             'alt'       => $response['alt'],
             'caption'   => $response['caption'],
             'element'   => null,
@@ -230,14 +253,22 @@ class Plugin {
     }
 
     public function filter_gutenberg_content($response, $post, $request) {
-	    if (in_array('content', $response->data)) {
-	        $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
+        if (in_array('content', $response->data)) {
+	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
         }
 
-	    return $response;
+	return $response;
     }
 
     public function filter_post_content($post_content) {
+        global $post;
+
+        if ($post->post_type === 'attachment') {
+            Logger::log("Attachment post already processed, skipping");
+        }
+
+        return $post_content;
+
         $helper = new ContentHelper($post_content);
         return $helper->replace_image_alts();
     }
