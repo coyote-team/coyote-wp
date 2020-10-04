@@ -16,7 +16,7 @@ add_action('wp_enqueue_media', function() {
 
     $screen = get_current_screen();
 
-    if ($screen->id === 'upload' || $screen->id === 'post') {
+    if ($screen->id === 'upload') {
         // print metadata inline
 
         if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
@@ -57,7 +57,7 @@ function classic_editor_print_media_templates() {
 function media_manager_print_media_templates() {
     $replacements = array(
         '/aria-describedby="alt-text-description"/' => 'aria-describedby="alt-text-description" readonly',
-        '/<p class="description" id="alt-text-description">.*?<\/p>/' => '<p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote</a></p>',
+        '/<p class="description" id="alt-text-description">.*?<\/p>/' => '<p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote website</a></p>',
     );
 
     // start output buffering
