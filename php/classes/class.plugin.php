@@ -265,12 +265,27 @@ class Plugin {
 
         if ($post->post_type === 'attachment') {
             Logger::log("Attachment post already processed, skipping");
+            return $post_content;
         }
 
-        return $post_content;
-
         $helper = new ContentHelper($post_content);
-        return $helper->replace_image_alts();
+        return $helper->replace_image_alts(function($attachment_id) {
+            $url = wp_get_attachment_url($attachment_id);
+
+            $data = CoyoteResource::get_coyote_id_and_alt([
+                'src'       => $url,
+                'alt'       => '',
+                'caption'   => '',
+                'element'   => null,
+                'host_uri'  => null
+            ], !$this->is_standalone);
+
+            if ($data) {
+                return $data['alt'];
+            }
+
+            return null;
+        });
     }
 
     public function classic_editor_data() {
