@@ -16,6 +16,8 @@ class ContentHelper {
     const IMAGE_REGEX = '#(?:(?:\[caption[^\]]*?\].*?)(<\s*img\s+[^>]*?\/?>)(?:\s*<\/a>)?\s*(?:(.*?)\[\/caption\])|<\s*img\s+[^>]*?\/?>)#smi';
     const ALT_REGEX = '/alt\s*=\s*("|\')(.*?)(?!\\\\)\1/smi';
     const SRC_REGEX = '/src\s*=\s*("|\')([^\1]+?)\1/smi';
+    const CLASS_REGEX = '/class\s*=\s*("|\')([^\1]+?)\1/smi';
+    const IMG_ATTACHMENT_REGEX = '/wp-image-(\d+)/smi';
 
     // not just the value, also the attribute
     const ALT_ATTR_REGEX = '/alt\s*=\s*("|\')(.*?)(?!\\\\)\1/smi';
@@ -30,7 +32,7 @@ class ContentHelper {
     /**
      * @return string
      */
-    function replace_image_alts() {
+    function replace_image_alts($get_attachment_alt) {
         $matches = array();
         preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
 
@@ -44,9 +46,16 @@ class ContentHelper {
                 $element = $matches[0][$i];
             }
 
-            $src = self::get_img_src($element);
+            $alt = null;
 
-            $alt = DB::get_coyote_alt_by_hash(sha1(($src)));
+            $class = self::get_img_class($element);
+
+            if ($attachment_id = self::get_class_attachment_id($class)) {
+                $alt = $get_attachment_alt($attachment_id);
+            } else {
+                $src = self::get_img_src($element);
+                $alt = DB::get_coyote_alt_by_hash(sha1(($src)));
+            }
 
             if ($alt === null) {
                 continue;
@@ -56,6 +65,18 @@ class ContentHelper {
         }
 
         return $this->content;
+    }
+
+    static function get_class_attachment_id($class) {
+        if (!is_string($class)) {
+            return null;
+        }
+
+        $matches = [];
+
+        if (preg_match(self::IMG_ATTACHMENT_REGEX, $class, $matches)) {
+            return $matches[1];
+        }
     }
 
     /**
@@ -124,13 +145,10 @@ class ContentHelper {
         return $this->images = $images;
     }
 
-    /**
-     * @param string $element
-     * @return mixed|null
-     */
-    static function get_img_src(string $element) {
+
+    static function get_img_attr(string $regex, string $element) {
         $matches = array();
-        $result = preg_match(self::SRC_REGEX, $element, $matches);
+        $result = preg_match($regex, $element, $matches);
 
         if ($result) {
             return $matches[2];
@@ -143,15 +161,24 @@ class ContentHelper {
      * @param string $element
      * @return mixed|null
      */
+    static function get_img_class(string $element) {
+        return self::get_img_attr(self::CLASS_REGEX, $element);
+    }
+
+    /**
+     * @param string $element
+     * @return mixed|null
+     */
+    static function get_img_src(string $element) {
+        return self::get_img_attr(self::SRC_REGEX, $element);
+    }
+
+    /**
+     * @param string $element
+     * @return mixed|null
+     */
     static function get_img_alt(string $element) {
-        $matches = array();
-        $result = preg_match(self::ALT_REGEX, $element, $matches);
-
-        if ($result) {
-            return $matches[2];
-        }
-
-        return null;
+        return self::get_img_attr(self::ALT_REGEX, $element);
     }
 
     /**
