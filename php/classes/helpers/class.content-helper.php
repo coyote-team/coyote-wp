@@ -134,6 +134,14 @@ class ContentHelper {
                 $caption = null;
             }
 
+            // skip images that are wordpress attachments
+            // those get processed by media / attachment handlers
+            $class = self::get_img_class($element);
+
+            if ($attachment_id = self::get_class_attachment_id($class)) {
+                continue;
+            }
+
             array_push($images, [
                 'element' => $element,
                 'caption' => $caption,
