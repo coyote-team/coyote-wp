@@ -16,20 +16,19 @@ add_action('wp_enqueue_media', function() {
 
     $screen = get_current_screen();
 
+    if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
+        error_log("remove_action fail");
+    }
+
     if ($screen->id === 'upload') {
         // print metadata inline
-
-        if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
-            error_log("remove_action fail");
-        }
-
         add_action('admin_footer', 'media_manager_print_media_templates');
-
+        add_action('admin_footer', 'classic_editor_print_media_templates');
         return;
     }
 
-    if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
-        error_log("remove_action fail");
+    if ($screen->id === 'post') {
+        add_action('admin_footer', 'media_manager_print_media_templates');
     }
 
     add_action('admin_footer', 'classic_editor_print_media_templates');
