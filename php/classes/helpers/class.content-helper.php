@@ -54,7 +54,8 @@ class ContentHelper {
                 $alt = $get_attachment_alt($attachment_id);
             } else {
                 $src = self::get_img_src($element);
-                $alt = DB::get_coyote_alt_by_hash(sha1(($src)));
+                $hash = sha1(htmlspecialchars_decode($src));
+                $alt = DB::get_coyote_alt_by_hash($hash);
             }
 
             if ($alt === null) {
