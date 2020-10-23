@@ -25,6 +25,7 @@ class SettingsController {
 
     const settings_section = 'settings_section';
     const api_settings_section = 'api_settings_section';
+    const advanced_settings_section = 'advanced_settings_section';
 
     private $batch_job;
     private $profile_fetch_failed;
@@ -227,7 +228,14 @@ class SettingsController {
 
         $processor_endpoint = 'https://processor.coyote.pics';
 
+        $info = __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', COYOTE_I18N_NS);
+        $error = __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', COYOTE_I18N_NS);
+        $idempotence = __('This process does not modify your WordPress content itself, and may be used more than once.', COYOTE_I18N_NS);
+
         echo "
+            <p>{$info}</p>
+            <p>{$error}</p>
+            <p>{$idempotence}</p>
             <div id=\"process-existing-posts\">
                 <div class=\"form-group\">
                     <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', COYOTE_I18N_NS) . ":</label>
@@ -333,37 +341,10 @@ class SettingsController {
             return;
         }
 
-        add_settings_field(
-            'coyote_is_standalone',
-            __('Run in standalone mode', COYOTE_I18N_NS),
-            array($this, 'settings_is_standalone_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_is_standalone')
-        );
-
-        add_settings_field(
-            'coyote_filters_enabled',
-            __('Filter images through Coyote', COYOTE_I18N_NS),
-            array($this, 'settings_filters_enabled_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_filters_enabled')
-        );
-
-        add_settings_field(
-            'coyote_updates_enabled',
-            __('Enable Coyote remote description updates', COYOTE_I18N_NS),
-            array($this, 'settings_updates_enabled_cb'),
-            self::page_slug,
-            self::settings_section,
-            array('label_for' => 'coyote_updates_enabled')
-        );
-
         add_settings_section(
             self::api_settings_section,
             __('API settings', COYOTE_I18N_NS),
-            array($this, 'api_setting_section_cb'),
+            array($this, 'noop_setting_section_cb'),
             self::page_slug
         );
 
@@ -406,6 +387,40 @@ class SettingsController {
             self::api_settings_section,
             array('label_for' => 'coyote_api_organization_id')
         );
+
+        add_settings_section(
+            self::advanced_settings_section,
+            __('Advanced settings', COYOTE_I18N_NS),
+            [$this, 'noop_setting_section_cb'],
+            self::page_slug
+        );
+
+        add_settings_field(
+            'coyote_is_standalone',
+            __('Run in standalone mode', COYOTE_I18N_NS),
+            array($this, 'settings_is_standalone_cb'),
+            self::page_slug,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_is_standalone')
+        );
+
+        add_settings_field(
+            'coyote_filters_enabled',
+            __('Filter images through Coyote', COYOTE_I18N_NS),
+            array($this, 'settings_filters_enabled_cb'),
+            self::page_slug,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_filters_enabled')
+        );
+
+        add_settings_field(
+            'coyote_updates_enabled',
+            __('Enable Coyote remote description updates', COYOTE_I18N_NS),
+            array($this, 'settings_updates_enabled_cb'),
+            self::page_slug,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_updates_enabled')
+        );
     }
 
     public function plugin_setting_section_cb() {
@@ -424,21 +439,29 @@ class SettingsController {
             echo "
                 </div>
             ";
+
+            return;
         }
+
+        $message = __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', COYOTE_I18N_NS);
+        echo "<p>{$message}</p>";
     }
 
-    public function api_setting_section_cb() {}
+    public function noop_setting_section_cb() {}
 
     public function api_endpoint_cb() {
-        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . esc_url(get_option('coyote_api_endpoint', 'https://staging.coyote.pics')) . '" size="50"/>';
+        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . esc_url(get_option('coyote_api_endpoint', 'https://staging.coyote.pics')) . '" size="50" aria-describedby="coyote_api_endpoint_hint"/>';
+        echo '<p id="coyote_api_endpoint_hint">' . __('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', COYOTE_I18N_NS) . '</p>';
     }
 
     public function api_token_cb() {
-        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . sanitize_text_field(get_option('coyote_api_token')) . '" size="30"/>';
+        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . sanitize_text_field(get_option('coyote_api_token')) . '" size="30" aria-describedby="coyote_api_token_hint"/>';
+        echo '<p id="coyote_api_token_hint">' . __('The API token associated with your Coyote account.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function api_metum_cb() {
-        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . sanitize_text_field(get_option('coyote_api_metum', 'Alt')) . '" size="50"/>';
+        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . sanitize_text_field(get_option('coyote_api_metum', 'Alt')) . '" size="50" aria-describedby="coyote_api_metum_hint"/>';
+        echo '<p id="coyote_api_metum_hint">' . __('The metum used by the API to categorise image descriptions, e.g. "Alt".', COYOTE_I18N_NS) . '</p>';
     }
 
     public function api_organization_id_cb() {
@@ -446,7 +469,7 @@ class SettingsController {
         $organizations = $this->profile->organizations;
         $single_org = count($organizations) === 1;
 
-        echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id">';
+        echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">';
 
         if (!$single_org) {
             $default = empty($organization_id) ? 'selected' : '';
@@ -461,24 +484,29 @@ class SettingsController {
         echo '</select>';
 
         echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
+
+        echo '<p id="coyote_api_organization_id_hint">' . __('The Coyote organization to associate with.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function settings_is_standalone_cb() {
         $setting = esc_html(get_option('coyote_is_standalone', true));
         $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked}>";
+        echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked} aria-describedby=\"coyote_is_standalone_hint\">";
+        echo '<p id="coyote_is_standalone_hint">' . __('When enabled, the plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function settings_filters_enabled_cb() {
         $setting = esc_html(get_option('coyote_filters_enabled', true));
         $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked}>";
+        echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked} aria-describedby=\"coyote_filters_enabled_hint\">";
+        echo '<p id="coyote_filters_enabled_hint">' . __('When enabled, the plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function settings_updates_enabled_cb() {
         $setting = esc_html(get_option('coyote_updates_enabled', true));
         $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked}>";
+        echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked} aria-describedby=\"coyote_updates_enabled_hint\">";
+        echo '<p id="coyote_updates_enabled_hint">' . __('When enabled, the plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
     }
 
 }
