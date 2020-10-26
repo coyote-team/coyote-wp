@@ -98,14 +98,25 @@ class ContentHelper {
                 $element = $matches[0][$i];
             }
 
-            $src = self::get_img_src($element);
-            $coyote_id = DB::get_coyote_id_by_hash(sha1($src));
+            $class = self::get_img_class($element);
 
-            if ($coyote_id === null) {
-                continue;
+            if ($attachment_id = self::get_class_attachment_id($class)) {
+                $src = wp_get_attachment_url($attachment_id);
+                $hash = sha1(htmlspecialchars_decode($src));
+                $coyote_id = DB::get_coyote_id_by_hash($hash);
+
+                if ($coyote_id !== null) {
+                    $images[$attachment_id] = $coyote_id;
+                }
+            } else {
+                $src = self::get_img_src($element);
+                $hash = sha1(htmlspecialchars_decode($src));
+                $coyote_id = DB::get_coyote_id_by_hash($hash);
+
+                if ($coyote_id !== null) {
+                    $images[$src] = $coyote_id;
+                }
             }
-
-            $images[$src] = $coyote_id;
         }
 
         return $images;

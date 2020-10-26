@@ -5,7 +5,8 @@
             wp.media.events.on('editor:image-edit', function (arg) {
                 arg.metadata.coyoteManagementUrl = function () {
                     var prefix = coyote.classic_editor.prefix;
-                    var coyoteId = coyote.classic_editor.mapping[arg.image.src];
+                    var mapping = coyote.classic_editor.mapping;
+                    var coyoteId = mapping[arg.metadata.attachment_id] || mapping[arg.image.src];
 
                     if (coyoteId !== undefined) {
                         url =
