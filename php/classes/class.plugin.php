@@ -12,20 +12,22 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Coyote\HooksAndFilters;
+use Coyote\Helpers\ContentHelper;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
-use Coyote\Helpers\ContentHelper;
 
 class Plugin {
     private $is_installed = false;
     private $is_admin = false;
-    private $has_filters_enabled = false;
-    private $has_updates_enabled = false;
-
-    private $file;
     private $version;
 
+    public $has_filters_enabled = false;
+    public $has_updates_enabled = false;
+    public $file;
+
     public $is_standalone = false;
+    public $is_standalone_error = false;
 
     public $config = [
         'CoyoteApiVersion'         => "1",
@@ -47,14 +49,13 @@ class Plugin {
      * @param bool $is_admin
      */
     public function __construct(string $file, string $version, bool $is_admin = false) {
-        if(get_option('coyote_plugin_is_installed', null) !== null) {
-            $this->is_installed = true;
-        }
-
         $this->file = $file;
         $this->version = $version;
         $this->is_admin = $is_admin;
+
         $this->is_standalone = get_option('coyote_is_standalone', false);
+        $this->is_standalone_error = get_option('coyote_error_standalone', false);
+        $this->is_installed = get_option('coyote_plugin_is_installed', false);
 
         $this->setup();
     }
@@ -62,17 +63,18 @@ class Plugin {
     private function load_config() {
         $_config = $this->config;
 
-        $_config['CoyoteApiVersion']         = get_option('coyote_api_version',           $_config['CoyoteApiVersion']);
-        $_config['CoyoteApiToken']           = get_option('coyote_api_token',             $_config['CoyoteApiToken']);
-        $_config['CoyoteApiEndpoint']        = get_option('coyote_api_endpoint',          $_config['CoyoteApiEndpoint']);
-        $_config['CoyoteApiMetum']           = get_option('coyote_api_metum',             $_config['CoyoteApiMetum']);
+        $_config['CoyoteApiVersion']   = get_option('coyote_api_version',  $_config['CoyoteApiVersion']);
+        $_config['CoyoteApiToken']     = get_option('coyote_api_token',    $_config['CoyoteApiToken']);
+        $_config['CoyoteApiEndpoint']  = get_option('coyote_api_endpoint', $_config['CoyoteApiEndpoint']);
+        $_config['CoyoteApiMetum']     = get_option('coyote_api_metum',    $_config['CoyoteApiMetum']);
+
         $_config['CoyoteApiOrganizationId']  = intval(get_option('coyote_api_organization_id',   $_config['CoyoteApiOrganizationId']));
         $_config['CoyoteApiResourceGroupId'] = intval(get_option('coyote_api_resource_group_id', $_config['CoyoteApiResourceGroupId']));
 
         $_config['ProcessTypes']    = get_option('coyote_post_types',    $_config['ProcessTypes']);
         $_config['ProcessStatuses'] = get_option('coyote_post_statuses', $_config['ProcessStatuses']);
 
-        if (get_option('coyote_api_profile')) {
+        if (get_option('coyote_api_profile', null) !== null) {
             $this->is_configured = true;
         }
 
@@ -86,250 +88,41 @@ class Plugin {
 
         register_activation_hook($this->file, [$this, 'activate']);
         register_deactivation_hook($this->file, [$this, 'deactivate']);
-        register_uninstall_hook($this->file, ['Coyote\Plugin', 'uninstall']);
-
-        $this->has_filters_enabled = get_option('coyote_filters_enabled', false);
-
-        // only load updates option if we're not in standalone mode
-        if (!$this->is_standalone) {
-            $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
-        }
-
-        $this->load_config();
 
         if (!$this->is_installed) {
             return;
         }
 
-        // add settings link to plugin page
-        add_filter('plugin_action_links_' . plugin_basename($this->file), [$this, 'add_action_links']);
+        $this->load_config();
 
-        // display any errors
-        add_action('admin_notices', [$this, 'display_admin_notices']);
+        register_uninstall_hook($this->file, ['Coyote\Plugin', 'uninstall']);
 
-        if (!$this->is_standalone) {
-            // api client action handlers
-            add_action('coyote_api_client_error', [$this, 'on_api_client_error']);
-            add_action('coyote_api_client_success', [$this, 'on_api_client_success']);
+        $this->has_filters_enabled = get_option('coyote_filters_enabled', false);
+
+        // only load updates option if we're either not in standalone mode,
+        // or in standalone mode caused by repeated errors.
+        // Explicit standalone mode disables remote updates.
+        if (!$this->is_standalone || $this->is_standalone_error) {
+            $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
         }
 
-        if ($this->has_filters_enabled && $this->is_configured) {
-            Logger::log('Filters enabled.');
+        (new HooksAndFilters($this))->run();
 
-            add_filter('the_content', [$this, 'filter_post_content'], 10, 1);
-            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
-            add_filter('wp_prepare_attachment_for_js', [$this, 'filter_attachment_for_js'], 10, 3);
-            add_filter('wp_get_attachment_image_attributes', [$this, 'filter_attachment_image_attributes'], 10, 3);
+        $this->setup_controllers();
+    }
 
-            add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
-            add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
-
-            if (!$this->is_standalone) {
-                // handle updates to posts made by the front-end
-                add_filter('wp_insert_post_data', ['Coyote\Handlers\PostUpdateHandler', 'run'], 10, 2);
-
-                // allow custom resource management link in tinymce
-                add_action('admin_init', [$this, 'add_tinymce_plugin']);
-            }
-        } else {
-            Logger::log('Filters disabled.');
-        }
-
+    public function setup_controllers() {
         if ($this->is_admin) {
             (new SettingsController());
         }
 
-        if (!$this->is_configured) {
-            return;
-        }
-
-        if ($this->has_updates_enabled) {
-            Logger::log('Updates enabled.');
+        if ($this->is_configured && $this->has_updates_enabled) {
             // allow remote updates
+            Logger::log('Updates enabled.');
             (new RestApiController($this->version, 1, $this->config['CoyoteApiOrganizationId'], $this->config['CoyoteApiMetum']));
         } else {
             Logger::log('Updates disabled.');
         }
-
-        if (!$this->is_standalone) {
-            add_action('wp_ajax_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
-            add_action('wp_ajax_nopriv_coyote_load_process_batch', array('Coyote\Batching', 'load_process_batch'));
-
-            add_action('wp_ajax_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
-            add_action('wp_ajax_nopriv_coyote_set_batch_job', array('Coyote\Batching', 'ajax_set_batch_job'));
-
-            add_action('wp_ajax_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-            add_action('wp_ajax_nopriv_coyote_clear_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-
-            add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-            add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
-        }
-    }
-
-    public function display_admin_notices() {
-        $error_count = intval(get_transient('coyote_api_error_count'));
-
-        if ($error_count >= 10) {
-            delete_transient('coyote_api_error_count');
-            update_option('coyote_is_standalone', true);
-
-            $message = __("The Coyote API client has thrown 10 consecutive errors, the Coyote plugin has switched to standalone mode.", COYOTE_I18N_NS);
-
-            echo sprintf("<div class=\"notice notice-error\">
-                    <p>%s</p>
-                </div>", $message);
-        }
-    }
-
-    public function on_api_client_error($message) {
-        Logger::log("Coyote API error: ${message}");
-
-        $error_count = get_transient('coyote_api_error_count');
-
-        if ($error_count === false) {
-            $error_count = 1;
-        } else {
-            $error_count = intval($error_count) + 1;
-        }
-
-        Logger::log("Updating API error count to ${error_count}");
-
-        set_transient('coyote_api_error_count', $error_count);
-    }
-
-    public function on_api_client_success($message) {
-        // clear any existing api error count
-        delete_transient('coyote_api_error_count');
-    }
-
-    public function filter_attachment_image_attributes($attr, $attachment, $size) {
-        // get a coyote resource for this attachment. If not found, try to create it unless
-        // running in standalone mode.
-        $url = wp_get_attachment_url($attachment->ID);
-
-        $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => $url,
-            'alt'       => '',
-            'caption'   => '',
-            'element'   => null,
-            'host_uri'  => null
-        ], !$this->is_standalone);
-
-        if ($data) {
-            $attr['alt'] = $data['alt'];
-        }
-
-        return $attr;
-    }
-
-    // used in the media template
-    public function filter_attachment_for_js($response, $attachment, $meta) {
-        if ($response['type'] !== 'image') {
-            return $response;
-        }
-
-        // get a coyote resource for this attachment. If not found, try to create it unless
-        // running in standalone mode.
-        $url = wp_get_attachment_url($attachment->ID);
-
-        $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => $url,
-            'alt'       => $response['alt'],
-            'caption'   => $response['caption'],
-            'element'   => null,
-            'host_uri'  => null
-        ], !$this->is_standalone);
-
-        if (!$data) {
-            return $response;
-        }
-
-        $response['alt'] = $data['alt'];
-        $response['coyoteManagementUrl'] = implode('/', [
-            $this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId'], 'resources', $data['id']
-        ]);
-
-        return $response;
-    }
-
-    public function filter_gutenberg_content($response, $post, $request) {
-        if (in_array('content', $response->data)) {
-	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
-        }
-
-	return $response;
-    }
-
-    public function filter_post_content($post_content) {
-        global $post;
-
-        if ($post->post_type === 'attachment') {
-            Logger::log("Attachment post already processed, skipping");
-            return $post_content;
-        }
-
-        $helper = new ContentHelper($post_content);
-        return $helper->replace_image_alts(function($attachment_id) {
-            $url = wp_get_attachment_url($attachment_id);
-
-            $data = CoyoteResource::get_coyote_id_and_alt([
-                'src'       => $url,
-                'alt'       => '',
-                'caption'   => '',
-                'element'   => null,
-                'host_uri'  => null
-            ], !$this->is_standalone);
-
-            if ($data) {
-                return $data['alt'];
-            }
-
-            return null;
-        });
-    }
-
-    public function classic_editor_data() {
-        global $post;
-
-        if (empty($post)) {
-            return '';
-        }
-
-        if (empty($post->post_type)) {
-            return '';
-        }
-
-        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
-        $helper = new ContentHelper($post->post_content);
-        $mapping = $helper->get_src_and_coyote_id();
-        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-        return <<<js
-<script>
-    window.coyote = {};
-    window.coyote.classic_editor = {
-        postId: "{$post->ID}",
-        prefix: "{$prefix}",
-        mapping: $json_mapping
-    };
-</script>
-js;
-    }
-
-    public function add_tinymce_plugin() {
-        add_filter('mce_external_plugins', function($plugins) {
-            $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
-            return $plugins;
-        });
-    }
-
-    // add setting quicklink to plugin listing entry
-    public function add_action_links($links) {
-        $settings_links = array(
-            '<a href="' . admin_url('options-general.php?page=coyote_fields') . '"> ' . __('Settings') . '</a>',
-        );
-
-        return array_merge($links, $settings_links);
     }
 
     private function replace_sql_variables(string $sql) {
@@ -379,6 +172,52 @@ js;
     public function deactivate() {
         Logger::log('Deactivating plugin');
     }
+
+    public function api_client() {
+        $cfg = $this->config;
+
+        return new ApiClient([
+            'endpoint' => $cfg["CoyoteApiEndpoint"],
+            'token' => $cfg["CoyoteApiToken"],
+            'organization_id' => $cfg["CoyoteApiOrganizationId"],
+            'api_version' => $cfg["CoyoteApiVersion"],
+            'language' => 'en',
+            'metum' => $cfg["CoyoteApiMetum"],
+            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
+        ]);
+    }
+
+    public function classic_editor_data() {
+        global $post;
+
+        if (empty($post)) {
+            return '';
+        }
+
+        if (empty($post->post_type)) {
+            return '';
+        }
+
+        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
+        $helper = new ContentHelper($post->post_content);
+        $mapping = $helper->get_src_and_coyote_id();
+        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        Logger::log($post->post_content);
+        Logger::log($mapping);
+
+        return <<<js
+<script>
+    window.coyote = {};
+    window.coyote.classic_editor = {
+        postId: "{$post->ID}",
+        prefix: "{$prefix}",
+        mapping: $json_mapping
+    };
+</script>
+js;
+    }
+
 
     public static function uninstall() {
         global $coyote_plugin;
