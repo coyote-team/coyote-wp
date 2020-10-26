@@ -15,6 +15,7 @@ return array(
     'Coyote\\Handlers\\PostUpdateHandler' => $baseDir . '/php/classes/handlers/class.post-update-handler.php',
     'Coyote\\Handlers\\ResourceUpdateHandler' => $baseDir . '/php/classes/handlers/class.resource-update-handler.php',
     'Coyote\\Helpers\\ContentHelper' => $baseDir . '/php/classes/helpers/class.content-helper.php',
+    'Coyote\\HooksAndFilters' => $baseDir . '/php/classes/class.hooks-filters.php',
     'Coyote\\Logger' => $baseDir . '/php/classes/class.logger.php',
     'Coyote\\Plugin' => $baseDir . '/php/classes/class.plugin.php',
 );

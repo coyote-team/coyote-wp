@@ -60,6 +60,7 @@ class ComposerStaticInitc555c4ce2a58b6dac4b7bd17e9d6428a
         'Coyote\\Handlers\\PostUpdateHandler' => __DIR__ . '/../..' . '/php/classes/handlers/class.post-update-handler.php',
         'Coyote\\Handlers\\ResourceUpdateHandler' => __DIR__ . '/../..' . '/php/classes/handlers/class.resource-update-handler.php',
         'Coyote\\Helpers\\ContentHelper' => __DIR__ . '/../..' . '/php/classes/helpers/class.content-helper.php',
+        'Coyote\\HooksAndFilters' => __DIR__ . '/../..' . '/php/classes/class.hooks-filters.php',
         'Coyote\\Logger' => __DIR__ . '/../..' . '/php/classes/class.logger.php',
         'Coyote\\Plugin' => __DIR__ . '/../..' . '/php/classes/class.plugin.php',
     );
