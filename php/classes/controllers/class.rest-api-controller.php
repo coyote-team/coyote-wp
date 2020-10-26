@@ -60,7 +60,7 @@ class RestApiController {
 
         register_rest_route(
             $this->namespace,
-            '/status',
+            'status',
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'provide_status'),
@@ -69,6 +69,8 @@ class RestApiController {
     }
 
     public function update_resource(WP_Rest_Request $request): bool {
+        do_action('coyote_api_client_success');
+
         $body = $request->get_body();
         $json = json_decode($body);
 
