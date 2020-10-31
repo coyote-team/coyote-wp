@@ -203,9 +203,6 @@ class Plugin {
         $mapping = $helper->get_src_and_coyote_id();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        Logger::log($post->post_content);
-        Logger::log($mapping);
-
         return <<<js
 <script>
     window.coyote = {};

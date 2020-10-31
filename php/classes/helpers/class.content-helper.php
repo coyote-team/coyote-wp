@@ -54,7 +54,7 @@ class ContentHelper {
                 $alt = $get_attachment_alt($attachment_id);
             } else {
                 $src = self::get_img_src($element);
-                $hash = sha1(htmlspecialchars_decode($src));
+                $hash = sha1($src);
                 $alt = DB::get_coyote_alt_by_hash($hash);
             }
 
@@ -102,7 +102,7 @@ class ContentHelper {
 
             if ($attachment_id = self::get_class_attachment_id($class)) {
                 $src = wp_get_attachment_url($attachment_id);
-                $hash = sha1(htmlspecialchars_decode($src));
+                $hash = sha1(wp_specialchars_decode($src));
                 $coyote_id = DB::get_coyote_id_by_hash($hash);
 
                 if ($coyote_id !== null) {
@@ -110,7 +110,7 @@ class ContentHelper {
                 }
             } else {
                 $src = self::get_img_src($element);
-                $hash = sha1(htmlspecialchars_decode($src));
+                $hash = sha1($src);
                 $coyote_id = DB::get_coyote_id_by_hash($hash);
 
                 if ($coyote_id !== null) {
@@ -190,7 +190,7 @@ class ContentHelper {
      * @return mixed|null
      */
     static function get_img_src(string $element) {
-        return self::get_img_attr(self::SRC_REGEX, $element);
+        return wp_specialchars_decode(self::get_img_attr(self::SRC_REGEX, $element));
     }
 
     /**
@@ -207,7 +207,7 @@ class ContentHelper {
      * @return string|string[]|null
      */
     public function replace_img_alt(string $element, string $alt) {
-        $replacement_alt = 'alt="' . htmlspecialchars($alt) . '"';
+        $replacement_alt = 'alt="' . sanitize_text_field($alt) . '"';
 
         if (self::get_img_alt($element) === null) {
             // no alt on this element to begin with? Enforce it
