@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Coyote Image Resource Abstraction
+ * @category class
+ * @package Coyote\CoyoteResource
+ * @since 1.0
+ */
+
 namespace Coyote;
 
 // Exit if accessed directly.
@@ -32,6 +39,7 @@ class CoyoteResource {
         $this->process();
     }
 
+    /* Convert a list of image structures parsed out of content into Coyote Resource abstractions */
     public static function resources_from_images(array $images) {
         try {
             $api_client = self::get_api_client();
@@ -56,6 +64,8 @@ class CoyoteResource {
         }
     }
 
+    /* Retrieve the Coyote Resource ID and alt for a particular image source uri */
+    /* Optionally create a new resource if it can't be found API-side */
     public static function get_coyote_id_and_alt($image, $create_if_missing) {
         $hash = sha1($image['src']);
 

@@ -18,7 +18,6 @@ class SettingsController {
     private $profile;
     private $is_standalone;
 
-    // const icon       = 'dashicon-admin-plugins';
     const capability = 'manage_options';
     const page_slug  = 'coyote_fields';
     const position   = 250;

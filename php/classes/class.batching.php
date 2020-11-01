@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Coyote Batch Processing
+ * @category class
+ * @package Coyote\Batching
+ * @since 1.0
+ */
+
 namespace Coyote;
 
 // Exit if accessed directly.

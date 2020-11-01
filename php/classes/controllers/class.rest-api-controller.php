@@ -69,6 +69,8 @@ class RestApiController {
     }
 
     public function update_resource(WP_Rest_Request $request): bool {
+        // this counts as API success, so potentially recover from
+        // error-based standalone mode
         do_action('coyote_api_client_success');
 
         $body = $request->get_body();

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Coyote DB Utility Functions
+ * @category class
+ * @package Coyote\DB
+ * @since 1.0
+ */
+
 namespace Coyote;
 
 // Exit if accessed directly.
@@ -16,8 +23,12 @@ class DB {
 
     public static function update_resource_alt($id, $alt) {
         global $wpdb;
-
-        return $wpdb->update(COYOTE_IMAGE_TABLE_NAME, array('coyote_description' => $alt), array('coyote_resource_id' => $id), array('%s', '%d'));
+        return $wpdb->update(
+            COYOTE_IMAGE_TABLE_NAME,
+            array('coyote_description' => $alt),
+            array('coyote_resource_id' => $id),
+            array('%s', '%d')
+        );
     }
 
     public static function insert_image($hash, $src, $alt, $resourceId, $resourceAlt) {
@@ -32,7 +43,6 @@ class DB {
         );
 
         $data_types = array("%s", "%s", "%d", "%s", "%s");
-
         $wpdb->insert(COYOTE_IMAGE_TABLE_NAME, $record, $data_types);
 
         return self::get_image_by_hash($hash);

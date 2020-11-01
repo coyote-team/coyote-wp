@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Coyote Post Content Parsing
+ * @category class
+ * @package Coyote\Helpers/ContentHelper
+ * @since 1.0
+ */
+
 namespace Coyote\Helpers;
 
 // Exit if accessed directly.

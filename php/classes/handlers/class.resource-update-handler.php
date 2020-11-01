@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Update a specific resource's alt text
+ * @category class
+ * @package Coyote\Handlers\ResourceUpdateHandler
+ * @since 1.0
+ */
+
 namespace Coyote\Handlers;
 
 // Exit if accessed directly.

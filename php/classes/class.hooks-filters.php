@@ -1,8 +1,10 @@
 <?php
 
 /**
- * Coyote Plugin
- * @package Coyote\Plugin
+ * Various Hooks and Filters
+ * @category class
+ * @package Coyote\HooksAndFilters
+ * @since 1.0
  */
 
 namespace Coyote;

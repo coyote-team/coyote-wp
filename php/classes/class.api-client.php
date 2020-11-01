@@ -2,7 +2,6 @@
 
 /**
  * Coyote API Client
- * @author Job van Achterberg
  * @category class
  * @package Coyote\ApiClient
  * @since 1.0
@@ -15,10 +14,10 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Exception;
 use \GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
+use Exception;
 
 class ApiClient {
     private $organization_id = null;

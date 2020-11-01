@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Update image alt text in a post
+ * @category class
+ * @package Coyote\Handlers\PostUpdateHandler
+ * @since 1.0
+ */
+
 namespace Coyote\Handlers;
 
 // Exit if accessed directly.
@@ -37,6 +44,8 @@ class PostUpdateHandler {
         $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);
 
+        // attachments with already have been handled by the media manager
+        // so those don't need any processing here
         $images = array_map(function ($image) use ($permalink) {
             $image['host_uri'] = $permalink;
             return $image;
