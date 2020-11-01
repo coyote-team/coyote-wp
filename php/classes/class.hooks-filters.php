@@ -74,16 +74,18 @@ class HooksAndFilters {
             add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
         }
 
+        add_filter('cron_schedules', function ($schedules) {
+            $schedules['five_minutes'] = [
+                'interval' => 300,
+                'display'  => esc_html__('Every Five Minutes')
+            ];
+            return $schedules;
+        });
+
         if ($plugin->is_standalone && $plugin->is_standalone_error) {
+            Logger::log('checking hook');
             if (!wp_next_scheduled('coyote_check_standalone_hook')) {
                 // setting standalone recovery wp-cron hook
-                add_filter('cron_schedules', function ($schedules) {
-                    $schedules['five_minutes'] = array(
-                        'interval' => 300,
-                        'display'  => esc_html__('Every Five Minutes')
-                    );
-                    return $schedules;
-                });
 
                 Logger::log('Setting standalone recovery wp-cron hook');
                 wp_schedule_event(time(), 'five_minutes', 'coyote_check_standalone_hook');
@@ -146,7 +148,7 @@ class HooksAndFilters {
         set_transient('coyote_api_error_count', $error_count);
     }
 
-    public function on_api_client_success($message) {
+    public function on_api_client_success() {
         if ($this->plugin->is_standalone && $this->plugin->is_standalone_error) {
             // plugin is in standalone because of api errors, a success can recover.
             // we don't recover in case of manual standalone.
