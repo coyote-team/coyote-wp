@@ -7,11 +7,13 @@ The Coyote WordPress plugin allows for images in posts and pages to have their t
 When the plugin is installed and its filters are enabled, it replaces image alt attributes in your posts with those retrieved from a Coyote service.
 When Coyote service moderators change image descriptions and remote updates are enabled, those filters will also reflect these updates.
 
-This plugin does *not* modify your stored posts or pages, it is purely a content filter. When the plugin is deactivated, the filter is also deactivated and any pre-existing alt attributes will henceforth be used.
+While the plugin is mainly a content filter, it does filter public post content as well as content displayed in the post editor.
+This may cause posts to retain coyote-managed image descriptions when updating posts.
 
-### I want to go back to my original alt attributes.
+### I want to go back to manually managing original alt attributes.
 
 You can deactivate the plugin in your WordPress plugin settings page.
+Alternatively, on the Coyote plugin settings page, you can disable the "Filter posts through Coyote" option.
 
 ### I want to stop using the Coyote service but retain the alt attributes provided so far.
 
@@ -19,7 +21,7 @@ Don't deactivate the plugin: disable remote updates instead (see [the plugin con
 
 ## Installation
 
-[Download the plugin](http://wordpress.org/plugins/coyote/) from the WordPress plugin registry and install it, or use the built-in WordPress plugin manager.
+[Download the plugin](https//wordpress.org/plugins/coyote/) from the WordPress plugin registry and install it, or use the built-in WordPress plugin manager.
 
 ## Configuration
 
@@ -29,7 +31,14 @@ Navigate to `Settings > Coyote` to configure the plugin. The following settings 
 
 * Enable filters - this ensures that post and page content gets filtered through the plugin and alt text gets injected.
 * Enable remote updates - this allows for Coyote to update alt text for an image once a description gets approved or an approved description changes.
+* Stand-alone mode - this disables any outgoing querying against the Coyote API.
 * Processor endpoint - this is the address where the processor service is used when processing existing posts.
+
+### Stand-alone mode
+
+While stand-alone mode can be set manually, it is also automatically engaged when the plugin repeatedly fails to communicate with the Coyote API.
+When this happens, administrators can manually disable stand-alone mode and attempt to remediate the failing configuration. The plugin will attempt to
+recover from stand-alone mode mode by querying the API at a 5-minute interval.
 
 ### API specific settings
 
