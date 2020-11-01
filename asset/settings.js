@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', function () {
         .then(response => response.text())
         .then(setProcessingJob)
         .then(reply => {
-            if (reply == "1") {
+            if (reply.trim() == "1") {
                 disable(processExistingPostsButton);
                 hide(processingComplete);
                 show(processingStatus);
