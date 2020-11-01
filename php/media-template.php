@@ -1319,14 +1319,14 @@ function coyote_wp_print_media_templates() {
 add_action('wp_enqueue_media', function() {
     global $coyote_plugin;
 
-    // only patch the html when the plugin has an existing profile
-    if (!$coyote_plugin->is_configured) {
-        return;
-    }
-
     $screen = get_current_screen()->id;
 
     if ($screen !== 'post' && $screen !== 'upload') {
+        return;
+    }
+
+    // only patch the html when the plugin has filters enabled
+    if (!$coyote_plugin->has_filters_enabled) {
         return;
     }
 
