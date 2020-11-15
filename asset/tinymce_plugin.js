@@ -3,18 +3,22 @@
      tinymce.create('tinymce.plugins.Coyote', {
           init : function(ed, url) {
             wp.media.events.on('editor:image-edit', function (arg) {
-                arg.metadata.coyoteManagementUrl = function () {
-                    var prefix = coyote.classic_editor.prefix;
-                    var mapping = coyote.classic_editor.mapping;
-                    var coyoteId = mapping[arg.metadata.attachment_id] || mapping[arg.image.src];
+               var prefix = coyote.classic_editor.prefix;
+               var mapping = coyote.classic_editor.mapping;
+               var data = mapping[arg.metadata.attachment_id] || mapping[arg.image.src];
 
-                    if (coyoteId !== undefined) {
-                        url =
-                            '<a target="_blank" href="' +
-                            prefix + '/resources/' + coyoteId +
-                            '">Manage image on Coyote website</a>';
-                        return url;
-                    }
+                if (data === undefined) {
+                    return;
+                }
+
+                arg.metadata.alt = data.alt;
+
+                arg.metadata.coyoteManagementUrl = function () {
+                    url =
+                        '<a target="_blank" href="' +
+                        prefix + '/resources/' + data.coyoteId +
+                        '">Manage image on Coyote website</a>';
+                    return url;
                 };
             });
           },

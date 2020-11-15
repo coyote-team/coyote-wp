@@ -90,7 +90,7 @@ class ContentHelper {
     /**
      * @return array
      */
-    function get_src_and_coyote_id() {
+    function get_src_and_image_data() {
         $matches = array();
         preg_match_all(self::IMAGE_REGEX, $this->content, $matches);
 
@@ -110,18 +110,24 @@ class ContentHelper {
             if ($attachment_id = self::get_class_attachment_id($class)) {
                 $src = wp_get_attachment_url($attachment_id);
                 $hash = sha1(wp_specialchars_decode($src));
-                $coyote_id = DB::get_coyote_id_by_hash($hash);
+                $image = DB::get_image_by_hash($hash);
 
-                if ($coyote_id !== null) {
-                    $images[$attachment_id] = $coyote_id;
+                if ($image !== null) {
+                    $images[$attachment_id] = [
+                        'coyoteId' => $image->coyote_resource_id,
+                        'alt' => esc_html($image->coyote_description)
+                    ];
                 }
             } else {
                 $src = self::get_img_src($element);
                 $hash = sha1($src);
-                $coyote_id = DB::get_coyote_id_by_hash($hash);
+                $image = DB::get_image_by_hash($hash);
 
-                if ($coyote_id !== null) {
-                    $images[$src] = $coyote_id;
+                if ($image !== null) {
+                    $images[$src] = [
+                        'coyoteId' => $image->coyote_resource_id,
+                        'alt' => esc_html($image->coyote_description)
+                    ];
                 }
             }
         }

@@ -200,7 +200,7 @@ class Plugin {
 
         $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
         $helper = new ContentHelper($post->post_content);
-        $mapping = $helper->get_src_and_coyote_id();
+        $mapping = $helper->get_src_and_image_data();
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return <<<js

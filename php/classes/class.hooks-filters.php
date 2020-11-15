@@ -42,12 +42,12 @@ class HooksAndFilters {
             Logger::log('Filters enabled.');
 
             add_filter('the_content', [$this, 'filter_post_content'], 10, 1);
-            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
+//            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
             add_filter('wp_prepare_attachment_for_js', [$this, 'filter_attachment_for_js'], 10, 3);
             add_filter('wp_get_attachment_image_attributes', [$this, 'filter_attachment_image_attributes'], 10, 3);
 
-            add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
-            add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
+//            add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
+//            add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
 
             if (!$plugin->is_standalone) {
                 // handle updates to posts made by the front-end
