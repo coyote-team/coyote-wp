@@ -7,8 +7,7 @@ The Coyote WordPress plugin allows for images in posts and pages to have their t
 When the plugin is installed and its filters are enabled, it replaces image alt attributes in your posts with those retrieved from a Coyote service.
 When Coyote service moderators change image descriptions and remote updates are enabled, those filters will also reflect these updates.
 
-While the plugin is mainly a content filter, it does filter public post content as well as content displayed in the post editor.
-This may cause posts to retain coyote-managed image descriptions when updating posts.
+The plugin effectively functions as a content filter; it does not permanently change the content of your WordPress posts or pages.
 
 ### I want to go back to manually managing original alt attributes.
 
