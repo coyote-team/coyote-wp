@@ -8,6 +8,9 @@
                var data = mapping[arg.metadata.attachment_id] || mapping[arg.image.src];
 
                 if (data === undefined) {
+                    arg.metadata.coyoteManagementUrl = function () {
+                        return 'Image descriptions are managed by Coyote.';
+                    }
                     return;
                 }
 
