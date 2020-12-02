@@ -75,11 +75,11 @@ function coyote_attachment_url($attachment_id) {
 
     $parts = wp_parse_url($url);
 
-    if ($parts) {
+    if ($parts === false) {
         return false;
     }
 
-    return 'https://' . $parts['host'] . rawurlencode($parts['path']);
+    return 'https://' . $parts['host'] . esc_url($parts['path']);
 }
 
 require_once coyote_plugin_file('classes/class.plugin.php');
