@@ -152,7 +152,7 @@ class Batching {
 
                 $image = [
                     'element' => null,
-                    'src' => wp_get_attachment_url($post->ID),
+                    'src' => coyote_attachment_url($post->ID),
                     'alt' => $alt,
                     'caption' => $post->post_excerpt,
                     'host_uri' => $host_uri

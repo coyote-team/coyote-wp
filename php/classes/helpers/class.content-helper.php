@@ -108,8 +108,8 @@ class ContentHelper {
             $class = self::get_img_class($element);
 
             if ($attachment_id = self::get_class_attachment_id($class)) {
-                $src = wp_get_attachment_url($attachment_id);
-                $hash = sha1(wp_specialchars_decode($src));
+                $src = coyote_attachment_url($attachment_id);
+                $hash = sha1($src);
                 $image = DB::get_image_by_hash($hash);
 
                 if ($image !== null) {

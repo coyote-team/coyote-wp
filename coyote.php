@@ -66,6 +66,22 @@ function _coyote_file(string $type, string $path) {
     return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
 }
 
+/**
+ * @param int $attachment_id
+ * @return string
+ */
+function coyote_attachment_url($attachment_id) {
+    $url = wp_get_attachment_url($attachment_id);
+
+    $parts = wp_parse_url($url);
+
+    if ($parts) {
+        return false;
+    }
+
+    return 'https://' . $parts['host'] . rawurlencode($parts['path']);
+}
+
 require_once coyote_plugin_file('classes/class.plugin.php');
 
 use Coyote\Plugin;

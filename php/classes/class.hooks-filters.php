@@ -170,10 +170,8 @@ class HooksAndFilters {
     public function filter_attachment_image_attributes($attr, $attachment, $size) {
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
-        $url = wp_get_attachment_url($attachment->ID);
-
         $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => $url,
+            'src'       => coyote_attachment_url($attachment->ID),
             'alt'       => '',
             'caption'   => '',
             'element'   => null,
@@ -195,7 +193,7 @@ class HooksAndFilters {
 
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
-        $url = wp_get_attachment_url($attachment->ID);
+        $url = str_replace('http://', 'https://', wp_get_attachment_url($attachment->ID));
 
         $data = CoyoteResource::get_coyote_id_and_alt([
             'src'       => $url,
@@ -235,10 +233,8 @@ class HooksAndFilters {
 
         $helper = new ContentHelper($post_content);
         return $helper->replace_image_alts(function($attachment_id) {
-            $url = wp_get_attachment_url($attachment_id);
-
             $data = CoyoteResource::get_coyote_id_and_alt([
-                'src'       => $url,
+                'src'       => coyote_attachment_url($attachment_id),
                 'alt'       => '',
                 'caption'   => '',
                 'element'   => null,
