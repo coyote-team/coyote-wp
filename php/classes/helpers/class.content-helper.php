@@ -159,10 +159,20 @@ class ContentHelper {
                 $caption = null;
             }
 
+            $src = self::get_img_src($element);
+
+            // images that are wordpress attachments need to be loaded as attachment urls
+            // those get processed by media / attachment handlers
+            $class = self::get_img_class($element);
+
+            if ($attachment_id = self::get_class_attachment_id($class)) {
+                $src = coyote_attachment_url($attachment_id);
+            }
+
             array_push($images, [
                 'element' => $element,
                 'caption' => $caption,
-                'src' => self::get_img_src($element),
+                'src' => $src,
                 'alt' => self::get_img_alt($element)
             ]);
         }
