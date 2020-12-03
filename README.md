@@ -1,22 +1,10 @@
 # Coyote WordPress plugin
 
-The Coyote WordPress plugin allows for images in posts and pages to have their text description ("alt attribute") be managed by a connected [Coyote description service](https://www.coyote.pics).
+The Coyote WordPress plugin allows for images in posts and pages to have their text description ("alt attribute") be managed by a connected [Coyote description service](https://www.coyote.pics). This means that all the image descriptions on your WordPress website can be managed remotely in Coyote. 
 
 ## How it works
 
-When the plugin is installed and its filters are enabled, it replaces image alt attributes in your posts with those retrieved from a Coyote service.
-When Coyote service moderators change image descriptions and remote updates are enabled, those filters will also reflect these updates.
-
-The plugin effectively functions as a content filter; it does not permanently change the content of your WordPress posts or pages.
-
-### I want to go back to manually managing original alt attributes.
-
-You can deactivate the plugin in your WordPress plugin settings page.
-Alternatively, on the Coyote plugin settings page, you can disable the "Filter posts through Coyote" option.
-
-### I want to stop using the Coyote service but retain the alt attributes provided so far.
-
-Don't deactivate the plugin: disable remote updates instead (see [the plugin configuration](#configuration)).
+When the plugin is installed and its filters are enabled, it replaces image alt attributes in your posts with those retrieved from the Coyote service. When Coyote users change image descriptions, those descriptions are approved, and remote updates are enabled, those filters will also reflect these updates. The plugin effectively functions as a content filter; it does not permanently change the content of your WordPress posts or pages.
 
 ## Installation
 
@@ -31,7 +19,7 @@ Navigate to `Settings > Coyote` to configure the plugin. The following settings 
 * Enable filters - this ensures that post and page content gets filtered through the plugin and alt text gets injected.
 * Enable remote updates - this allows for Coyote to update alt text for an image once a description gets approved or an approved description changes.
 * Stand-alone mode - this disables any outgoing querying against the Coyote API.
-* Processor endpoint - this is the address where the processor service is used when processing existing posts.
+* Processor endpoint - this is the address of the processor service used when processing existing posts.
 
 ### Stand-alone mode
 
@@ -52,5 +40,13 @@ Some of these settings become available once a working `Endpoint` and `Token` co
 
 * Process existing posts
 
-Usually when first installing the plugin, you might want to do a first indexation of all the images in you WordPress installation and create associated resources on the Coyote API side.
-This tool uses a remote processor (See "Processor endpoint" in the general settings) to process your existing posts in batches. It can take a few minutes depending on the size of your WordPress installation.
+Usually when first installing the plugin, you might want to do a first indexation of all the images in your WordPress installation and create associated resources on the Coyote API side. This tool uses a remote processor (See "Processor endpoint" in the general settings) to process your existing posts in batches. It can take a few minutes depending on the size of your WordPress installation.
+
+## What If
+### I want to go back to manually managing original alt attributes
+
+You can deactivate the plugin in your WordPress plugin settings page. Alternatively, on the Coyote plugin settings page, you can disable the "Filter posts through Coyote" option.
+
+### I want to stop using the Coyote service but retain the alt attributes provided so far
+
+Don't deactivate the plugin: disable remote updates instead (see [the plugin configuration](#configuration)).
