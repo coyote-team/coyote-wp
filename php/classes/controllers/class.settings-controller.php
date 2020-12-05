@@ -49,6 +49,7 @@ class SettingsController {
             add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
             add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
             add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
+            add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
             add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
         }
     }
@@ -107,6 +108,10 @@ class SettingsController {
         //clear any data about what caused standalone mode to be active, if any
         update_option('coyote_error_standalone', false);
         delete_transient('coyote_api_error_count');
+    }
+
+    public function set_organization_id($option, $value) {
+        $this->change_organization_id(null, $value, $option);
     }
 
     public function change_organization_id($old, $new, $option) {
