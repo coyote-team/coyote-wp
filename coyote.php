@@ -79,7 +79,7 @@ function coyote_attachment_url($attachment_id) {
         return false;
     }
 
-    return 'https://' . $parts['host'] . esc_url($parts['path']);
+    return '//' . $parts['host'] . esc_url($parts['path']);
 }
 
 require_once coyote_plugin_file('classes/class.plugin.php');
