@@ -24,8 +24,8 @@ class Batching {
         session_write_close();
         check_ajax_referer('coyote_ajax');
 
-        $job_id = $_POST['job_id'];  
-        $job_type = $_POST['job_type'];
+        $job_id = sanitize_text_field($_POST['job_id']);
+        $job_type = sanitize_text_field($_POST['job_type']);
 
         self::set_batch_job($job_id, $job_type);
 
