@@ -1,6 +1,8 @@
 # Coyote WordPress plugin
 
-The Coyote WordPress plugin allows for images in posts and pages to have their text description ("alt attribute") be managed by a connected [Coyote description service](https://www.coyote.pics). This means that all the image descriptions on your WordPress website can be managed remotely in Coyote. 
+The Coyote WordPress plugin allows for images in posts and pages to have their text description ("alt attribute") be managed by a connected [Coyote description service](https://www.coyote.pics). This means that all the image descriptions on your WordPress website can be managed remotely in Coyote.
+
+Once the plugin is set up to connect to a valid Coyote API account, image meta-data stored in your WordPress installation may potentially be stored by Coyote. The plugin may also query the Coyote service to provide necessary functionality. Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
 ## How it works
 
