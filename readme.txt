@@ -14,6 +14,10 @@ The Coyote WordPress plugin allows for images in posts and pages to have their t
 When the plugin is installed and its filters are enabled, it replaces image alt attributes in your posts with those retrieved from a Coyote service.
 When Coyote service moderators change image descriptions and remote updates are enabled, those filters will also reflect these updates.
 
+== Read more ==
+
+See `readme.MD` for more information on various settings and tools.
+
 == Use of 3rd party service ==
 
 Once the plugin is set up to connect to a valid [Coyote service](https://www.coyote.pics) API account, image meta-data stored in your WordPress installation may potentially be stored by the Coyote service.
