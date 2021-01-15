@@ -44,6 +44,10 @@ Some of these settings become available once a working `Endpoint` and `Token` co
 
 Usually when first installing the plugin, you might want to do a first indexation of all the images in your WordPress installation and create associated resources on the Coyote API side. This tool uses a remote processor (See "Processor endpoint" in the general settings) to process your existing posts in batches. It can take a few minutes depending on the size of your WordPress installation.
 
+## Gutenberg support
+
+The Gutenberg editor as of current does not support the required integration the plugin needs. There is [an outstanding GitHub issue](https://github.com/WordPress/gutenberg/issues/27752).
+
 ## What If
 ### I want to go back to manually managing original alt attributes
 

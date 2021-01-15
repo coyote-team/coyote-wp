@@ -1311,11 +1311,7 @@ function coyote_wp_print_media_templates() {
     global $coyote_plugin;
     echo $coyote_plugin->classic_editor_data();
 }
-
-?>
-
-<?php
-
+?><?php
 add_action('wp_enqueue_media', function() {
     global $coyote_plugin;
 

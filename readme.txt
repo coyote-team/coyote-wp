@@ -20,3 +20,11 @@ Once the plugin is set up to connect to a valid [Coyote service](https://www.coy
 The plugin may also query the Coyote service to provide necessary functionality.
 Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
+== Changelog ==
+
+=1.1=
+* Fix unexpected output error on activation
+* Amend markdown readme
+
+=1.0=
+* First release into the registry.
