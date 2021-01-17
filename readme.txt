@@ -29,6 +29,7 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 =1.1=
 * Fix unexpected output error on activation
 * Amend markdown readme
+* Implement permission_callback callback for rest api /status route
 
 =1.0=
 * First release into the registry.

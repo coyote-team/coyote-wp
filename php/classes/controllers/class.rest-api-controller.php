@@ -44,27 +44,28 @@ class RestApiController {
         $this->metum = $metum;
 
         // Appropriate registration hook
-        add_action('rest_api_init', array($this, 'register_rest_routes'));
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
     }
 
     public function register_rest_routes(): void {
         register_rest_route(
             $this->namespace,
             'callback',
-            array(
+            [
                 'methods' => WP_REST_Server::CREATABLE,
-                'callback' => array($this, 'update_resource'),
-                'permission_callback' => array($this, 'check_callback_permission')
-            )
+                'callback' => [$this, 'update_resource'],
+                'permission_callback' => [$this, 'check_callback_permission']
+            ]
         );
 
         register_rest_route(
             $this->namespace,
             'status',
-            array(
+            [
                 'methods' => WP_REST_Server::READABLE,
-                'callback' => array($this, 'provide_status'),
-            )
+                'callback' => [$this, 'provide_status'],
+                'permission_callback' => function() { return true; }
+            ]
         );
     }
 
@@ -80,7 +81,7 @@ class RestApiController {
             $update = self::parse_update($json);
         } catch (Exception $e) {
             Logger::log("Error parsing update: " . $e->get_error_message());
-            $update = array();
+            $update = [];
         }
 
         if ($update['alt'] === null) {
@@ -100,10 +101,10 @@ class RestApiController {
 
         $alt = count($alt_representations) ? array_shift($alt_representations)->attributes->text : null;
 
-        return array(
+        return [
             'id' => $json->data->id,
             'alt' => $alt
-        );
+        ];
     }
 
     public function check_callback_permission(WP_Rest_Request $request): bool {
