@@ -503,21 +503,21 @@ class SettingsController {
         $setting = esc_html(get_option('coyote_is_standalone', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked} aria-describedby=\"coyote_is_standalone_hint\">";
-        echo '<p id="coyote_is_standalone_hint">' . __('When enabled, the plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS) . '</p>';
+        echo '<p id="coyote_is_standalone_hint">' . __('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function settings_filters_enabled_cb() {
         $setting = esc_html(get_option('coyote_filters_enabled', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked} aria-describedby=\"coyote_filters_enabled_hint\">";
-        echo '<p id="coyote_filters_enabled_hint">' . __('When enabled, the plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS) . '</p>';
+        echo '<p id="coyote_filters_enabled_hint">' . __('The plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS) . '</p>';
     }
 
     public function settings_updates_enabled_cb() {
         $setting = esc_html(get_option('coyote_updates_enabled', true));
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked} aria-describedby=\"coyote_updates_enabled_hint\">";
-        echo '<p id="coyote_updates_enabled_hint">' . __('When enabled, the plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
+        echo '<p id="coyote_updates_enabled_hint">' . __('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
     }
 
 }
