@@ -3,7 +3,7 @@ Contributors: jkva
 Requires at least: 5.0.0
 Tested up to: 5.6
 Requires PHP: 7.0
-Stable tag: 1.1
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,12 @@ The plugin may also query the Coyote service to provide necessary functionality.
 Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
 == Changelog ==
+
+=1.3=
+* Allow configurable importing of images in unpublished posts
+
+=1.2=
+* Track version and stable tag properly
 
 =1.1=
 * Fix unexpected output error on activation
