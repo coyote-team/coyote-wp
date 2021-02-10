@@ -38,6 +38,7 @@ class Plugin {
         'CoyoteApiResourceGroupId' => null,
         'ProcessTypes'          => ['page', 'post', 'attachment'],
         'ProcessStatuses'       => ['publish'],
+        'ImportUnpublished'     => false,
     ];
 
     public $is_configured = false;
@@ -73,6 +74,8 @@ class Plugin {
 
         $_config['ProcessTypes']    = get_option('coyote_post_types',    $_config['ProcessTypes']);
         $_config['ProcessStatuses'] = get_option('coyote_post_statuses', $_config['ProcessStatuses']);
+
+        $_config['ImportUnpublished']  = get_option('coyote_import_unpublished_enabled', boolval($_config['ImportUnpublished']));
 
         if (get_option('coyote_api_profile', null) !== null) {
             $this->is_configured = true;

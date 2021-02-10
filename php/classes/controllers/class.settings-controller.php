@@ -329,6 +329,7 @@ class SettingsController {
         if (!$this->is_standalone) {
             register_setting(self::page_slug, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::page_slug, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+            register_setting(self::page_slug, 'coyote_import_unpublished_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
 
             register_setting(self::page_slug, 'coyote_processor_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
 
@@ -432,6 +433,16 @@ class SettingsController {
             self::advanced_settings_section,
             array('label_for' => 'coyote_updates_enabled')
         );
+
+        add_settings_field(
+            'coyote_import_unpublished_enabled',
+            __('Import unpublished images', COYOTE_I18N_NS),
+            array($this, 'settings_import_unpublished_enabled_cb'),
+            self::page_slug,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_import_unpublished_enabled')
+        );
+
     }
 
     public function plugin_setting_section_cb() {
@@ -520,4 +531,10 @@ class SettingsController {
         echo '<p id="coyote_updates_enabled_hint">' . __('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
     }
 
+    public function settings_import_unpublished_enabled_cb() {
+        $setting = esc_html(get_option('coyote_import_unpublished_enabled', false));
+        $checked = $setting ? 'checked' : '';
+        echo "<input type=\"checkbox\" name=\"coyote_import_unpublished_enabled\" id=\"coyote_import_unpublished_enabled\" {$checked} aria-describedby=\"coyote_import_unpublished_enabled_hint\">";
+        echo '<p id="coyote_import_unpublished_enabled_hint">' . __('The plugin also imports images contained within an unpublished parent post.', COYOTE_I18N_NS) . '</p>';
+    }
 }
