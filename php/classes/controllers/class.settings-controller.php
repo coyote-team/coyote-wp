@@ -54,6 +54,33 @@ class SettingsController {
         }
     }
 
+    public static function ajax_verify_resource_group() {
+        $token = get_option('coyote_api_token');
+        $endpoint = get_option('coyote_api_endpoint');
+        $organization_id = get_option('coyote_api_organization_id', null);
+
+        $client = new ApiClient([
+            'endpoint' => $endpoint,
+            'token' => $token,
+            'organization_id' => $organization_id
+        ]);
+
+        $resource_group_url = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
+
+        try {
+            $group_id = $client->create_resource_group('WordPress', $resource_group_url);
+            Logger::log("Resource Group id {$group_id}");
+            update_option('coyote_api_resource_group_id', $group_id);
+            do_action('coyote_api_client_success');
+            echo "$group_id";
+        } catch (\Exception $e) {
+            do_action('coyote_api_client_error', $e);
+            echo "false";
+        } finally {
+            wp_die();
+        }
+    }
+
     public function enqueue_scripts() {
         wp_enqueue_script(
             'coyote_settings_js',
@@ -72,7 +99,7 @@ class SettingsController {
             'nonce' => wp_create_nonce('coyote_ajax'),
             'endpoint' => esc_url(get_option('coyote_processor_endpoint')),
             'job_id' => $this->batch_job ? $this->batch_job['id'] : null,
-            'job_type' => $this->batch_job ? $this->batch_job['type'] : null
+            'job_type' => $this->batch_job ? $this->batch_job['type'] : null,
         ));
     }
 
@@ -111,10 +138,12 @@ class SettingsController {
     }
 
     public function set_organization_id($option, $value) {
+        Logger::log(['setting organization id', $value]);
         $this->change_organization_id(null, $value, $option);
     }
 
     public function change_organization_id($old, $new, $option) {
+        Logger::log(['changing organization id', $new]);
         $deleted = DB::clear_resource_table();
         Logger::log("Deleted {$deleted} resources");
 
@@ -221,10 +250,20 @@ class SettingsController {
             return;
         }
 
+        echo sprintf("<h2>%s</h2>", __("Tools", COYOTE_I18N_NS));
+
+        echo "
+          <div id=\"coyote_verify_resource_group_container\">
+              <button class=\"button button-primary\" type=\"button\" id=\"coyote_verify_resource_group\" aria-describedby=\"coyote_verify_resource_group_hint\">Verify resource group</button>
+              <span role=\"alert\" id=\"coyote_verify_resource_group_status\"></span>
+              <p id=\"coyote_verify_resource_group_hint\">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
+          </div>
+        ";
+
         $title  = __("Process existing posts", COYOTE_I18N_NS);
 
         echo sprintf("<hr>
-            <h2>%s</h2>
+            <h3>%s</h3>
         ", $title);
 
         if (empty(get_option('coyote_api_organization_id'))) {

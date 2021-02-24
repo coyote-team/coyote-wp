@@ -21,3 +21,8 @@
     max-width: 44em;
     border: 2px solid;
 }
+
+#coyote_verify_resource_group_status {
+    margin-left: .5em;
+    vertical-align: middle;
+}

@@ -72,6 +72,8 @@ class HooksAndFilters {
 
             add_action('wp_ajax_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
             add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
+
+            add_action('wp_ajax_coyote_verify_resource_group', array('Coyote\Controllers\SettingsController', 'ajax_verify_resource_group'));
         }
 
         add_filter('cron_schedules', function ($schedules) {

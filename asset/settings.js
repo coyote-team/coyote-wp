@@ -23,11 +23,18 @@ window.addEventListener('DOMContentLoaded', function () {
     const percentageSpan = $('#coyote_processing span');
     const statusSpan = $('#coyote_job_status span');
 
+    const verifyResourceGroupButton = $('#coyote_verify_resource_group');
+    const verifyResourceGroupStatus = $('#coyote_verify_resource_group_status');
+
     const errorStatus = () => statusSpan.textContent = 'error';
 
     const processorEndpoint = byId('coyote_processor_endpoint') && byId('coyote_processor_endpoint').value;
 
     const load = () => {
+        if (verifyResourceGroupButton) {
+            verifyResourceGroupButton.addEventListener('click', verifyResourceGroup);
+        }
+
         if (coyoteOrganizationIdSelect) {
             const organizationId = coyoteOrganizationIdSelect.value;
             coyoteOrganizationIdSelect.addEventListener('change', changeOrganization(organizationId).bind(coyoteOrganizationIdSelect));
@@ -49,6 +56,39 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+
+    const verifyResourceGroup = function () {
+        disable(verifyResourceGroupButton);
+        verifyResourceGroupStatus.textContent = "Verifying resource group...";
+
+        const formData = new FormData();
+
+        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+        formData.append('action', 'coyote_verify_resource_group');
+
+        cancelJob().then(() => {
+            fetch(coyote_ajax_obj.ajax_url, {
+                mode: 'cors',
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(reply => reply.trim())
+            .then(reply => {
+                if (reply === 'false') {
+                    verifyResourceGroupStatus.textContent = "Error verifying resource group.";
+                } else {
+                    verifyResourceGroupStatus.textContent = `Resource group verified with ID ${reply}.`;
+                }
+                enable(verifyResourceGroupButton);
+            })
+            .catch(error => {
+                console.debug("Verification error:", error);
+                verifyResourceGroupStatus.textContent = "Error verifying resource group.";
+                enable(verifyResourceGroupButton);
+            });
+        });
+    };
 
     const changeOrganization = function (oldId) {
         const changeAlert = coyoteOrganizationChangeAlert;
@@ -178,8 +218,6 @@ window.addEventListener('DOMContentLoaded', function () {
             return fetch(url)
             .then(response => response.text())
             .then(data => {
-                console.debug(data);
-
                 if (data.length) {
                     try {
                         data = JSON.parse(data);
