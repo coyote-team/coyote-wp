@@ -1317,7 +1317,9 @@ add_action('wp_enqueue_media', function() {
 
     $screen = get_current_screen()->id;
 
-    if ($screen !== 'post' && $screen !== 'upload') {
+    // only hook the media editor for a specific set of screens
+    // such as post and page editor, upload screen
+    if (!in_array($screen, COYOTE_HOOK_MEDIA_SCREENS)) {
         return;
     }
 
