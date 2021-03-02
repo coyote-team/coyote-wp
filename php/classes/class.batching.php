@@ -78,7 +78,11 @@ class Batching {
         global $coyote_plugin;
 
         $post_types = $coyote_plugin->config['ProcessTypes'];
-        $post_statuses = array_merge(['inherit'], $coyote_plugin->config['ProcessStatuses']);
+        $post_statuses = ['inherit', 'publish'];
+
+        if (!$plugin->config['SkipUnpublished']) {
+            $post_statuses = array_merge($post_statuses, ['pending', 'draft', 'private']);
+        }
 
         $offset = get_transient('coyote_batch_offset');
 
@@ -112,7 +116,7 @@ class Batching {
             'post_parent' => null,
         ));
 
-        $resources = self::create_resources($batch, !$plugin->config['ImportUnpublished']);
+        $resources = self::create_resources($batch, $plugin->config['SkipUnpublished']);
 
         $response['size'] = count($batch);
         $response['resources'] = count($resources);
@@ -164,9 +168,10 @@ class Batching {
 
             $helper = new ContentHelper($post->post_content);
             $images = $helper->get_images();
+            $host_uri = get_permalink($post);
 
             foreach ($images as $image) {
-                $image['host_uri'] = get_permalink($post);
+                $image['host_uri'] = $host_uri;
                 $all_images[$image['src']] = $image;
             }
         }
