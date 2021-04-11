@@ -71,8 +71,6 @@ class Plugin {
         $_config['CoyoteApiOrganizationId']  = intval(get_option('coyote_api_organization_id',   $_config['CoyoteApiOrganizationId']));
         $_config['CoyoteApiResourceGroupId'] = intval(get_option('coyote_api_resource_group_id', $_config['CoyoteApiResourceGroupId']));
 
-        $_config['ProcessTypes'] = get_option('coyote_post_types', $_config['ProcessTypes']);
-
         $_config['SkipUnpublished'] = get_option('coyote_skip_unpublished_enabled', boolval($_config['SkipUnpublished']));
 
         if (get_option('coyote_api_profile', null) !== null) {

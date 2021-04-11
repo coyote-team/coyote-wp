@@ -80,7 +80,7 @@ class Batching {
         $post_types = $coyote_plugin->config['ProcessTypes'];
         $post_statuses = ['inherit', 'publish'];
 
-        if (!$plugin->config['SkipUnpublished']) {
+        if (!$coyote_plugin->config['SkipUnpublished']) {
             $post_statuses = array_merge($post_statuses, ['pending', 'draft', 'private']);
         }
 
@@ -116,7 +116,7 @@ class Batching {
             'post_parent' => null,
         ));
 
-        $resources = self::create_resources($batch, $plugin->config['SkipUnpublished']);
+        $resources = self::create_resources($batch, $coyote_plugin->config['SkipUnpublished']);
 
         $response['size'] = count($batch);
         $response['resources'] = count($resources);
@@ -139,9 +139,9 @@ class Batching {
                 // attachment with mime type image, get alt and caption differently
                 $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
 
-                if ($post->post_status === 'inherit' && $post->parent_post) {
+                if ($post->post_status === 'inherit' && $post->post_parent) {
                     // child of a page
-                    $parent_post = get_post($post->parent_post);
+                    $parent_post = get_post($post->post_parent);
 
                     // only process images in published posts
                     if ($parent_post && $parent_post->post_status !== 'publish' && $skip_unpublished_parent_post) {
