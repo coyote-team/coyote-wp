@@ -1,5 +1,8 @@
 == Changelog ==
 
+=1.6=
+* Fix - retrieve parent post by correct property
+
 =1.5=
 * Increase number of screens in which to hook the media manager
 
