@@ -11,7 +11,7 @@ const patchAttachmentEditorAltField = () => {
     }
 
     field.setAttribute('disabled', '');
-    field.setAttribute('value', 'alt ' + window.coyote.post_data.alt);
+    field.setAttribute('value', window.coyote.post_data.alt);
 
     // change the field name so we don't store the alt we're patching here
     field.name = "coyote.managed_media_alt";

@@ -55,6 +55,9 @@ class HooksAndFilters {
 
                 // allow custom resource management link in tinymce
                 add_action('admin_init', [$this, 'add_tinymce_plugin']);
+
+                // load custom admin functionality scripts to patch alt fields
+                add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
             }
         } else {
             Logger::log('Filters disabled.');
@@ -74,8 +77,6 @@ class HooksAndFilters {
             add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
 
             add_action('wp_ajax_coyote_verify_resource_group', array('Coyote\Controllers\SettingsController', 'ajax_verify_resource_group'));
-
-            add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
         }
 
         add_filter('cron_schedules', function ($schedules) {
