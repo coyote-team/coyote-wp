@@ -27,6 +27,7 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 == Changelog ==
 
 =1.6=
+* Hook into the alt text management field in attachment editor
 * Fix - retrieve parent post by correct property
 
 =1.5=
