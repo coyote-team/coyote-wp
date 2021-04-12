@@ -74,6 +74,8 @@ class HooksAndFilters {
             add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array('Coyote\Batching', 'ajax_clear_batch_job'));
 
             add_action('wp_ajax_coyote_verify_resource_group', array('Coyote\Controllers\SettingsController', 'ajax_verify_resource_group'));
+
+            add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
         }
 
         add_filter('cron_schedules', function ($schedules) {
@@ -95,6 +97,57 @@ class HooksAndFilters {
                 Logger::log('Standalone recovery hook already scheduled');
             }
         }
+    }
+
+    public function admin_enqueue_scripts() {
+        global $post;
+        global $coyote_plugin;
+
+        if (is_null($post)) {
+            return '';
+        }
+
+        if ($post->post_type !== 'attachment') {
+            return '';
+        }
+
+        $data = CoyoteResource::get_coyote_id_and_alt([
+            'src'       => coyote_attachment_url($post->ID),
+            'alt'       => '',
+            'caption'   => '',
+            'element'   => null,
+            'host_uri'  => null
+        ], !$this->plugin->is_standalone);
+
+        if (!$data) {
+            return '';
+        }
+
+        $link = implode('/', [
+            $coyote_plugin->config['CoyoteApiEndpoint'],
+            'organizations',
+            $coyote_plugin->config['CoyoteApiOrganizationId'],
+            'resources',
+            $data['id']
+        ]);
+
+        $alt = esc_html($data['alt']);
+
+        echo <<<js
+<script>
+    window.coyote = {};
+    window.coyote.post_data = {
+        management_link: "{$link}",
+        alt: "{$alt}",
+    };
+</script>
+js;
+
+        wp_enqueue_script(
+            'coyote_hook_alt_js',
+            coyote_asset_url('hook_alt_fields.js'),
+            false
+        );
     }
 
     public function check_standalone() {
