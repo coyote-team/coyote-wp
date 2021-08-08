@@ -1,9 +1,9 @@
 === Coyote ===
 Contributors: jkva
 Requires at least: 5.0.0
-Tested up to: 5.6
+Tested up to: 5.8
 Requires PHP: 7.0
-Stable tag: 1.6
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,9 @@ The plugin may also query the Coyote service to provide necessary functionality.
 Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
 == Changelog ==
+
+=1.7=
+Check for required functions when interfacing with classic editor
 
 =1.6=
 * Hook into the alt text management field in attachment editor

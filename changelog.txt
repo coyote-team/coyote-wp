@@ -1,5 +1,8 @@
 == Changelog ==
 
+=1.7=
+Check for required functions when interfacing with classic editor
+
 =1.6=
 * Hook into the alt text management field in attachment editor
 * Fix - retrieve parent post by correct property

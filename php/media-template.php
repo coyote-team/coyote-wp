@@ -1315,6 +1315,11 @@ function coyote_wp_print_media_templates() {
 add_action('wp_enqueue_media', function() {
     global $coyote_plugin;
 
+    if (!function_exists('get_current_screen')) {
+        error_log('[Coyote Plugin] Function get_current_screen() is not available. Is the classic editor running?');
+        return;
+    }
+
     $screen = get_current_screen()->id;
 
     // only hook the media editor for a specific set of screens
