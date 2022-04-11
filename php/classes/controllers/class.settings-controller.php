@@ -9,7 +9,7 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Logger;
 use Coyote\Batching;
-use Coyote\ApiClient;
+use Coyote\LegacyApiClient as ApiClient;
 use Coyote\DB;
 
 class SettingsController {

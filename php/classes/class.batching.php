@@ -14,7 +14,9 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Helpers\ContentHelper;
+use Coyote\ContentHelper;
+use Coyote\WordPressImage;
+use Coyote\ContentHelper\Image;
 use Coyote\Logger;
 use Coyote\CoyoteResource;
 
@@ -153,29 +155,28 @@ class Batching {
                     $host_uri = get_permalink($post);
                 }
 
-                $image = [
-                    'element' => null,
-                    'src' => coyote_attachment_url($post->ID),
-                    'alt' => $alt,
-                    'caption' => $post->post_excerpt,
-                    'host_uri' => $host_uri
-                ];
+                $image = new WordPressImage(
+                    new Image(coyote_attachment_url($post->ID),$alt));
+                $image->setHostUri($host_uri);
+                $image->setCaption($post->post_excerpt);
 
-                $all_images[$image['src']] = $image;
+                $all_images[$image->getSrc()] = $image;
 
                 continue;
             }
 
             $helper = new ContentHelper($post->post_content);
-            $images = $helper->get_images();
+            $images = $helper->getImages();
             $host_uri = get_permalink($post);
 
             foreach ($images as $image) {
-                $image['host_uri'] = $host_uri;
-                $all_images[$image['src']] = $image;
+                $wpImage = new WordPressImage($image);
+                $wpImage->setHostUri($host_uri);
+                $all_images[$wpImage->getSrc()] = $wpImage;
             }
         }
 
+        // TODO: Refactor to use WordPress Image
         return CoyoteResource::resources_from_images(array_values($all_images));
     }
 

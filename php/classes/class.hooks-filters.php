@@ -14,7 +14,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Helpers\ContentHelper;
+use Coyote\ContentHelper;
 
 class HooksAndFilters {
     private $plugin;
@@ -100,16 +100,17 @@ class HooksAndFilters {
         }
     }
 
-    public function admin_enqueue_scripts() {
+    public function admin_enqueue_scripts(): void
+    {
         global $post;
         global $coyote_plugin;
 
         if (is_null($post)) {
-            return '';
+            return;
         }
 
         if ($post->post_type !== 'attachment') {
-            return '';
+            return;
         }
 
         $data = CoyoteResource::get_coyote_id_and_alt([
@@ -121,7 +122,7 @@ class HooksAndFilters {
         ], !$this->plugin->is_standalone);
 
         if (!$data) {
-            return '';
+            return;
         }
 
         $link = implode('/', [
@@ -287,22 +288,7 @@ js;
             return $post_content;
         }
 
-        $helper = new ContentHelper($post_content);
-        return $helper->replace_image_alts(function($attachment_id) {
-            $data = CoyoteResource::get_coyote_id_and_alt([
-                'src'       => coyote_attachment_url($attachment_id),
-                'alt'       => '',
-                'caption'   => '',
-                'element'   => null,
-                'host_uri'  => null
-            ], !$this->plugin->is_standalone);
-
-            if ($data) {
-                return $data['alt'];
-            }
-
-            return null;
-        });
+        return WordPressHelper::setImageAlts($post, !$this->plugin->is_standalone);
     }
 
     public function add_tinymce_plugin() {

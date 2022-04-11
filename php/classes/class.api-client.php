@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use stdClass;
 use Exception;
 
-class ApiClient {
+class LegacyApiClient {
     private $organization_id = null;
     private $resource_group_id = null;
     private $language;
