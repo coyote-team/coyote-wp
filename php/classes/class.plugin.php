@@ -13,7 +13,7 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\HooksAndFilters;
-use Coyote\Helpers\ContentHelper;
+use Coyote\WordPressHelper;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
@@ -175,7 +175,7 @@ class Plugin {
     public function api_client() {
         $cfg = $this->config;
 
-        return new ApiClient([
+        return new LegacyApiClient([
             'endpoint' => $cfg["CoyoteApiEndpoint"],
             'token' => $cfg["CoyoteApiToken"],
             'organization_id' => $cfg["CoyoteApiOrganizationId"],
@@ -198,8 +198,7 @@ class Plugin {
         }
 
         $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
-        $helper = new ContentHelper($post->post_content);
-        $mapping = $helper->get_src_and_image_data();
+        $mapping = WordPressHelper::getSrcAndImageData($post);
         $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return <<<js

@@ -15,8 +15,9 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\Logger;
-use Coyote\Helpers\ContentHelper;
+use Coyote\ContentHelper;
 use Coyote\CoyoteResource;
+use Coyote\WordPressImage;
 use Exception;
 
 class PostUpdateHandler {
@@ -46,10 +47,13 @@ class PostUpdateHandler {
 
         // attachments with already have been handled by the media manager
         // so those don't need any processing here
-        $images = array_map(function ($image) use ($permalink) {
-            $image['host_uri'] = $permalink;
-            return $image;
-        }, $helper->get_images());
+        $images = array_map(function (ContentHelper\Image $image) use ($permalink) {
+            $image = new WordPressImage($image);
+            return ['caption' => $image->getCaption(),
+                'src' => $image->getUrl(),
+                'host_uri' => $permalink,
+                'alt' => $image->getAlt()];
+        }, $helper->getImages());
 
         CoyoteResource::resources_from_images($images);
     }
