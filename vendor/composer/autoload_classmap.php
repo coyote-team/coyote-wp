@@ -23,6 +23,5 @@ return array(
     'Coyote\\Plugin' => $baseDir . '/php/classes/class.plugin.php',
     'Coyote\\WordPressHelper' => $baseDir . '/php/WordPressHelper.php',
     'Coyote\\WordPressImage' => $baseDir . '/php/WordPressImage.php',
-    'Deprecated\\ContentHelper' => $baseDir . '/php/classes/helpers/class.content-helper.php',
     'JsonException' => $vendorDir . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
 );

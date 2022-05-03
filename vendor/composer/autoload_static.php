@@ -8,8 +8,8 @@ class ComposerStaticInit7daaf97a744db4cae4ea84009f73e9a0
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '16eed290c5592c18dc3f16802ad3d0e4' => __DIR__ . '/..' . '/ivopetkov/html5-dom-document-php/autoload.php',
@@ -25,6 +25,7 @@ class ComposerStaticInit7daaf97a744db4cae4ea84009f73e9a0
             'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
             'PhpParser\\' => 10,
         ),
         'M' => 
@@ -64,6 +65,11 @@ class ComposerStaticInit7daaf97a744db4cae4ea84009f73e9a0
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+        ),
+        'Psr\\Http\\Client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
         'PhpParser\\' => 
         array (
@@ -117,7 +123,6 @@ class ComposerStaticInit7daaf97a744db4cae4ea84009f73e9a0
         'Coyote\\Plugin' => __DIR__ . '/../..' . '/php/classes/class.plugin.php',
         'Coyote\\WordPressHelper' => __DIR__ . '/../..' . '/php/WordPressHelper.php',
         'Coyote\\WordPressImage' => __DIR__ . '/../..' . '/php/WordPressImage.php',
-        'Deprecated\\ContentHelper' => __DIR__ . '/../..' . '/php/classes/helpers/class.content-helper.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
     );
 

@@ -1,0 +1,50 @@
+{
+  "data": {
+    "id": "4",
+    "type": "resource",
+    "attributes": {
+      "id": 4,
+      "name": "https://sandbox.thepeale.org/wp-content/uploads/2021/12/lock-free-img.png",
+      "resource_type": "image",
+      "canonical_id": null,
+      "source_uri": "https://sandbox.thepeale.org/wp-content/uploads/2021/12/lock-free-img.png",
+      "created_at": "2022-04-14T13:42:41.453Z",
+      "updated_at": "2022-04-14T13:42:41.453Z",
+      "resource_group": "Uncategorized"
+    },
+    "relationships": {
+      "organization": {
+        "data": {
+          "type": "organization",
+          "id": "1"
+        }
+      },
+      "resource_groups": {
+        "meta": {
+          "included": false
+        }
+      },
+      "representations": {
+        "data": []
+      }
+    },
+    "links": {
+      "coyote": "http://web/organizations/1/resources/4"
+    }
+  },
+  "included": [
+    {
+      "id": "1",
+      "type": "organization",
+      "attributes": {
+        "name": "Acme Museum"
+      }
+    }
+  ],
+  "links": {
+    "coyote": "http://localhost:3000/organizations/1/resources/4"
+  },
+  "jsonapi": {
+    "version": "1.0"
+  }
+}

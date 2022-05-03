@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": "6717",
+    "type": "resource_group",
+    "attributes": {
+      "name": "Testing resource Group",
+      "default": false,
+      "webhook_uri": null,
+      "token": null
+    },
+    "relationships": {
+      "organization": {
+        "meta": {
+          "included": false
+        }
+      }
+    },
+    "links": {
+      "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/6717"
+    }
+  },
+  "links": {
+    "coyote": "https://staging.coyote.pics/organizations/1-museum/resource_groups/6717"
+  },
+  "jsonapi": {
+    "version": "1.0"
+  }
+}

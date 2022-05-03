@@ -1,0 +1,104 @@
+{
+  "data": [
+    {
+      "id": "219814",
+      "type": "representation",
+      "attributes": {
+        "id": 219814,
+        "status": "approved",
+        "content_uri": null,
+        "content_type": "text/plain",
+        "language": "en",
+        "ordinality": 1,
+        "text": "A horizontal rectangular photograph of a horizontal rectangle page in the sample book of rectangles of silk with stencil-resist patterns on a black background. The color of the paper of the page is beige and there are two rows of three mounted samples evenly spaced on the page. On the top row from left to right the first sample is black or a very dark brown with eight S curved diagonal lines, four in each direction, formed by white dots. Inside the shapes made by the intersecting lines formed by white dots are what appears to be a repeating pattern of a diagonal branch with rounded leaves and on the other diagonal is a branch with triangular leaves alternating with three rows of dots close together. The second sample is a lighter brown with white dots creating a pattern of eight leaves with seven points each and 2 or 3 swirling lines from each leaf. The third sample on the top row right side is black with a white dots creating a pattern of repeating geometric shapes with what appears to be flowers repeating through out the pattern. On the bottom row from left to right the first sample is light brown with circles, squares and triangles filled with patterns of straight and curved lines, waves, squiggly lines and flowers. The second is black with a dense random pattern of foliage and flowers and the third is brown with a pattern of flowers and lines. All the patterns are made up of tiny circles or shapes creating lines or outlines of flowers, foliage or geometric patterns and each sample of silk has Japanese characters written above them presumably naming the pattern.",
+        "created_at": "2021-11-19T17:39:57.181Z",
+        "updated_at": "2021-11-19T17:39:57.181Z",
+        "metum": "Alt",
+        "author": "Nolan Hill",
+        "license": "cc-by-4.0"
+      },
+      "relationships": {
+        "resource": {
+          "data": {
+            "type": "resource",
+            "id": "421938"
+          }
+        }
+      },
+      "links": {
+        "self": "http://staging.coyote.pics/api/v1/representations/219814"
+      }
+    },
+    {
+      "id": "219813",
+      "type": "representation",
+      "attributes": {
+        "id": 219813,
+        "status": "approved",
+        "content_uri": null,
+        "content_type": "text/plain",
+        "language": "en",
+        "ordinality": 2,
+        "text": "One page in the sample book of silk with stencil-resist patterns",
+        "created_at": "2021-11-19T17:39:57.145Z",
+        "updated_at": "2021-11-19T17:39:57.196Z",
+        "metum": "Alt",
+        "author": "Nolan Hill",
+        "license": "cc-by-4.0"
+      },
+      "relationships": {
+        "resource": {
+          "data": {
+            "type": "resource",
+            "id": "421938"
+          }
+        }
+      },
+      "links": {
+        "self": "http://staging.coyote.pics/api/v1/representations/219813"
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "421938",
+      "type": "resource",
+      "attributes": {
+        "id": 421938,
+        "name": "Sample book",
+        "resource_type": "image",
+        "canonical_id": "279664",
+        "source_uri": "https://images.collection.cooperhewitt.org/a279664_79516fc85e5d931f_b.jpg",
+        "created_at": "2021-11-19T17:39:56.873Z",
+        "updated_at": "2021-11-19T17:39:56.873Z",
+        "resource_group": "Test Import"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        },
+        "resource_groups": {
+          "meta": {
+            "included": false
+          }
+        },
+        "representations": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/65/resources/421938"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://staging.coyote.pics/api/v1/resources/421938/representations"
+  },
+  "jsonapi": {
+    "version": "1.0"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "resource_group",
+      "attributes": {
+        "name": "Collection",
+        "default": false,
+        "webhook_uri": null,
+        "token": "a36778a80bd2edbe97a4bf4ea30c2302"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/1"
+      }
+    },
+    {
+      "id": "4",
+      "type": "resource_group",
+      "attributes": {
+        "name": "Events ",
+        "default": false,
+        "webhook_uri": null,
+        "token": "aed94fb991e2bef428f120c18bfbfbb0"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/4"
+      }
+    },
+    {
+      "id": "3",
+      "type": "resource_group",
+      "attributes": {
+        "name": "Exhibitions",
+        "default": false,
+        "webhook_uri": null,
+        "token": "a31494d15fedb063818f0fed133e9b0f"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/3"
+      }
+    },
+    {
+      "id": "6716",
+      "type": "resource_group",
+      "attributes": {
+        "name": "test",
+        "default": false,
+        "webhook_uri": null,
+        "token": null
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/6716"
+      }
+    },
+    {
+      "id": "10",
+      "type": "resource_group",
+      "attributes": {
+        "name": "Uncategorized",
+        "default": true,
+        "webhook_uri": null,
+        "token": "a9cfe0a18b978b94c846b11b7d321abb"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/10"
+      }
+    },
+    {
+      "id": "2",
+      "type": "resource_group",
+      "attributes": {
+        "name": "Website",
+        "default": false,
+        "webhook_uri": null,
+        "token": "b3d432befeeb61085d3e6c95a5f12fdd"
+      },
+      "relationships": {
+        "organization": {
+          "meta": {
+            "included": false
+          }
+        }
+      },
+      "links": {
+        "coyote": "http://staging.coyote.pics/organizations/1/resource_groups/2"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://staging.coyote.pics/api/v1/organizations/1/resource_groups"
+  },
+  "jsonapi": {
+    "version": "1.0"
+  }
+}

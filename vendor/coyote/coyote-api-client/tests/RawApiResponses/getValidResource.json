@@ -1,0 +1,47 @@
+{
+  "data": {
+    "id": "22780",
+    "type": "resource",
+    "attributes": {
+      "id": 22780,
+      "name": "_D8X2287_CREDIT IAN DOUGLAS.jpg",
+      "resource_type": "image",
+      "canonical_id": "aea99ba86fe3d004f98b45f4",
+      "source_uri": "https://mcachicago.org/api/v1/attachment_images/thumbs/aea99ba86fe3d004f98b45f4.jpg",
+      "created_at": "2020-05-06T14:32:59.879Z",
+      "updated_at": "2020-05-06T14:34:50.448Z",
+      "resource_group": null
+    },
+    "relationships": {
+      "organization": {
+        "data": {
+          "type": "organization",
+          "id": "1"
+        }
+      },
+      "resource_groups": {
+        "meta": {
+          "included": false
+        }
+      },
+      "representations": {
+        "data": []
+      }
+    },
+    "links": {
+      "coyote": "http://staging.coyote.pics/organizations/1/resources/22780"
+    }
+  },
+  "included": [
+    {
+      "id": "1",
+      "type": "organization",
+      "attributes": {
+        "name": "Museum of Contemporary Art Chicago"
+      }
+    }
+  ],
+  "jsonapi": {
+    "version": "1.0"
+  }
+}

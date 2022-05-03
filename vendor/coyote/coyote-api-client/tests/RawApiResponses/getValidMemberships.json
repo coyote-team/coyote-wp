@@ -1,0 +1,73 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Otis",
+        "last_name": "Aufderhar",
+        "email": "guest@example.com",
+        "role": "guest"
+      }
+    },
+    {
+      "id": "2",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Amee",
+        "last_name": "Nikolaus",
+        "email": "viewer@example.com",
+        "role": "viewer"
+      }
+    },
+    {
+      "id": "3",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Leann",
+        "last_name": "Stroman",
+        "email": "author@example.com",
+        "role": "author"
+      }
+    },
+    {
+      "id": "4",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Lana",
+        "last_name": "Davis",
+        "email": "editor@example.com",
+        "role": "editor"
+      }
+    },
+    {
+      "id": "5",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Nery",
+        "last_name": "Purdy",
+        "email": "admin@example.com",
+        "role": "admin"
+      }
+    },
+    {
+      "id": "6",
+      "type": "membership",
+      "attributes": {
+        "active": true,
+        "first_name": "Bertram",
+        "last_name": "Stiedemann",
+        "email": "owner@example.com",
+        "role": "owner"
+      }
+    }
+  ],
+  "jsonapi": {
+    "version": "1.0"
+  }
+}
