@@ -15,6 +15,8 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\ContentHelper;
+use Coyote\DB\ResourceRecord;
+use Coyote\Model\ResourceModel;
 
 class HooksAndFilters {
     private $plugin;
@@ -109,19 +111,21 @@ class HooksAndFilters {
             return;
         }
 
+        // FIXME [JKVA] is this used within the media manager?
         if ($post->post_type !== 'attachment') {
             return;
         }
 
-        $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => coyote_attachment_url($post->ID),
-            'alt'       => '',
-            'caption'   => '',
-            'element'   => null,
-            'host_uri'  => null
-        ], !$this->plugin->is_standalone);
+        $image = new WordPressImage(new ContentHelper\Image(
+            coyote_attachment_url($post->ID),
+            '',
+            ''
+        ));
 
-        if (!$data) {
+        /** @var ResourceRecord|null $resource */
+        $resource = WordpressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
+
+        if (is_null($resource)) {
             return;
         }
 
@@ -130,10 +134,10 @@ class HooksAndFilters {
             'organizations',
             $coyote_plugin->config['CoyoteApiOrganizationId'],
             'resources',
-            $data['id']
+            $resource->getResourceId()
         ]);
 
-        $alt = esc_html($data['alt']);
+        $alt = esc_html($resource->getCoyoteDescription());
 
         echo <<<js
 <script>
@@ -227,16 +231,17 @@ js;
     public function filter_attachment_image_attributes($attr, $attachment, $size) {
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
-        $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => coyote_attachment_url($attachment->ID),
-            'alt'       => '',
-            'caption'   => '',
-            'element'   => null,
-            'host_uri'  => null
-        ], !$this->plugin->is_standalone);
 
-        if ($data) {
-            $attr['alt'] = $data['alt'];
+        $image = new WordPressImage(new ContentHelper\Image(
+            coyote_attachment_url($attachment->ID),
+            '',
+            ''
+        ));
+
+        $resource = WordPressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
+
+        if (!is_null($resource)) {
+            $attr['alt'] = $resource->getCoyoteDescription();
         }
 
         return $attr;
@@ -248,25 +253,27 @@ js;
             return $response;
         }
 
-        // get a coyote resource for this attachment. If not found, try to create it unless
-        // running in standalone mode.
-        $url = str_replace('http://', 'https://', wp_get_attachment_url($attachment->ID));
+        $image = new WordPressImage(new ContentHelper\Image(
+            coyote_attachment_url($attachment->ID),
+            $response['alt'],
+            ''
+        ));
 
-        $data = CoyoteResource::get_coyote_id_and_alt([
-            'src'       => $url,
-            'alt'       => $response['alt'],
-            'caption'   => $response['caption'],
-            'element'   => null,
-            'host_uri'  => null
-        ], !$this->plugin->is_standalone);
+        $image->setCaption($response['caption'] ?? '');
 
-        if (!$data) {
+        $resource = WordPressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
+
+        if (!$resource) {
             return $response;
         }
 
-        $response['alt'] = $data['alt'];
+        $response['alt'] = $resource->getCoyoteDescription();
         $response['coyoteManagementUrl'] = implode('/', [
-            $this->plugin->config['CoyoteApiEndpoint'], 'organizations', $this->plugin->config['CoyoteApiOrganizationId'], 'resources', $data['id']
+            $this->plugin->config['CoyoteApiEndpoint'],
+            'organizations',
+            $this->plugin->config['CoyoteApiOrganizationId'],
+            'resources',
+            $resource->getResourceId()
         ]);
 
         return $response;
@@ -274,10 +281,10 @@ js;
 
     public function filter_gutenberg_content($response, $post, $request) {
         if (in_array('content', $response->data)) {
-	    $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
+	        $response->data['content']['raw'] = $this->filter_post_content($response->data['content']['raw']);
         }
 
-	return $response;
+	    return $response;
     }
 
     public function filter_post_content($post_content) {
@@ -288,7 +295,7 @@ js;
             return $post_content;
         }
 
-        return WordPressHelper::setImageAlts($post, !$this->plugin->is_standalone);
+        return WordPressHelper::setImageAlts($post, PluginConfiguration::isEnabled());
     }
 
     public function add_tinymce_plugin() {
