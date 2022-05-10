@@ -23,4 +23,12 @@ class PluginConfiguration{
         $resourceGroupId = intval(get_option('coyote_api_resource_group_id', -1));
         return $resourceGroupId > -1 ? $resourceGroupId : null;
     }
+
+    public static function isStandalone(): bool {
+        return get_option('coyote_is_standalone', true);
+    }
+
+    public static function isEnabled(): bool {
+        return !self::isStandalone();
+    }
 }

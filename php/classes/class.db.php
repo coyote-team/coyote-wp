@@ -10,6 +10,8 @@
 namespace Coyote;
 
 // Exit if accessed directly.
+use Coyote\DB\ResourceRecord;
+
 if (!defined( 'ABSPATH')) {
     exit;
 }
@@ -77,5 +79,41 @@ class DB {
         );
 
         return $wpdb->get_row($prepared_query);
+    }
+
+    public static function getRecordByHash(string $hash): ?ResourceRecord
+    {
+        $record = self::get_image_by_hash($hash);
+
+        if (is_null($record)) {
+            return null;
+        }
+
+        return new ResourceRecord(
+            $record['source_uri_sha1'],
+            $record['source_uri'],
+            $record['coyote_resource_id'],
+            $record['original_description'],
+            $record['coyote_description']
+        );
+    }
+
+    public static function insertRecord(
+        string $hash,
+        string $src,
+        string $alt,
+        int $resourceId,
+        string $resourceAlt): ResourceRecord
+    {
+        $record = self::insert_image($hash, $src, $alt, $resourceId, $resourceAlt);
+
+        return new ResourceRecord(
+            $record['source_uri_sha1'],
+            $record['source_uri'],
+            $record['coyote_resource_id'],
+            $record['original_description'],
+            $record['coyote_description']
+        );
+
     }
 }
