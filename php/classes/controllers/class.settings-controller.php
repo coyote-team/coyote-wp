@@ -9,14 +9,17 @@ if (!defined( 'ABSPATH')) {
 
 use Coyote\Logger;
 use Coyote\Batching;
-use Coyote\LegacyApiClient as ApiClient;
 use Coyote\DB;
+use Coyote\Model\ProfileModel;
+use Coyote\Plugin;
+use Coyote\PluginConfiguration;
+use Coyote\WordPressCoyoteApiClient;
 
 class SettingsController {
-    private $page_title;
-    private $menu_title;
-    private $profile;
-    private $is_standalone;
+    private string $page_title;
+    private string $menu_title;
+    private ProfileModel $profile;
+    private bool $is_standalone;
 
     const capability = 'manage_options';
     const page_slug  = 'coyote_fields';
@@ -34,7 +37,7 @@ class SettingsController {
         $this->menu_title = __('Coyote', COYOTE_I18N_NS);
 
         $this->profile_fetch_failed = false;
-        $this->profile = $this->get_profile();
+        $this->profile = $this->getProfile();
 
         $this->batch_job = Batching::get_batch_job();
 
@@ -55,30 +58,15 @@ class SettingsController {
     }
 
     public static function ajax_verify_resource_group() {
-        $token = get_option('coyote_api_token');
-        $endpoint = get_option('coyote_api_endpoint');
-        $organization_id = get_option('coyote_api_organization_id', null);
+        $resourceGroupUrl = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
 
-        $client = new ApiClient([
-            'endpoint' => $endpoint,
-            'token' => $token,
-            'organization_id' => $organization_id
-        ]);
+        $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
 
-        $resource_group_url = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
-
-        try {
-            $group_id = $client->create_resource_group('WordPress', $resource_group_url);
-            Logger::log("Resource Group id {$group_id}");
-            update_option('coyote_api_resource_group_id', $group_id);
-            do_action('coyote_api_client_success');
-            echo "$group_id";
-        } catch (\Exception $e) {
-            do_action('coyote_api_client_error', $e);
-            echo "false";
-        } finally {
-            wp_die();
+        if (!is_null($resourceGroup)) {
+            PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
         }
+
+        wp_die();
     }
 
     public function enqueue_scripts() {
@@ -104,30 +92,20 @@ class SettingsController {
     }
 
     public function verify_settings($old, $new, $option) {
-        $token = get_option('coyote_api_token');
-        $endpoint = get_option('coyote_api_endpoint');
+        $profile = WordPressCoyoteApiClient::getProfile();
 
-        $client = new ApiClient([
-            'endpoint' => $endpoint,
-            'token' => $token
-        ]);
-
-        try {
-            $profile = $client->get_profile();
-
-            update_option('coyote_api_profile', $profile);
-            if (count($profile->organizations) === 1) {
-                // grab the first organization
-                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
-            }
-
-            do_action('coyote_api_client_success');
-        } catch (\Exception $e) {
-            do_action('coyote_api_client_error', $e);
-
+        if (is_null($profile)) {
             $this->profile_fetch_failed = true;
+            // TODO these should be PluginConfiguration functions
             delete_option('coyote_api_profile');
             delete_option('coyote_api_organization_id');
+        } else {
+            $organizations = $profile->getOrganizations();
+
+            // default to the first organization if there is only one available
+            if (count($organizations) === 1) {
+                PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
+            }
         }
     }
 
@@ -143,77 +121,43 @@ class SettingsController {
     }
 
     public function change_organization_id($old, $new, $option) {
-        Logger::log(['changing organization id', $new]);
+        // When changing an organization, the existing resource tracking records need to be removed; clear the table.
         $deleted = DB::clear_resource_table();
         Logger::log("Deleted {$deleted} resources");
 
-        $token = get_option('coyote_api_token');
-        $endpoint = get_option('coyote_api_endpoint');
+        $resourceGroupUrl = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
+        $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
 
-        if (empty($token) || empty($endpoint)) {
-            return;
-        }
-
-        $client = new ApiClient([
-            'endpoint' => $endpoint,
-            'token'    => $token,
-            'organization_id' => $new
-        ]);
-
-        $resource_group_url = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
-
-        try {
-            $group_id = $client->create_resource_group('WordPress', $resource_group_url);
-            Logger::log("Resource Group id {$group_id}");
-            update_option('coyote_api_resource_group_id', $group_id);
-            do_action('coyote_api_client_success');
-        } catch (\Exception $e) {
-            do_action('coyote_api_client_error', $e);
+        if (!is_null($resourceGroup)) {
+            PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
         }
     }
 
-    private function get_profile() {
-        $profile = get_option('coyote_api_profile', null);
+    private function getProfile(): ?ProfileModel {
+        $profile = PluginConfiguration::getApiProfile();
 
-        if ($profile) {
+        if (!is_null($profile)) {
             Logger::log('Found stored profile');
             return $profile;
         }
 
-        $token = get_option('coyote_api_token');
-        $endpoint = get_option('coyote_api_endpoint');
+        $profile = WordPressCoyoteApiClient::getProfile();
 
-        if (empty($token) || empty($endpoint)) {
-            return null;
-        }
-
-        $client = new ApiClient([
-            'endpoint' => $endpoint,
-            'token' => $token
-        ]);
-
-        try {
-            $profile = $client->get_profile();
-
-            add_option('coyote_api_profile', $profile);
-            if (count($profile->organizations) === 1) {
-                // grab the first organization
-                update_option('coyote_api_organization_id', $profile->organizations[0]['id']);
-            }
-
-            do_action('coyote_api_client_success');
-            Logger::log('Fetched profile successfully');
-
-            return $profile;
-        } catch (\Exception $e) {
-            do_action('coyote_api_client_error', $e);
-
-            $this->profile_fetch_failed = true;
+        if (is_null($profile)) {
+            // TODO should be in PluginConfiguration
             delete_option('coyote_api_organization_id');
-            Logger::log('Fetching profile failed');
-
             return null;
         }
+
+        PluginConfiguration::setApiProfile($profile);
+        $organizations = $profile->getOrganizations();
+
+        // default to the first organization if there is only one available
+        if (count($organizations) === 1) {
+            PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
+        }
+
+        return $profile;
     }
 
     public function settings_page_cb() {
@@ -227,7 +171,7 @@ class SettingsController {
 
         if (!$this->is_standalone) {
             if ($this->profile) {
-                echo "<p>User: " . $this->profile->name . "</p>";
+                echo "<p>User: " . $this->profile->getName() . "</p>";
             } else if ($this->profile_fetch_failed) {
                 echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
             }
@@ -526,8 +470,8 @@ class SettingsController {
     }
 
     public function api_organization_id_cb() {
-        $organization_id = intval(get_option('coyote_api_organization_id'));
-        $organizations = $this->profile->organizations;
+        $organization_id = PluginConfiguration::getApiOrganizationId();
+        $organizations = $this->profile->getOrganizations();
         $single_org = count($organizations) === 1;
 
         echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">';

@@ -162,14 +162,14 @@ js;
         if ($this->plugin->is_standalone &&
             $this->plugin->is_standalone_error
         ) {
-            try {
-                $profile = $this->plugin->api_client()->get_profile();
+            $profile = WordPressCoyoteApiClient::getProfile();
+
+            if (!is_null($profile)) {
                 // if we can obtain the profile, disable standalone mode
                 // and clear the scheduled event
                 Logger::log('Recovering from standalone mode');
                 $this->on_api_client_success();
-            } catch (\Exception $e) {
-                $this->on_api_client_error($e);
+            } else {
                 Logger::log('Unable to recover from standalone mode');
             }
         }
