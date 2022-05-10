@@ -14,9 +14,12 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Coyote\ContentHelper\Image;
 use Coyote\Logger;
 use Coyote\ContentHelper;
-use Coyote\CoyoteResource;
+use Coyote\Payload\CreateResourcePayload;
+use Coyote\Payload\CreateResourcesPayload;
+use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressImage;
 use Exception;
 
@@ -45,8 +48,9 @@ class PostUpdateHandler {
         $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);
 
-        // attachments with already have been handled by the media manager
+        // attachments will already have been handled by the media manager
         // so those don't need any processing here
+        /** @var WordPressImage[] $images */
         $images = array_map(function (ContentHelper\Image $image) use ($permalink) {
             $image = new WordPressImage($image);
             return ['caption' => $image->getCaption(),
@@ -55,7 +59,18 @@ class PostUpdateHandler {
                 'alt' => $image->getAlt()];
         }, $helper->getImages());
 
-        CoyoteResource::resources_from_images($images);
+        $payload = new CreateResourcesPayload();
+        foreach ($images as $image) {
+            $payload->addResource(new CreateResourcePayload(
+                $image->getCaption() ?? $image->getUrl(),
+                $image->getUrl(),
+                // TODO add Resource Group ID -- PluginConfiguration::getResourceGroupID
+                null,
+                $image->getHostUri()
+            ));
+        }
+
+        WordPressCoyoteApiClient::createResources($payload);
     }
 
 }
