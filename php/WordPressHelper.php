@@ -3,8 +3,11 @@
 namespace Coyote;
 
 use Coyote\ContentHelper\Image;
+use Coyote\DB\ResourceRecord;
+use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
+use GuzzleHttp\Promise\Create;
 
 class WordPressHelper{
 
@@ -35,6 +38,43 @@ class WordPressHelper{
         $payload = new CreateResourcePayload($image->getCaption(), $image->getUrl(), PluginConfiguration::getApiResourceGroupId(),$image->getHostUri());
         $payload->addRepresentation($image->getAlt(),PluginConfiguration::METUM);
         return $payload;
+    }
+
+    public static function getResourceForWordPressImage(WordPressImage $image, bool $fetchFromApiIfMissing = true): ?ResourceRecord
+    {
+        $record = DB::getRecordByHash(sha1($image->getUrl()));
+
+        if (!is_null($record)) {
+            return $record;
+        }
+
+        if (!$fetchFromApiIfMissing) {
+            return null;
+        }
+
+        $resource = WordPressCoyoteApiClient::createResource(self::mapWordPressImageToCreateResourcePayload($image));
+
+        if (is_null($resource)) {
+            return null;
+        }
+
+        return DB::insertRecord(
+            sha1($resource->getSourceUri()),
+            $resource->getSourceUri(),
+            $image->getAlt(),
+            $resource->getId(),
+            $resource->getTopRepresentationByMetum(PluginConfiguration::METUM)->getText(),
+        );
+    }
+
+    public static function mapWordPressImageToCreateResourcePayload(WordPressImage $image): CreateResourcePayload
+    {
+        return new CreateResourcePayload(
+            $image->getCaption() ?? $image->getUrl(),
+            $image->getUrl(),
+            PluginConfiguration::getApiResourceGroupId(),
+            $image->getHostUri()
+        );
     }
 
     public static function setImageAlts(\WP_Post $post,bool $fetchFromApiIfMissing = true): string
