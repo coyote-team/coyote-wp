@@ -172,20 +172,6 @@ class Plugin {
         Logger::log('Deactivating plugin');
     }
 
-    public function api_client() {
-        $cfg = $this->config;
-
-        return new LegacyApiClient([
-            'endpoint' => $cfg["CoyoteApiEndpoint"],
-            'token' => $cfg["CoyoteApiToken"],
-            'organization_id' => $cfg["CoyoteApiOrganizationId"],
-            'api_version' => $cfg["CoyoteApiVersion"],
-            'language' => 'en',
-            'metum' => $cfg["CoyoteApiMetum"],
-            'resource_group_id' => $cfg["CoyoteApiResourceGroupId"]
-        ]);
-    }
-
     public function classic_editor_data() {
         global $post;
 
