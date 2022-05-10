@@ -15,10 +15,14 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\ContentHelper;
+use Coyote\Model\ResourceModel;
+use Coyote\Payload\CreateResourcePayload;
+use Coyote\Payload\CreateResourcesPayload;
 use Coyote\WordPressImage;
 use Coyote\ContentHelper\Image;
 use Coyote\Logger;
 use Coyote\CoyoteResource;
+use GuzzleHttp\Promise\Create;
 
 class Batching {
 
@@ -33,7 +37,7 @@ class Batching {
 
         echo true;
 
-        return wp_die();
+        wp_die();
     }
 
     public static function ajax_clear_batch_job() {
@@ -44,7 +48,7 @@ class Batching {
 
         echo true;
 
-        return wp_die();
+        wp_die();
     }
 
     public static function clear_batch_job() {
@@ -133,35 +137,64 @@ class Batching {
         return $response;
     }
 
-    public static function create_resources($posts, $skip_unpublished_parent_post) {
-        $all_images = array();
+    private static function addAttachmentResourceToPayload(
+        CreateResourcesPayload $payload,
+        int $resourceGroupId,
+        bool $skipUnpublishedParentPost,
+        \WP_Post $post
+    ): CreateResourcesPayload {
+        // attachment with mime type image, get alt and caption differently
+        $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
+
+        if ($post->post_status === 'inherit' && $post->post_parent) {
+            // child of a page
+            $parent_post = get_post($post->post_parent);
+
+            // only process images in published posts
+            if ($parent_post && $parent_post->post_status !== 'publish' && $skipUnpublishedParentPost) {
+                return $payload;
+            }
+
+            $host_uri = get_permalink($parent_post);
+        } else {
+            $host_uri = get_permalink($post);
+        }
+
+        $attachmentUrl = coyote_attachment_url($post->ID);
+
+        $image = new WordPressImage(
+            new Image($attachmentUrl, $alt, ''));
+        $image->setHostUri($host_uri);
+        $image->setCaption($post->post_excerpt);
+
+        $payload->addResource(new CreateResourcePayload(
+            $image->getCaption() ?? $image->getUrl(),
+            $image->getUrl(),
+            $resourceGroupId,
+            $host_uri
+        ));
+
+        return $payload;
+    }
+
+    private static function postIsImageAttachment(\WP_Post $post): bool
+    {
+        return $post->post_type === 'attachment' && strpos($post->post_mime_type, 'image/') === 0;
+    }
+
+    /** @return ResourceModel[]|null */
+    public static function create_resources($posts, $skip_unpublished_parent_post): array {
+        $resourceGroupId = PluginConfiguration::getApiResourceGroupId();
+        $payload = new CreateResourcesPayload();
 
         foreach ($posts as $post) {
-            if ($post->post_type === 'attachment' && strpos($post->post_mime_type, 'image/') === 0) {
-                // attachment with mime type image, get alt and caption differently
-                $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
-
-                if ($post->post_status === 'inherit' && $post->post_parent) {
-                    // child of a page
-                    $parent_post = get_post($post->post_parent);
-
-                    // only process images in published posts
-                    if ($parent_post && $parent_post->post_status !== 'publish' && $skip_unpublished_parent_post) {
-                        continue;
-                    }
-
-                    $host_uri = get_permalink($parent_post);
-                } else {
-                    $host_uri = get_permalink($post);
-                }
-
-                $image = new WordPressImage(
-                    new Image(coyote_attachment_url($post->ID),$alt));
-                $image->setHostUri($host_uri);
-                $image->setCaption($post->post_excerpt);
-
-                $all_images[$image->getSrc()] = $image;
-
+            if (self::postIsImageAttachment($post)) {
+                $payload = self::addAttachmentResourceToPayload(
+                    $payload,
+                    $resourceGroupId,
+                    $skip_unpublished_parent_post,
+                    $post
+                );
                 continue;
             }
 
@@ -169,15 +202,19 @@ class Batching {
             $images = $helper->getImages();
             $host_uri = get_permalink($post);
 
-            foreach ($images as $image) {
-                $wpImage = new WordPressImage($image);
-                $wpImage->setHostUri($host_uri);
-                $all_images[$wpImage->getSrc()] = $wpImage;
+            foreach ($images as $contentImage) {
+                $image = new WordPressImage($contentImage);
+                $image->setHostUri($host_uri);
+                $payload->addResource(new CreateResourcePayload(
+                    $image->getCaption() ?? $image->getUrl(),
+                    $image->getUrl(),
+                    $resourceGroupId,
+                    $host_uri
+                ));
             }
         }
 
-        // TODO: Refactor to use WordPress Image
-        return CoyoteResource::resources_from_images(array_values($all_images));
+        return WordPressCoyoteApiClient::createResources($payload);
     }
 
 }
