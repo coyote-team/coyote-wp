@@ -100,4 +100,28 @@ class ResourceModel
     {
         return $this->representations;
     }
+
+    public function getTopRepresentationByMetum(string $metum): ?RepresentationModel
+    {
+        $byMetum = array_filter($this->representations, function (RepresentationModel $r) use ($metum): bool {
+            return $r->getMetum() === $metum;
+        });
+
+        uasort($byMetum, function (RepresentationModel $a, RepresentationModel $b): int {
+            $aO = $a->getOrdinality();
+            $bO = $b->getOrdinality();
+
+            if ($aO < $bO) {
+                return -1;
+            }
+
+            if ($aO > $bO) {
+                return 1;
+            }
+
+             return 0;
+        });
+
+        return array_pop($byMetum);
+    }
 }

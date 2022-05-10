@@ -2,9 +2,9 @@
 
 namespace Coyote;
 
-use \Coyote\ContentHelper;
-use \Coyote\ContentHelper\Image;
-use \Coyote\WordPressImage;
+use Coyote\ContentHelper\Image;
+use Coyote\Payload\CreateResourcePayload;
+use Coyote\Payload\CreateResourcesPayload;
 
 class WordPressHelper{
 
@@ -30,24 +30,23 @@ class WordPressHelper{
         return $imageMap;
     }
 
-    private static function createPayload(WordPressImage $image): array
+    private static function createPayload(WordPressImage $image): CreateResourcePayload
     {
-        return [
-            ['caption' => $image->getCaption(), 
-            'src' => $image->getUrl(),
-            'host_uri' => $image->getHostUri(),
-            'alt' => $image->getAlt()]];
+        $payload = new CreateResourcePayload($image->getCaption(), $image->getUrl(), PluginConfiguration::getApiResourceGroupId(),$image->getHostUri());
+        $payload->addRepresentation($image->getAlt(),PluginConfiguration::METUM);
+        return $payload;
     }
 
     public static function setImageAlts(\WP_Post $post,bool $fetchFromApiIfMissing = true): string
     {
-        global $coyote_plugin;
         $helper = new ContentHelper($post->post_content);
+        /** @var Image[] $images */
         $images = $helper->getImages();
         $permalink = get_permalink($post->ID);
-        $client = $coyote_plugin->api_client();
 
         $imageMap = [];
+        $missingImages = [];
+        $payload = new CreateResourcesPayload();
 
         foreach($images as $image){
             $image = new WordPressImage($image);
@@ -55,21 +54,49 @@ class WordPressHelper{
             $url = $image->getUrl();
             $hash = sha1($url);
             $alt = DB::get_coyote_alt_by_hash($hash);
-            if(is_null($alt) && $fetchFromApiIfMissing){
-                $image->setHostUri($permalink);
-                try {
-                    $response = $client->batch_create(self::createPayload($image));
-                } catch (\Exception $e){
-                    continue;
-                }
-                $resource = $response[$url];
-                $alt = $resource['alt'];
-                DB::insert_image($hash, $src, $image->getAlt(), $resource['id'], $alt);
+
+            if(!is_null($alt)) {
+                $imageMap[$src] = $alt;
+                continue;
             }
-            $imageMap[$src] = $alt;
+
+            if($fetchFromApiIfMissing){
+                $missingImages[$url] = ['alt' => $image->getAlt(),'src' => $src];
+
+                /*  Resources require a hostUri where available  */
+                $image->setHostUri($permalink);
+                $payload->addResource(self::createPayload($image));
+            }
+        }
+
+        if ($fetchFromApiIfMissing) {
+            $imageMap = self::fetchImagesFromApi($imageMap,$missingImages, $payload);
         }
 
         return $helper->setImageAlts($imageMap);
+    }
+
+    private static function fetchImagesFromApi(array $imageMap,array $missingImages,CreateResourcesPayload $payload): array{
+        $response = WordPressCoyoteApiClient::createResources($payload);
+
+        if (is_null($response)) {
+            return $imageMap;
+        }
+
+        foreach($response as $resourceModel){
+            $uri = $resourceModel->getSourceUri();
+            $imageSrc = $missingImages[$uri]['src'];
+
+            $representation = $resourceModel->getTopRepresentationByMetum(PluginConfiguration::METUM);
+            if (is_null($representation)){
+                DB::insert_image(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), '');
+                continue;
+            }
+            DB::insert_image(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), $representation->getText());
+            $imageMap[$uri] = $representation->getText();
+        }
+
+        return $imageMap;
     }
 
     
