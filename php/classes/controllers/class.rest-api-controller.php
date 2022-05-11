@@ -17,6 +17,7 @@ if (!defined( 'ABSPATH')) {
 use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
+use Coyote\WordpressPlugin;
 use Exception;
 use WP_REST_Server;
 use WP_Rest_Request;
@@ -44,17 +45,17 @@ class RestApiController {
         $this->metum = $metum;
 
         // Appropriate registration hook
-        add_action('rest_api_init', [$this, 'register_rest_routes']);
+        add_action('rest_api_init', [$this, 'registerRestRoutes']);
     }
 
-    public function register_rest_routes(): void {
+    public function registerRestRoutes(): void {
         register_rest_route(
             $this->namespace,
             'callback',
             [
                 'methods' => WP_REST_Server::CREATABLE,
-                'callback' => [$this, 'update_resource'],
-                'permission_callback' => [$this, 'check_callback_permission']
+                'callback' => [$this, 'updateResource'],
+                'permission_callback' => [$this, 'checkCallbackPermission']
             ]
         );
 
@@ -69,18 +70,18 @@ class RestApiController {
         );
     }
 
-    public function update_resource(WP_Rest_Request $request): bool {
+    public function updateResource(WP_Rest_Request $request): bool {
         // this counts as API success, so potentially recover from
         // error-based standalone mode
-        do_action('coyote_api_client_success');
+        WordpressPlugin::registerApiSucces();
 
         $body = $request->get_body();
         $json = json_decode($body);
 
         try {
-            $update = self::parse_update($json);
+            $update = self::parseUpdate($json);
         } catch (Exception $e) {
-            Logger::log("Error parsing update: " . $e->get_error_message());
+            Logger::log("Error parsing update: " . $e->getMessage());
             $update = [];
         }
 
@@ -92,7 +93,7 @@ class RestApiController {
         return ResourceUpdateHandler::run($update['id'], $update['alt']);
     }
 
-    public function parse_update($json) {
+    public function parseUpdate($json) {
         $alt_representations = array_filter($json->included, function ($item) {
             return $item->type === 'representation' &&
                    $item->attributes->metum === $this->metum;
@@ -107,7 +108,7 @@ class RestApiController {
         ];
     }
 
-    public function check_callback_permission(WP_Rest_Request $request): bool {
+    public function checkCallbackPermission(WP_Rest_Request $request): bool {
         $body = $request->get_body();
         $json = json_decode($body);
 
