@@ -481,9 +481,9 @@ class SettingsController {
             echo "<option {$default} value=''>" . __('--select an organization--', COYOTE_I18N_NS) . "</option>";
         }
 
-        foreach ($this->profile->organizations as $org) {
-            $selected = intval($org['id']) === $organization_id ? 'selected' : '';
-            echo "<option {$selected} value=\"" . $org['id'] ."\">" . esc_html($org['name']). "</option>";
+        foreach ($organizations as $org) {
+            $selected = intval($org->getId()) === $organization_id ? 'selected' : '';
+            echo "<option {$selected} value=\"" . $org->getId() ."\">" . esc_html($org->getName()). "</option>";
         }
 
         echo '</select>';
