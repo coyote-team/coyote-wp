@@ -8,6 +8,8 @@ class PluginConfiguration{
 
     public const METUM = 'Alt';
     public const RESOURCE_GROUP_NAME = 'WordPress';
+    public const PLUGIN_VERSION = '2.0.0';
+    public const API_VERSION = 1;
 
     public static function getApiEndPoint(): ?string
     {
@@ -77,8 +79,12 @@ class PluginConfiguration{
 
     public static function isConfigured(): bool
     {
-        // TODO [JKVA] Implement
-        return false;
+        return !is_null(get_option('coyote_api_profile', null));
+    }
+
+    public static function isInstalled(): bool
+    {
+        return get_option('coyote_plugin_is_installed', false);
     }
 
     public static function getApiErrorCount(): int
@@ -118,4 +124,37 @@ class PluginConfiguration{
         delete_transient('coyote_api_error_count');
     }
 
+    public static function userIsAdmin(): bool
+    {
+        return is_admin();
+    }
+
+    public static function isNotProcessingUnpublishedPosts(): bool
+    {
+        return get_option('coyote_skip_unpublished_enabled', true);
+    }
+
+    public static function getProcessedPostTypes(): array
+    {
+        return ['page', 'post', 'attachment'];
+    }
+
+    public static function deletePluginOptions(): void
+    {
+        $options = [
+            'coyote_api_version', 'coyote_api_token', 'coyote_api_endpoint', 'coyote_api_metum', 'coyote_api_organization_id',
+            'coyote_api_profile',
+            'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
+            'coyote_plugin_is_installed'
+        ];
+
+        foreach ($options as $option) {
+            delete_option($option);
+        }
+    }
+
+    public static function setInstalled(): void
+    {
+        add_option('coyote_plugin_is_installed', true);
+    }
 }

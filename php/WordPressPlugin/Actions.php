@@ -3,6 +3,7 @@
 namespace Coyote\WordPressPlugin;
 
 use Coyote\ContentHelper\Image;
+use Coyote\DB;
 use Coyote\DB\ResourceRecord;
 use Coyote\Logger;
 use Coyote\Plugin;
@@ -10,6 +11,7 @@ use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressHelper;
 use Coyote\WordPressImage;
+use Coyote\WordPressPlugin;
 
 class Actions
 {
@@ -129,6 +131,32 @@ js;
 
         // clear any existing api error count
         PluginConfiguration::clearApiErrorCount();
+    }
+
+    public function onPluginUninstall(): void
+    {
+        Logger::log("Uninstalling plugin");
+
+        Logger::log("Deleting table");
+        DB::runSqlFromFile(WordPressPlugin::getSqlFile('uninstall_plugin.sql'));
+
+        Logger::log("Deleting options");
+        PluginConfiguration::deletePluginOptions();
+    }
+
+    public function onPluginActivate() {
+        if (PluginConfiguration::isInstalled()) {
+            Logger::log("Plugin was active previously, not adding table");
+            return;
+        }
+
+        Logger::log("Activating plugin");
+        PluginConfiguration::setInstalled();
+        DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
+    }
+
+    public function onPluginDeactivate() {
+        Logger::log('Deactivating plugin');
     }
 
 }
