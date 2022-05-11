@@ -2,9 +2,9 @@
 
 namespace Coyote;
 
-class WordpressPlugin
+class WordPressPlugin
 {
-    public static function registerApiSucces(): void
+    public static function registerApiSuccess(): void
     {
         do_action('coyote_api_client_success');
     }
