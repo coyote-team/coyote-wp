@@ -144,5 +144,38 @@ class WordPressHelper{
         return $imageMap;
     }
 
+    public static function getMediaTemplateData(): string
+    {
+        global $post;
+
+        if (empty($post)) {
+            return '';
+        }
+
+        if (empty($post->post_type)) {
+            return '';
+        }
+
+        $prefix = implode('/', [
+            PluginConfiguration::getApiEndPoint(),
+            'organizations',
+            PluginConfiguration::getApiOrganizationId()
+        ]);
+
+        $mapping = WordPressHelper::getSrcAndImageData($post);
+        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return <<<js
+<script>
+    window.coyote = {};
+    window.coyote.classic_editor = {
+        postId: "{$post->ID}",
+        prefix: "{$prefix}",
+        mapping: $json_mapping
+    };
+</script>
+js;
+    }
+
     
 }
