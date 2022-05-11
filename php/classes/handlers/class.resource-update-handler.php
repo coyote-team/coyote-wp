@@ -21,7 +21,7 @@ class ResourceUpdateHandler {
     public static function run(string $id, string $alt): bool {
         Logger::log("Updating: [id] {$id}, [alt] {$alt}");
 
-        $update = DB::update_resource_alt($id, $alt);
+        $update = DB::updateResourceAlt($id, $alt);
 
         if ($update === false) {
             // db error

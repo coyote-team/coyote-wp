@@ -22,11 +22,15 @@ class WordPressHelper{
             $image = new WordPressImage($image);
             $key = $image->getAttachmentId() ?? $image->getSrc();
             $hash = sha1($image->getUrl());
-            $image = DB::get_image_by_hash($hash);
+            $resource = DB::getRecordByHash($hash);
+
+            if (is_null($resource)) {
+                continue;
+            }
 
             $imageMap[$key] = [
-                'coyoteId' => $image->coyote_resource_id,
-                'alt' => esc_html($image->coyote_description)
+                'coyoteId' => $resource->getResourceId(),
+                'alt' => esc_html($resource->getCoyoteDescription())
             ];
         }
 
@@ -93,14 +97,14 @@ class WordPressHelper{
             $src = $image->getSrc();
             $url = $image->getUrl();
             $hash = sha1($url);
-            $alt = DB::get_coyote_alt_by_hash($hash);
+            $resource = DB::getRecordByHash($hash);
 
-            if(!is_null($alt)) {
-                $imageMap[$src] = $alt;
+            if (!is_null($resource)) {
+                $imageMap[$src] = $resource->getCoyoteDescription();
                 continue;
             }
 
-            if($fetchFromApiIfMissing){
+            if ($fetchFromApiIfMissing){
                 $missingImages[$url] = ['alt' => $image->getAlt(),'src' => $src];
 
                 /*  Resources require a hostUri where available  */
@@ -129,10 +133,11 @@ class WordPressHelper{
 
             $representation = $resourceModel->getTopRepresentationByMetum(PluginConfiguration::METUM);
             if (is_null($representation)){
-                DB::insert_image(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), '');
+                DB::InsertRecord(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), '');
                 continue;
             }
-            DB::insert_image(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), $representation->getText());
+
+            DB::InsertRecord(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), $representation->getText());
             $imageMap[$uri] = $representation->getText();
         }
 
