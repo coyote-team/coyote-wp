@@ -129,6 +129,11 @@ class PluginConfiguration{
         return is_admin();
     }
 
+    public static function isProcessingUnpublishedPosts(): bool
+    {
+        return !self::isNotProcessingUnpublishedPosts();
+    }
+
     public static function isNotProcessingUnpublishedPosts(): bool
     {
         return get_option('coyote_skip_unpublished_enabled', true);
