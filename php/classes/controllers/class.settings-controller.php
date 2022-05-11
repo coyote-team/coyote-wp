@@ -122,7 +122,7 @@ class SettingsController {
 
     public function change_organization_id($old, $new, $option) {
         // When changing an organization, the existing resource tracking records need to be removed; clear the table.
-        $deleted = DB::clear_resource_table();
+        $deleted = DB::clearResourceTable();
         Logger::log("Deleted {$deleted} resources");
 
         $resourceGroupUrl = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
