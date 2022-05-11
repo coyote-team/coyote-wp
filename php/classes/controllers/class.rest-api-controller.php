@@ -14,35 +14,33 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Coyote\CoyoteResourceUpdateHelper;
 use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
+use Coyote\PluginConfiguration;
 use Coyote\WordpressPlugin;
-use Exception;
 use WP_REST_Server;
 use WP_Rest_Request;
 
 class RestApiController {
 
-    private $namespace;
-    private $plugin_version;
-    private $organization_id;
-    private $metum;
+    private string $namespace;
+    private int $pluginVersion;
+    private int $organizationId;
 
     /**
      * RestApiController constructor.
-     * @param int $plugin_version
-     * @param int $api_version
-     * @param int $organization_id
-     * @param string $metum
+     * @param int $pluginVersion
+     * @param int $apiVersion
+     * @param string $organizationId
      */
-    public function __construct(string $plugin_version, int $api_version, int $organization_id, string $metum = 'Alt') {
-        $api_version = intval($api_version ?? 1);
+    public function __construct(string $pluginVersion, int $apiVersion, string $organizationId) {
+        $apiVersion = $apiVersion ?? 1;
 
-        $this->plugin_version = $plugin_version;
-        $this->namespace = "coyote/v{$api_version}";
-        $this->organization_id = $organization_id;
-        $this->metum = $metum;
+        $this->pluginVersion = $pluginVersion;
+        $this->namespace = "coyote/v{$apiVersion}";
+        $this->organizationId = $organizationId;
 
         // Appropriate registration hook
         add_action('rest_api_init', [$this, 'registerRestRoutes']);
@@ -64,7 +62,7 @@ class RestApiController {
             'status',
             [
                 'methods' => WP_REST_Server::READABLE,
-                'callback' => [$this, 'provide_status'],
+                'callback' => [$this, 'provideStatus'],
                 'permission_callback' => function() { return true; }
             ]
         );
@@ -78,49 +76,55 @@ class RestApiController {
         $body = $request->get_body();
         $json = json_decode($body);
 
-        try {
-            $update = self::parseUpdate($json);
-        } catch (Exception $e) {
-            Logger::log("Error parsing update: " . $e->getMessage());
-            $update = [];
+        if (is_null($json)) {
+            Logger::log('Received empty or invalid JSON during updateResource.');
+            return false;
         }
 
-        if ($update['alt'] === null) {
-            Logger::log("Update contained no alt text, setting to empty string");
-            $update['alt'] = "";
+        $resource = CoyoteResourceUpdateHelper::getResourceModelFromUpdate($json);
+
+        if (is_null($resource)) {
+            Logger::log('Unable to map Update to ResourceModel');
+            return false;
         }
 
-        return ResourceUpdateHandler::run($update['id'], $update['alt']);
-    }
+        $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::METUM);
 
-    public function parseUpdate($json) {
-        $alt_representations = array_filter($json->included, function ($item) {
-            return $item->type === 'representation' &&
-                   $item->attributes->metum === $this->metum;
-        });
+        $id = $resource->getId();
+        $alt = '';
 
+        if (is_null($representation)) {
+            Logger::log("Update contained no Alt metum representation, defaulting to empty string");
+        } else {
+            $alt = $representation->getText();
+        }
 
-        $alt = count($alt_representations) ? array_shift($alt_representations)->attributes->text : null;
-
-        return [
-            'id' => $json->data->id,
-            'alt' => $alt
-        ];
+        return ResourceUpdateHandler::run($id, $alt);
     }
 
     public function checkCallbackPermission(WP_Rest_Request $request): bool {
         $body = $request->get_body();
         $json = json_decode($body);
 
-        $req_org_id = intval($json->data->relationships->organization->data->id);
+        if (is_null($json)) {
+            Logger::log('Received empty or invalid JSON in payload .');
+            return false;
+        }
+
+        $resource = CoyoteResourceUpdateHelper::getResourceModelFromUpdate($json);
+
+        if (is_null($resource)) {
+            Logger::log('Unable to map payload to ResourceModel');
+            return false;
+        }
 
         // TODO verify by header token as well
 
-        return $req_org_id === $this->organization_id;
+        return $resource->getOrganization()->getId() === $this->organizationId;
     }
 
-    public function provide_status(): string {
-        return "Coyote Plugin v{$this->plugin_version} OK";
+    public function provideStatus(): string {
+        return "Coyote Plugin v{$this->pluginVersion} OK";
     }
 
 }

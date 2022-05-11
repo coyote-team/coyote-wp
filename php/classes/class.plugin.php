@@ -118,7 +118,7 @@ class Plugin {
         if ($this->is_configured && $this->has_updates_enabled) {
             // allow remote updates
             Logger::log('Updates enabled.');
-            (new RestApiController($this->version, 1, $this->config['CoyoteApiOrganizationId'], $this->config['CoyoteApiMetum']));
+            (new RestApiController($this->version, 1, PluginConfiguration::getApiOrganizationId()));
         } else {
             Logger::log('Updates disabled.');
         }
