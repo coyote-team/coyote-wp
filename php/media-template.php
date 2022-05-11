@@ -1,6 +1,9 @@
 <?php
 
 // Exit if accessed directly.
+use Coyote\PluginConfiguration;
+use Coyote\WordPressHelper;
+
 if (!defined( 'ABSPATH')) {
     exit;
 }
@@ -1308,8 +1311,7 @@ function coyote_wp_print_media_templates() {
      */
     do_action( 'print_media_templates' );
 
-    global $coyote_plugin;
-    echo $coyote_plugin->classic_editor_data();
+    echo WordPressHelper::getMediaTemplateData();
 }
 ?><?php
 add_action('wp_enqueue_media', function() {
@@ -1329,7 +1331,7 @@ add_action('wp_enqueue_media', function() {
     }
 
     // only patch the html when the plugin has filters enabled
-    if (!$coyote_plugin->has_filters_enabled) {
+    if (!PluginConfiguration::hasFiltersEnabled()) {
         return;
     }
 
