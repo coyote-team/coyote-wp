@@ -9,6 +9,8 @@ Author URI: https://www.pac.bz
  */
 
 // Exit if accessed directly.
+use Coyote\WordPressPlugin;
+
 if (!defined( 'ABSPATH')) {
     exit;
 }
@@ -83,9 +85,4 @@ function coyote_attachment_url($attachment_id) {
     return '//' . $parts['host'] . esc_url($parts['path']);
 }
 
-require_once coyote_plugin_file('classes/class.plugin.php');
-
-use Coyote\Plugin;
-
-global $coyote_plugin;
-$coyote_plugin = new Plugin(COYOTE_PLUGIN_FILE, COYOTE_VERSION, is_admin());
+(new WordPressPlugin(COYOTE_PLUGIN_FILE));

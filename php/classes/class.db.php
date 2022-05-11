@@ -17,10 +17,41 @@ if (!defined( 'ABSPATH')) {
 }
 
 class DB {
+    private static function getResourceTableName(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . 'coyote_image_resource';
+    }
+
+    private static function replaceSqlVariables(string $sql): string {
+        global $wpdb;
+
+        $search_strings = array(
+            '%image_resource_table_name%',
+            '%wp_post_table_name%',
+            '%charset_collate%'
+        );
+
+        $replace_strings = array(
+            self::getResourceTableName(),
+            $wpdb->prefix . 'posts',
+            $wpdb->get_charset_collate()
+        );
+
+        $sql = str_replace($search_strings, $replace_strings, $sql);
+        return $sql;
+    }
+
+    public static function runSqlFromFile(string $path) {
+        global $wpdb;
+        $sql = self::replaceSqlVariables(file_get_contents($path));
+        $wpdb->query($sql);
+    }
+
     public static function clearResourceTable(): int
     {
         global $wpdb;
-        $table = COYOTE_IMAGE_TABLE_NAME;
+        $table = self::getResourceTableName();
         return $wpdb->query("delete from {$table}");
     }
 
@@ -28,7 +59,7 @@ class DB {
     {
         global $wpdb;
         return $wpdb->update(
-            COYOTE_IMAGE_TABLE_NAME,
+            self::getResourceTableName(),
             ['coyote_description' => $alt],
             ['coyote_resource_id' => $id],
             ['%s', '%d']
@@ -53,7 +84,7 @@ class DB {
         ];
 
         $data_types = ["%s", "%s", "%d", "%s", "%s"];
-        $wpdb->insert(COYOTE_IMAGE_TABLE_NAME, $record, $data_types);
+        $wpdb->insert(self::getResourceTableName(), $record, $data_types);
 
         return self::getRecordByHash($hash);
     }
@@ -63,7 +94,7 @@ class DB {
         global $wpdb;
 
         $prepared_query = $wpdb->prepare(
-            "SELECT * FROM " . COYOTE_IMAGE_TABLE_NAME . " WHERE source_uri_sha1 = %s",
+            "SELECT * FROM " . self::getResourceTableName() . " WHERE source_uri_sha1 = %s",
             $hash
         );
 
