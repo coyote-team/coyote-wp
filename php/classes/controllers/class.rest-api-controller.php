@@ -19,7 +19,7 @@ use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
 use Coyote\PluginConfiguration;
-use Coyote\WordpressPlugin;
+use Coyote\WordPressPlugin;
 use WP_REST_Server;
 use WP_Rest_Request;
 
@@ -71,7 +71,7 @@ class RestApiController {
     public function updateResource(WP_Rest_Request $request): bool {
         // this counts as API success, so potentially recover from
         // error-based standalone mode
-        WordpressPlugin::registerApiSucces();
+        WordPressPlugin::registerApiSuccess();
 
         $body = $request->get_body();
         $json = json_decode($body);
