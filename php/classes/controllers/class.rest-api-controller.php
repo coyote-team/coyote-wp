@@ -116,7 +116,7 @@ class RestApiController {
 
         // TODO verify by header token as well
 
-        return $req_org_id === intval($this->organization_id);
+        return $req_org_id === $this->organization_id;
     }
 
     public function provide_status(): string {
