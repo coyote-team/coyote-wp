@@ -1,56 +1,14 @@
 <?php
 
-/**
- * Coyote Batch Processing
- * @category class
- * @package Coyote\Batching
- * @since 1.0
- */
-
 namespace Coyote;
 
-// Exit if accessed directly.
-if (!defined( 'ABSPATH')) {
-    exit;
-}
-
-use Coyote\ContentHelper;
+use Coyote\ContentHelper\Image;
 use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
-use Coyote\WordPressImage;
-use Coyote\ContentHelper\Image;
-use Coyote\Logger;
-use Coyote\CoyoteResource;
-use GuzzleHttp\Promise\Create;
 
-class Batching {
-
-    public static function ajax_set_batch_job() {
-        session_write_close();
-        check_ajax_referer('coyote_ajax');
-
-        $job_id = sanitize_text_field($_POST['job_id']);
-        $job_type = sanitize_text_field($_POST['job_type']);
-
-        self::set_batch_job($job_id, $job_type);
-
-        echo true;
-
-        wp_die();
-    }
-
-    public static function ajax_clear_batch_job() {
-        session_write_close();
-        check_ajax_referer('coyote_ajax');
-
-        self::clear_batch_job();
-
-        echo true;
-
-        wp_die();
-    }
-
+class BatchImport
+{
     public static function clear_batch_job() {
         delete_transient('coyote_batch_job');
         delete_transient('coyote_batch_offset');
@@ -64,29 +22,11 @@ class Batching {
         return get_transient('coyote_batch_job') ?? null;
     }
 
-    public static function load_process_batch() {
-        session_write_close();
-
-        $batch_size = intval($_GET['size']);
-
-        if ($batch_size < 10) {
-            $batch_size = 10;
-        } else if ($batch_size > 200) {
-            $batch_size = 200;
-        }
-
-        echo json_encode(self::_get_process_batch($batch_size));
-
-        wp_die();
-    }
-
-    public static function _get_process_batch($size) {
-        global $coyote_plugin;
-
-        $post_types = $coyote_plugin->config['ProcessTypes'];
+    public static function get_process_batch($size) {
+        $post_types = PluginConfiguration::getProcessedPostTypes();
         $post_statuses = ['inherit', 'publish'];
 
-        if (!$coyote_plugin->config['SkipUnpublished']) {
+        if (PluginConfiguration::isProcessingUnpublishedPosts()) {
             $post_statuses = array_merge($post_statuses, ['pending', 'draft', 'private']);
         }
 
@@ -122,7 +62,7 @@ class Batching {
             'post_parent' => null,
         ));
 
-        $resources = self::create_resources($batch, $coyote_plugin->config['SkipUnpublished']);
+        $resources = self::createResources($batch, PluginConfiguration::isNotProcessingUnpublishedPosts());
 
         $response['size'] = count($batch);
         $response['resources'] = count($resources);
@@ -183,7 +123,7 @@ class Batching {
     }
 
     /** @return ResourceModel[]|null */
-    public static function create_resources($posts, $skip_unpublished_parent_post): array {
+    private static function createResources($posts, $skip_unpublished_parent_post): array {
         $resourceGroupId = PluginConfiguration::getApiResourceGroupId();
         $payload = new CreateResourcesPayload();
 
@@ -216,6 +156,4 @@ class Batching {
 
         return WordPressCoyoteApiClient::createResources($payload);
     }
-
 }
-
