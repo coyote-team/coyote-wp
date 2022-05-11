@@ -172,34 +172,6 @@ class Plugin {
         Logger::log('Deactivating plugin');
     }
 
-    public function classic_editor_data() {
-        global $post;
-
-        if (empty($post)) {
-            return '';
-        }
-
-        if (empty($post->post_type)) {
-            return '';
-        }
-
-        $prefix = implode('/', [$this->config['CoyoteApiEndpoint'], 'organizations', $this->config['CoyoteApiOrganizationId']]);
-        $mapping = WordPressHelper::getSrcAndImageData($post);
-        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-        return <<<js
-<script>
-    window.coyote = {};
-    window.coyote.classic_editor = {
-        postId: "{$post->ID}",
-        prefix: "{$prefix}",
-        mapping: $json_mapping
-    };
-</script>
-js;
-    }
-
-
     public static function uninstall() {
         global $coyote_plugin;
         Logger::log("Uninstalling plugin");
