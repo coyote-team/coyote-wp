@@ -93,7 +93,7 @@ js;
                 // if we can obtain the profile, disable standalone mode
                 // and clear the scheduled event
                 Logger::log('Recovering from standalone mode');
-                WordPressPlugin::registerApiSuccess();
+                WordPressCoyoteApiClient::registerApiSuccess();
             } else {
                 Logger::log('Unable to recover from standalone mode');
             }
