@@ -25,7 +25,8 @@ use Exception;
 
 class PostUpdateHandler {
 
-    public static function run(array $data, array $postArr) {
+    public static function run(array $data, array $postArr): array
+    {
         $post_id = $postArr['ID'];
 
         if ($postArr['post_type'] === 'revision') {
@@ -42,7 +43,8 @@ class PostUpdateHandler {
         return $data;
     }
 
-    public static function process($content, $post_id) {
+    private static function process(string $content, string $post_id): void
+    {
         Logger::log("Processing update on post " . $post_id);
 
         $permalink = get_permalink($post_id);
@@ -57,6 +59,7 @@ class PostUpdateHandler {
         }, $helper->getImages());
 
         $payload = new CreateResourcesPayload();
+
         foreach ($images as $image) {
             $payload->addResource(new CreateResourcePayload(
                 $image->getCaption() ?? $image->getUrl(),
@@ -68,5 +71,4 @@ class PostUpdateHandler {
 
         WordPressCoyoteApiClient::createResources($payload);
     }
-
 }
