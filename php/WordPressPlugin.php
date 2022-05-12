@@ -9,18 +9,11 @@ use Coyote\WordPressPlugin\Actions;
 class WordPressPlugin
 {
     public function __construct(string $pluginFile) {
-        // $wpdb becomes available here
-//        global $wpdb;
-//        define('COYOTE_IMAGE_TABLE_NAME', $wpdb->prefix . 'coyote_image_resource');
-
-        register_activation_hook($pluginFile, [Actions::class, 'onPluginActivate']);
-        register_deactivation_hook($pluginFile, [Actions::class, 'onPluginDeactivate']);
+        WordPressActionsAndFilters::setupPluginHooks($pluginFile);
 
         if (!PluginConfiguration::isInstalled()) {
             return;
         }
-
-        register_uninstall_hook($pluginFile, [Actions::class, 'onPluginUninstall']);
 
         // only load updates option if we're either not in standalone mode,
         // or in standalone mode caused by repeated errors.
@@ -31,7 +24,7 @@ class WordPressPlugin
         //    $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
         //}
 
-        HooksAndFilters::setup($pluginFile);
+        WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
         self::setupControllers();
     }
@@ -54,7 +47,6 @@ class WordPressPlugin
         } else {
             Logger::log('Updates disabled.');
         }
-
     }
 
     public static function registerApiSuccess(): void

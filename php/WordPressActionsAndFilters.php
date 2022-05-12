@@ -15,7 +15,7 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\WordPressPlugin\Actions;
 use Coyote\WordPressPlugin\Filters;
 
-class HooksAndFilters {
+class WordPressActionsAndFilters {
 
     private static function enableBatchImport(): void
     {
@@ -58,7 +58,20 @@ class HooksAndFilters {
         }
     }
 
-    public static function setup(string $pluginFile) {
+    public static function setupPluginHooks(string $pluginFile): void
+    {
+        register_activation_hook($pluginFile, [Actions::class, 'onPluginActivate']);
+        register_deactivation_hook($pluginFile, [Actions::class, 'onPluginDeactivate']);
+
+        if (!PluginConfiguration::isInstalled()) {
+            return;
+        }
+
+        register_uninstall_hook($pluginFile, [Actions::class, 'onPluginUninstall']);
+    }
+
+    public static function setupPluginActionsAndFilters(string $pluginFile): void
+    {
         add_action('coyote_check_standalone_hook', [Actions::class, 'checkStandaloneStatus']);
 
         // add settings link to plugin page
