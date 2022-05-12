@@ -18,7 +18,8 @@ use Coyote\Logger;
 use Coyote\DB;
 
 class ResourceUpdateHandler {
-    public static function run(string $id, string $alt): bool {
+    public static function run(string $id, string $alt): bool
+    {
         Logger::log("Updating: [id] {$id}, [alt] {$alt}");
 
         $update = DB::updateResourceAlt($id, $alt);
