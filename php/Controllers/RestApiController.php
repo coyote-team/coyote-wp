@@ -14,7 +14,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\CoyoteResourceUpdateHelper;
+use Coyote\CoyoteApiClient;
 use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
@@ -81,7 +81,7 @@ class RestApiController {
             return false;
         }
 
-        $resource = CoyoteResourceUpdateHelper::getResourceModelFromUpdate($json);
+        $resource = CoyoteApiClient::parseWebHookResourceUpdate($json);
 
         if (is_null($resource)) {
             Logger::log('Unable to map Update to ResourceModel');
@@ -111,7 +111,7 @@ class RestApiController {
             return false;
         }
 
-        $resource = CoyoteResourceUpdateHelper::getResourceModelFromUpdate($json);
+        $resource = CoyoteApiClient::parseWebHookResourceUpdate($json);
 
         if (is_null($resource)) {
             Logger::log('Unable to map payload to ResourceModel');
