@@ -8,10 +8,9 @@ if (!defined( 'ABSPATH')) {
 }
 
 use Coyote\Logger;
-use Coyote\Batching;
+use Coyote\BatchImportHelper;
 use Coyote\DB;
 use Coyote\Model\ProfileModel;
-use Coyote\Plugin;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 
@@ -30,7 +29,7 @@ class SettingsController {
     const advanced_settings_section = 'advanced_settings_section';
 
     private $batch_job;
-    private $profile_fetch_failed;
+    private bool $profile_fetch_failed;
 
     function __construct() {
         $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
@@ -39,7 +38,7 @@ class SettingsController {
         $this->profile_fetch_failed = false;
         $this->profile = $this->getProfile();
 
-        $this->batch_job = Batching::get_batch_job();
+        $this->batch_job = BatchImportHelper::get_batch_job();
 
         $this->is_standalone = !!(get_option('coyote_is_standalone', false));
 
