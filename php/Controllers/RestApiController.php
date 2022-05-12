@@ -19,7 +19,7 @@ use Coyote\Logger;
 use Coyote\Handlers\ResourceUpdateHandler;
 
 use Coyote\PluginConfiguration;
-use Coyote\WordPressPlugin;
+use Coyote\WordPressCoyoteApiClient;
 use WP_REST_Server;
 use WP_Rest_Request;
 
@@ -71,7 +71,7 @@ class RestApiController {
     public function updateResource(WP_Rest_Request $request): bool {
         // this counts as API success, so potentially recover from
         // error-based standalone mode
-        WordPressPlugin::registerApiSuccess();
+        WordPressCoyoteApiClient::registerApiSuccess();
 
         $body = $request->get_body();
         $json = json_decode($body);
@@ -90,7 +90,6 @@ class RestApiController {
 
         $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::METUM);
 
-        $id = $resource->getId();
         $alt = '';
 
         if (is_null($representation)) {
@@ -99,7 +98,7 @@ class RestApiController {
             $alt = $representation->getText();
         }
 
-        return ResourceUpdateHandler::run($id, $alt);
+        return ResourceUpdateHandler::run($resource->getId(), $alt);
     }
 
     public function checkCallbackPermission(WP_Rest_Request $request): bool {
