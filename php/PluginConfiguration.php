@@ -87,9 +87,15 @@ class PluginConfiguration{
         return get_option('coyote_plugin_is_installed', false);
     }
 
-    public static function getApiErrorCount(): int
+    /** @return int|bool */
+    public static function getApiErrorCount()
     {
-        return intval(get_transient('coyote_api_error_count'));
+        return get_transient('coyote_api_error_count', false);
+    }
+
+    public static function setApiErrorCount(int $count): void
+    {
+        set_transient('coyote_api_error_count', $count);
     }
 
     public static function setResourceGroupId(int $id): void

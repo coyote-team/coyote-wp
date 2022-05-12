@@ -81,8 +81,8 @@ class WordPressActionsAndFilters {
         add_action('admin_notices', [Actions::class, 'displayAdminNotices']);
 
         // api client action handlers
-        add_action('coyote_api_client_error', [WordpressPlugin::class, 'registerApiError']);
-        add_action('coyote_api_client_success', [WordpressPlugin::class, 'registerApiSuccess']);
+        add_action('coyote_api_client_error', [WordPressCoyoteApiClient::class, 'registerApiError']);
+        add_action('coyote_api_client_success', [WordPressCoyoteApiClient::class, 'registerApiSuccess']);
 
         if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::isConfigured()) {
             self::setupContentFilters();

@@ -6,7 +6,6 @@ use Coyote\ContentHelper\Image;
 use Coyote\DB;
 use Coyote\DB\ResourceRecord;
 use Coyote\Logger;
-use Coyote\Plugin;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressHelper;
@@ -94,43 +93,11 @@ js;
                 // if we can obtain the profile, disable standalone mode
                 // and clear the scheduled event
                 Logger::log('Recovering from standalone mode');
-                $this->onApiClientSuccess();
+                WordPressPlugin::registerApiSuccess();
             } else {
                 Logger::log('Unable to recover from standalone mode');
             }
         }
-    }
-
-    public function onApiClientError($message) {
-        Logger::log("Coyote API error: ${message}");
-
-        $error_count = get_transient('coyote_api_error_count');
-
-        if ($error_count === false) {
-            $error_count = 1;
-        } else {
-            $error_count = intval($error_count) + 1;
-        }
-
-        Logger::log("Updating API error count to ${error_count}");
-
-        // TODO [JKVA] implement via PluginConfiguration
-        set_transient('coyote_api_error_count', $error_count);
-    }
-
-    public function onApiClientSuccess() {
-        if (PluginConfiguration::isDisabledByPlugin()) {
-            // plugin is in standalone because of api errors, a success can recover.
-            // we don't recover in case of manual standalone.
-            PluginConfiguration::setEnabledThroughRecovery();
-
-            // clear the cron recovery attempt logic
-            Logger::log('Unscheduling standalone check');
-            wp_clear_scheduled_hook('coyote_check_standalone_hook');
-        }
-
-        // clear any existing api error count
-        PluginConfiguration::clearApiErrorCount();
     }
 
     public function onPluginUninstall(): void
