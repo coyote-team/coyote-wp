@@ -2,7 +2,7 @@
 
 namespace Coyote\Controllers;
 
-use Coyote\BatchImport;
+use Coyote\BatchImportHelper;
 
 class BatchImportController
 {
@@ -16,7 +16,7 @@ class BatchImportController
         $job_id = sanitize_text_field($_POST['job_id']);
         $job_type = sanitize_text_field($_POST['job_type']);
 
-        BatchImport::set_batch_job($job_id, $job_type);
+        BatchImportHelper::set_batch_job($job_id, $job_type);
 
         echo true;
 
@@ -27,7 +27,7 @@ class BatchImportController
         session_write_close();
         check_ajax_referer('coyote_ajax');
 
-        BatchImport::clear_batch_job();
+        BatchImportHelper::clear_batch_job();
 
         echo true;
 
@@ -45,7 +45,7 @@ class BatchImportController
             $batch_size = self::MAXIMUM_BATCH_SIZE;
         }
 
-        echo json_encode(BatchImport::get_process_batch($batch_size));
+        echo json_encode(BatchImportHelper::get_process_batch($batch_size));
 
         wp_die();
     }

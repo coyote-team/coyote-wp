@@ -7,7 +7,7 @@ use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 
-class BatchImport
+class BatchImportHelper
 {
     public static function clear_batch_job() {
         delete_transient('coyote_batch_job');

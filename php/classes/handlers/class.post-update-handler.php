@@ -14,7 +14,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\ContentHelper\Image;
 use Coyote\Logger;
 use Coyote\ContentHelper;
 use Coyote\Payload\CreateResourcePayload;
