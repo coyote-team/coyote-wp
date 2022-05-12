@@ -40,22 +40,6 @@ define('COYOTE_HOOK_MEDIA_SCREENS', ['post', 'page', 'upload', 'ch_events']);
  * @param string $path
  * @return string
  */
-function coyote_plugin_file(string $path) {
-    return _coyote_file('php', $path);
-}
-
-/**
- * @param string $path
- * @return string
- */
-function coyote_sql_file(string $path) {
-    return _coyote_file('sql', $path);
-}
-
-/**
- * @param string $path
- * @return string
- */
 function coyote_asset_url(string $path) {
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
