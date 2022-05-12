@@ -55,7 +55,7 @@ class DB {
         return $wpdb->query("delete from {$table}");
     }
 
-    public static function updateResourceAlt($id, $alt): bool
+    public static function updateResourceAlt($id, $alt)
     {
         global $wpdb;
         return $wpdb->update(
