@@ -3,8 +3,8 @@
         "guzzlehttp/guzzle": "~7.4.1",
         "psr/log": "^1.1",
         "ext-json": "*",
-        "coyote/coyote-php-content-helper": "^1.0",
-        "coyote/coyote-api-client": "^1.0.8"
+        "coyote/coyote-php-content-helper": "^1.0.1",
+        "coyote/coyote-api-client": "^1.0.9"
     },
     "autoload" : {
         "classmap": ["php/"]

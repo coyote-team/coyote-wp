@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "004d6b4f3934d0ff988d8abf099a923f",
+    "content-hash": "fe16b2faafa3020a77af01928d7d127d",
     "packages": [
         {
             "name": "coyote/coyote-api-client",
-            "version": "1.0.8",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coyote-team/coyote-php-api-client.git",
-                "reference": "dde152489f44a1b89fee8d23380d13388b31adca"
+                "reference": "94779571de554b19055f536f06dc695ef1b3f8ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/dde152489f44a1b89fee8d23380d13388b31adca",
-                "reference": "dde152489f44a1b89fee8d23380d13388b31adca",
+                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/94779571de554b19055f536f06dc695ef1b3f8ad",
+                "reference": "94779571de554b19055f536f06dc695ef1b3f8ad",
                 "shasum": ""
             },
             "require": {
@@ -51,22 +51,22 @@
             "description": "A client for the Coyote.pics image description service",
             "support": {
                 "issues": "https://github.com/coyote-team/coyote-php-api-client/issues",
-                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.8"
+                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.9"
             },
-            "time": "2022-05-12T08:19:02+00:00"
+            "time": "2022-05-12T13:20:19+00:00"
         },
         {
             "name": "coyote/coyote-php-content-helper",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coyote-team/coyote-php-content-helper.git",
-                "reference": "99a3dc945ac71a4dbdb4abc79dad9913064453ba"
+                "reference": "67927dfd1c4cbacb8de608bf75644292a96503d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coyote-team/coyote-php-content-helper/zipball/99a3dc945ac71a4dbdb4abc79dad9913064453ba",
-                "reference": "99a3dc945ac71a4dbdb4abc79dad9913064453ba",
+                "url": "https://api.github.com/repos/coyote-team/coyote-php-content-helper/zipball/67927dfd1c4cbacb8de608bf75644292a96503d7",
+                "reference": "67927dfd1c4cbacb8de608bf75644292a96503d7",
                 "shasum": ""
             },
             "require": {
@@ -99,9 +99,9 @@
             "description": "A php html content and image parsing helper library",
             "support": {
                 "issues": "https://github.com/coyote-team/coyote-php-content-helper/issues",
-                "source": "https://github.com/coyote-team/coyote-php-content-helper/tree/1.0.0"
+                "source": "https://github.com/coyote-team/coyote-php-content-helper/tree/1.0.1"
             },
-            "time": "2022-04-06T14:48:10+00:00"
+            "time": "2022-05-12T14:18:58+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1060,25 +1060,25 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.0.1",
+            "version": "v2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "26954b3d62a6c5fd0ea8a2a00c0353a14978d05c"
+                "reference": "e8b495ea28c1d97b5e0c121748d6f9b53d075c66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/26954b3d62a6c5fd0ea8a2a00c0353a14978d05c",
-                "reference": "26954b3d62a6c5fd0ea8a2a00c0353a14978d05c",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/e8b495ea28c1d97b5e0c121748d6f9b53d075c66",
+                "reference": "e8b495ea28c1d97b5e0c121748d6f9b53d075c66",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.0.2"
+                "php": ">=7.1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.0-dev"
+                    "dev-main": "2.5-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -1107,7 +1107,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.0.1"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v2.5.1"
             },
             "funding": [
                 {
@@ -1123,7 +1123,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-02T09:55:41+00:00"
+            "time": "2022-01-02T09:53:40+00:00"
         },
         {
             "name": "symfony/polyfill-php73",
