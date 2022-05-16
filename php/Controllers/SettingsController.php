@@ -17,7 +17,7 @@ use Coyote\WordPressCoyoteApiClient;
 class SettingsController {
     private string $page_title;
     private string $menu_title;
-    private ProfileModel $profile;
+    private ?ProfileModel $profile;
     private bool $is_standalone;
 
     const capability = 'manage_options';
@@ -115,7 +115,7 @@ class SettingsController {
     }
 
     public function set_organization_id($option, $value) {
-        Logger::log(['setting organization id', $value]);
+        Logger::log(['setting organization id', $option, $value]);
         $this->change_organization_id(null, $value, $option);
     }
 
@@ -140,7 +140,9 @@ class SettingsController {
             return $profile;
         }
 
-        $profile = WordPressCoyoteApiClient::getProfile();
+        if (PluginConfiguration::hasApiConfiguration()) {
+            $profile = WordPressCoyoteApiClient::getProfile();
+        }
 
         if (is_null($profile)) {
             // TODO should be in PluginConfiguration
@@ -481,7 +483,7 @@ class SettingsController {
         }
 
         foreach ($organizations as $org) {
-            $selected = intval($org->getId()) === $organization_id ? 'selected' : '';
+            $selected = $org->getId() === $organization_id ? 'selected' : '';
             echo "<option {$selected} value=\"" . $org->getId() ."\">" . esc_html($org->getName()). "</option>";
         }
 

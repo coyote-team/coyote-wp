@@ -90,12 +90,24 @@ class WordPressCoyoteApiClient{
         PluginConfiguration::setApiErrorCount($count);
     }
 
+    private static function getVersionedApiURI(): string
+    {
+        return sprintf("%s/api/v%d", PluginConfiguration::getApiEndPoint(), PluginConfiguration::API_VERSION);
+    }
 
-    private static function createApiClient():CoyoteApiClient{
+    private static function createApiClient(): CoyoteApiClient
+    {
+        $organizationId = PluginConfiguration::getApiOrganizationId();
+
+        // ApiClient expects an int as OrganizationId
+        if (!is_null($organizationId)) {
+            $organizationId = intval($organizationId);
+        }
+
         return new CoyoteApiClient(
-            PluginConfiguration::getApiEndPoint(),
+            self::getVersionedApiURI(),
             PluginConfiguration::getApiToken(),
-            PluginConfiguration::getApiOrganizationId()
+            $organizationId
         );
     }
 
