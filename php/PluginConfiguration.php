@@ -77,7 +77,7 @@ class PluginConfiguration{
         return get_option('coyote_updates_enabled', false);
     }
 
-    public static function isConfigured(): bool
+    public static function hasStoredApiProfile(): bool
     {
         return !is_null(get_option('coyote_api_profile', null));
     }
@@ -167,5 +167,21 @@ class PluginConfiguration{
     public static function setInstalled(): void
     {
         add_option('coyote_plugin_is_installed', true);
+    }
+
+    /**
+     * @param mixed $arg
+     * @return bool
+     */
+    private static function isNonEmptyString($arg): bool
+    {
+        return is_string($arg) &&
+            strlen($arg) >= 1;
+    }
+
+    public static function hasApiConfiguration(): bool
+    {
+        return self::isNonEmptyString(self::getApiEndPoint()) &&
+            self::isNonEmptyString(self::getApiToken());
     }
 }

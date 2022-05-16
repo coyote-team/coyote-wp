@@ -11,7 +11,7 @@ use Coyote\ContentHelper\Image;
 class Filters
 {
     // add setting quicklink to plugin listing entry
-    public function addActionLinks($links): array {
+    public static function addActionLinks($links): array {
         $url = admin_url('options-general.php?page=coyote_fields');
         $text = __('Settings');
 
@@ -22,14 +22,14 @@ class Filters
         return array_merge($links, $settings_links);
     }
 
-    public function addTinyMcePlugin() {
+    public static function addTinyMcePlugin() {
         add_filter('mce_external_plugins', function($plugins) {
             $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
             return $plugins;
         });
     }
 
-    public function filterPostContent($postContent) {
+    public static function filterPostContent($postContent) {
         global $post;
 
         if ($post->post_type === 'attachment') {
@@ -41,7 +41,7 @@ class Filters
     }
 
     // used in the media template
-    public function filterAttachmentForJavaScript($response, $attachment, $meta) {
+    public static function filterAttachmentForJavaScript($response, $attachment, $meta) {
         if ($response['type'] !== 'image') {
             return $response;
         }
@@ -72,7 +72,7 @@ class Filters
         return $response;
     }
 
-    public function filterAttachmentImageAttributes(array $attr, \WP_Post $attachment, int $size): array {
+    public static function filterAttachmentImageAttributes(array $attr, \WP_Post $attachment, int $size): array {
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
 
@@ -91,7 +91,7 @@ class Filters
         return $attr;
     }
 
-    public function addCronSchedule($schedules) {
+    public static function addCronSchedule($schedules) {
         $schedules['five_minutes'] = [
             'interval' => 300,
             'display'  => esc_html__('Every Five Minutes')
