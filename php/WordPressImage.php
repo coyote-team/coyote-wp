@@ -23,11 +23,11 @@ class WordPressImage
         $this->wordPressAttachmentUrl = null;
         $this->attachmentId = null;
 
-        if (preg_match(self::AFTER_REGEX, $image->content_after, $matches) === 1) {
+        if (preg_match(self::AFTER_REGEX, $image->getContentAfter(), $matches) === 1) {
             $this->caption = $matches[0];
         }
 
-        if (preg_match(self::IMG_ATTACHMENT_REGEX, $image->class, $matches) === 1) {
+        if (preg_match(self::IMG_ATTACHMENT_REGEX, $image->getClass(), $matches) === 1) {
             $this->attachmentId = intval($matches[1]);
             $attachment_url = wp_get_attachment_url($this->attachmentId);
 
@@ -49,7 +49,7 @@ class WordPressImage
 
     public function getSrc(): string
     {
-        return $this->image->src;
+        return $this->image->getSrc();
     }
 
     public function setCaption(string $value): void
@@ -64,12 +64,12 @@ class WordPressImage
 
     public function getAlt(): string
     {
-        return $this->image->alt ?? '';
+        return $this->image->getAlt() ?? '';
     }
 
     public function getClass(): string
     {
-        return $this->image->class;
+        return $this->image->getClass();
     }
 
     public function getWordPressAttachmentUrl(): ?string

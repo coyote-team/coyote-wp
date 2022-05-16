@@ -84,7 +84,7 @@ class WordPressActionsAndFilters {
         add_action('coyote_api_client_error', [WordPressCoyoteApiClient::class, 'registerApiError']);
         add_action('coyote_api_client_success', [WordPressCoyoteApiClient::class, 'registerApiSuccess']);
 
-        if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::isConfigured()) {
+        if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::hasApiConfiguration()) {
             self::setupContentFilters();
         } else {
             Logger::log('Filters disabled.');

@@ -34,7 +34,7 @@ class WordPressPlugin
             (new SettingsController());
         }
 
-        if (PluginConfiguration::isConfigured() && PluginConfiguration::hasUpdatesEnabled()) {
+        if (PluginConfiguration::hasStoredApiProfile() && PluginConfiguration::hasUpdatesEnabled()) {
             // allow remote updates
             Logger::log('Updates enabled.');
 

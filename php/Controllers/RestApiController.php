@@ -26,12 +26,12 @@ use WP_Rest_Request;
 class RestApiController {
 
     private string $namespace;
-    private int $pluginVersion;
-    private int $organizationId;
+    private string $pluginVersion;
+    private string $organizationId;
 
     /**
      * RestApiController constructor.
-     * @param int $pluginVersion
+     * @param string $pluginVersion
      * @param int $apiVersion
      * @param string $organizationId
      */

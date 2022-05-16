@@ -14,7 +14,7 @@ use Coyote\WordPressPlugin;
 
 class Actions
 {
-    public function displayAdminNotices() {
+    public static function displayAdminNotices() {
         $errorCount = PluginConfiguration::getApiErrorCount();
 
         if (PluginConfiguration::isEnabled() && $errorCount >= 10) {
@@ -28,7 +28,7 @@ class Actions
         }
     }
 
-    public function adminEnqueueScripts(): void
+    public static function adminEnqueueScripts(): void
     {
         global $post;
 
@@ -81,7 +81,7 @@ js;
         );
     }
 
-    public function checkStandaloneStatus() {
+    public static function checkStandaloneStatus() {
         Logger::log('check_standalone hook firing');
 
         if (PluginConfiguration::isStandalone() &&
@@ -100,7 +100,7 @@ js;
         }
     }
 
-    public function onPluginUninstall(): void
+    public static function onPluginUninstall(): void
     {
         Logger::log("Uninstalling plugin");
 
@@ -111,7 +111,7 @@ js;
         PluginConfiguration::deletePluginOptions();
     }
 
-    public function onPluginActivate() {
+    public static function onPluginActivate() {
         if (PluginConfiguration::isInstalled()) {
             Logger::log("Plugin was active previously, not adding table");
             return;
@@ -122,7 +122,7 @@ js;
         DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
     }
 
-    public function onPluginDeactivate() {
+    public static function onPluginDeactivate() {
         Logger::log('Deactivating plugin');
     }
 
