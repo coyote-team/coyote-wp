@@ -39,8 +39,18 @@ class WordPressHelper{
 
     private static function createPayload(WordPressImage $image): CreateResourcePayload
     {
-        $payload = new CreateResourcePayload($image->getCaption(), $image->getUrl(), PluginConfiguration::getApiResourceGroupId(),$image->getHostUri());
-        $payload->addRepresentation($image->getAlt(),PluginConfiguration::METUM);
+        $payload = new CreateResourcePayload(
+            $image->getCaption() ?? $image->getUrl(),
+            $image->getUrl(),
+            PluginConfiguration::getApiResourceGroupId(),
+            $image->getHostUri());
+
+        $alt = $image->getAlt();
+
+        if ($alt !== '') {
+            $payload->addRepresentation($alt,PluginConfiguration::METUM);
+        }
+
         return $payload;
     }
 
