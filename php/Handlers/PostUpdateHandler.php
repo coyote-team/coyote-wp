@@ -50,13 +50,19 @@ class PostUpdateHandler {
         $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);
 
+        $images = $helper->getImages();
+
+        if (count($images) === 0) {
+            return;
+        }
+
         // attachments will already have been handled by the media manager
         // so those don't need any processing here
         $images = array_map(function (ContentHelper\Image $image) use ($permalink) {
             $image = new WordPressImage($image);
             $image->setHostUri($permalink);
             return $image;
-        }, $helper->getImages());
+        }, $images);
 
         $payload = new CreateResourcesPayload();
 
