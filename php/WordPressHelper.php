@@ -127,7 +127,7 @@ class WordPressHelper{
             }
         }
 
-        if ($fetchFromApiIfMissing) {
+        if ($fetchFromApiIfMissing && count($missingImages) > 0) {
             $imageMap = self::fetchImagesFromApi($imageMap,$missingImages, $payload);
         }
 
