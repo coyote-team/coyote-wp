@@ -72,12 +72,16 @@ class WordPressHelper{
             return null;
         }
 
+        $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::METUM);
+
+        $representation = is_null($representation) ? '' : $representation->getText();
+
         return DB::insertRecord(
             sha1($resource->getSourceUri()),
             $resource->getSourceUri(),
             $image->getAlt(),
             $resource->getId(),
-            $resource->getTopRepresentationByMetum(PluginConfiguration::METUM)->getText(),
+            $representation,
         );
     }
 
