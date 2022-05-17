@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fe16b2faafa3020a77af01928d7d127d",
+    "content-hash": "ebcb0c106c95b95c22007d3133b4d1a0",
     "packages": [
         {
             "name": "coyote/coyote-api-client",
-            "version": "1.0.9",
+            "version": "1.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coyote-team/coyote-php-api-client.git",
-                "reference": "94779571de554b19055f536f06dc695ef1b3f8ad"
+                "reference": "6fe13b6072806a97a53f0a3a1216275318b3015d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/94779571de554b19055f536f06dc695ef1b3f8ad",
-                "reference": "94779571de554b19055f536f06dc695ef1b3f8ad",
+                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/6fe13b6072806a97a53f0a3a1216275318b3015d",
+                "reference": "6fe13b6072806a97a53f0a3a1216275318b3015d",
                 "shasum": ""
             },
             "require": {
@@ -51,9 +51,9 @@
             "description": "A client for the Coyote.pics image description service",
             "support": {
                 "issues": "https://github.com/coyote-team/coyote-php-api-client/issues",
-                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.9"
+                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.12"
             },
-            "time": "2022-05-12T13:20:19+00:00"
+            "time": "2022-05-17T08:54:39+00:00"
         },
         {
             "name": "coyote/coyote-php-content-helper",
@@ -1272,5 +1272,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
