@@ -6,7 +6,7 @@ use Coyote\ContentHelper\Image;
 
 class WordPressImage
 {
-    private string $caption;
+    private ?string $caption;
     private ?string $wordPressAttachmentUrl;
     private ?int $attachmentId;
     private ?string $hostUri;
@@ -22,9 +22,12 @@ class WordPressImage
         $this->caption = '';
         $this->wordPressAttachmentUrl = null;
         $this->attachmentId = null;
+        $this->hostUri = null;
 
         if (preg_match(self::AFTER_REGEX, $image->getContentAfter(), $matches) === 1) {
-            $this->caption = $matches[0];
+            if (strlen($matches[0]) > 0) {
+                $this->caption = $matches[0];
+            }
         }
 
         if (preg_match(self::IMG_ATTACHMENT_REGEX, $image->getClass(), $matches) === 1) {
@@ -42,7 +45,7 @@ class WordPressImage
         $this->hostUri = $value;
     }
 
-    public function getHostUri(): string
+    public function getHostUri(): ?string
     {
         return $this->hostUri;
     }
@@ -54,10 +57,14 @@ class WordPressImage
 
     public function setCaption(string $value): void
     {
+        if (strlen($value)===0) {
+            return;
+        }
+
         $this->caption = $value;
     }
 
-    public function getCaption(): string
+    public function getCaption(): ?string
     {
         return $this->caption;
     }
@@ -86,7 +93,7 @@ class WordPressImage
     {
         $url = $this->getWordPressAttachmentUrl();
         
-        if(is_null($url)){
+        if (is_null($url)) {
             return $this->getSrc();
         }
         

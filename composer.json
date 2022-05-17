@@ -4,7 +4,7 @@
         "psr/log": "^1.1",
         "ext-json": "*",
         "coyote/coyote-php-content-helper": "^1.0.1",
-        "coyote/coyote-api-client": "^1.0.9"
+        "coyote/coyote-api-client": "^1.0.12"
     },
     "autoload" : {
         "classmap": ["php/"]
