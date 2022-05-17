@@ -154,6 +154,10 @@ class BatchImportHelper
             }
         }
 
+        if (count($payload->resources) === 0) {
+            return [];
+        }
+
         return WordPressCoyoteApiClient::createResources($payload);
     }
 }
