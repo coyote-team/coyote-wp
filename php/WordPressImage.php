@@ -19,7 +19,7 @@ class WordPressImage
     {
         $matches = array();
         $this->image = $image;
-        $this->caption = '';
+        $this->caption = null;
         $this->wordPressAttachmentUrl = null;
         $this->attachmentId = null;
         $this->hostUri = null;
