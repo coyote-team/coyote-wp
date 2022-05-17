@@ -110,11 +110,11 @@ class DB {
     private static function mapTableRowToResourceRecord(\stdClass $record): ResourceRecord
     {
         return new ResourceRecord(
-            $record['source_uri_sha1'],
-            $record['source_uri'],
-            $record['coyote_resource_id'],
-            $record['original_description'],
-            $record['coyote_description']
+            $record->source_uri_sha1,
+            $record->source_uri,
+            $record->coyote_resource_id,
+            $record->original_description,
+            $record->coyote_description
         );
     }
 }
