@@ -52,7 +52,7 @@ class Filters
             ''
         ));
 
-        $image->setCaption($response['caption'] ?? '');
+        $image->setCaption($response['caption']);
 
         $resource = WordPressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
 
