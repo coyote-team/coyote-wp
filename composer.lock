@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ebcb0c106c95b95c22007d3133b4d1a0",
+    "content-hash": "ac7d97d64f7c732a22c66cfafb17c4e9",
     "packages": [
         {
             "name": "coyote/coyote-api-client",
-            "version": "1.0.12",
+            "version": "1.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coyote-team/coyote-php-api-client.git",
-                "reference": "6fe13b6072806a97a53f0a3a1216275318b3015d"
+                "reference": "a3af1fd37cd8c2967a5144999c8e755dc961a128"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/6fe13b6072806a97a53f0a3a1216275318b3015d",
-                "reference": "6fe13b6072806a97a53f0a3a1216275318b3015d",
+                "url": "https://api.github.com/repos/coyote-team/coyote-php-api-client/zipball/a3af1fd37cd8c2967a5144999c8e755dc961a128",
+                "reference": "a3af1fd37cd8c2967a5144999c8e755dc961a128",
                 "shasum": ""
             },
             "require": {
@@ -51,25 +51,26 @@
             "description": "A client for the Coyote.pics image description service",
             "support": {
                 "issues": "https://github.com/coyote-team/coyote-php-api-client/issues",
-                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.12"
+                "source": "https://github.com/coyote-team/coyote-php-api-client/tree/1.0.13"
             },
-            "time": "2022-05-17T08:54:39+00:00"
+            "time": "2022-05-19T19:19:45+00:00"
         },
         {
             "name": "coyote/coyote-php-content-helper",
-            "version": "1.0.1",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coyote-team/coyote-php-content-helper.git",
-                "reference": "67927dfd1c4cbacb8de608bf75644292a96503d7"
+                "reference": "4e620e47a004be37d3260e19dc6732b7845ba53a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coyote-team/coyote-php-content-helper/zipball/67927dfd1c4cbacb8de608bf75644292a96503d7",
-                "reference": "67927dfd1c4cbacb8de608bf75644292a96503d7",
+                "url": "https://api.github.com/repos/coyote-team/coyote-php-content-helper/zipball/4e620e47a004be37d3260e19dc6732b7845ba53a",
+                "reference": "4e620e47a004be37d3260e19dc6732b7845ba53a",
                 "shasum": ""
             },
             "require": {
+                "ext-dom": "*",
                 "ivopetkov/html5-dom-document-php": "2.*"
             },
             "require-dev": {
@@ -99,9 +100,9 @@
             "description": "A php html content and image parsing helper library",
             "support": {
                 "issues": "https://github.com/coyote-team/coyote-php-content-helper/issues",
-                "source": "https://github.com/coyote-team/coyote-php-content-helper/tree/1.0.1"
+                "source": "https://github.com/coyote-team/coyote-php-content-helper/tree/1.0.4"
             },
-            "time": "2022-05-12T14:18:58+00:00"
+            "time": "2022-05-19T09:29:02+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1272,5 +1273,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
