@@ -17,27 +17,12 @@ class WordPressImage
 
     public function __construct(Image $image)
     {
-        $matches = array();
         $this->image = $image;
         $this->caption = null;
-        $this->wordPressAttachmentUrl = null;
         $this->attachmentId = null;
         $this->hostUri = null;
-
-        if (preg_match(self::AFTER_REGEX, $image->getContentAfter(), $matches) === 1) {
-            if (strlen($matches[0]) > 0) {
-                $this->caption = $matches[0];
-            }
-        }
-
-        if (preg_match(self::IMG_ATTACHMENT_REGEX, $image->getClass(), $matches) === 1) {
-            $this->attachmentId = intval($matches[1]);
-            $attachment_url = wp_get_attachment_url($this->attachmentId);
-
-            if ($attachment_url !== false) {
-                $this->wordPressAttachmentUrl = $attachment_url;
-            }
-        }
+        $this->caption = $this->findCaption();
+        $this->wordPressAttachmentUrl = $this->findAttachmentUrl();
     }
 
     public function setHostUri(string $value): void
@@ -104,5 +89,42 @@ class WordPressImage
         }
 
         return '//' . $parts['host'] . esc_url($parts['path']);
+    }
+
+    private function findCaption(): ?string
+    {
+        $caption = $this->image->getFigureCaption();
+
+        if (!is_null($caption)) {
+            return $caption;
+        }
+
+        $matches = [];
+
+        if (preg_match(self::AFTER_REGEX, $this->image->getContentAfter(), $matches) === 1) {
+            if (strlen($matches[0]) > 0) {
+                return $matches[0];
+            }
+        }
+
+        return null;
+    }
+
+    private function findAttachmentUrl(): ?string
+    {
+        $matches = [];
+
+        if (preg_match(self::IMG_ATTACHMENT_REGEX, $this->image->getClass(), $matches) !== 1) {
+            return null;
+        }
+
+        $this->attachmentId = intval($matches[1]);
+        $attachmentUrl = wp_get_attachment_url($this->attachmentId);
+
+        if ($attachmentUrl === false) {
+            return null;
+        }
+
+        return $attachmentUrl;
     }
 }

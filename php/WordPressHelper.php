@@ -4,21 +4,20 @@ namespace Coyote;
 
 use Coyote\ContentHelper\Image;
 use Coyote\DB\ResourceRecord;
-use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
-use GuzzleHttp\Promise\Create;
 
-class WordPressHelper{
+class WordPressHelper
+{
 
     public static function getSrcAndImageData(\WP_Post $post): array
-    {   
+    {
         $helper = new ContentHelper($post->post_content);
         $images = $helper->getImages();
 
         $imageMap = [];
 
-        foreach($images as $image){
+        foreach ($images as $image) {
             $image = new WordPressImage($image);
             $key = $image->getAttachmentId() ?? $image->getSrc();
             $hash = sha1($image->getUrl());
@@ -43,18 +42,22 @@ class WordPressHelper{
             $image->getCaption() ?? $image->getUrl(),
             $image->getUrl(),
             PluginConfiguration::getApiResourceGroupId(),
-            $image->getHostUri());
+            $image->getHostUri()
+        );
 
         $alt = $image->getAlt();
 
         if ($alt !== '') {
-            $payload->addRepresentation($alt,PluginConfiguration::METUM);
+            $payload->addRepresentation($alt, PluginConfiguration::METUM);
         }
 
         return $payload;
     }
 
-    public static function getResourceForWordPressImage(WordPressImage $image, bool $fetchFromApiIfMissing = true): ?ResourceRecord
+    public static function getResourceForWordPressImage(
+        WordPressImage $image,
+        bool $fetchFromApiIfMissing = true
+    ): ?ResourceRecord
     {
         $record = DB::getRecordByHash(sha1($image->getUrl()));
 
@@ -95,7 +98,7 @@ class WordPressHelper{
         );
     }
 
-    public static function setImageAlts(\WP_Post $post,bool $fetchFromApiIfMissing = true): string
+    public static function setImageAlts(\WP_Post $post, bool $fetchFromApiIfMissing = true): string
     {
         $helper = new ContentHelper($post->post_content);
         /** @var Image[] $images */
@@ -106,7 +109,7 @@ class WordPressHelper{
         $missingImages = [];
         $payload = new CreateResourcesPayload();
 
-        foreach($images as $image){
+        foreach ($images as $image) {
             $image = new WordPressImage($image);
             $src = $image->getSrc();
             $url = $image->getUrl();
@@ -118,7 +121,7 @@ class WordPressHelper{
                 continue;
             }
 
-            if ($fetchFromApiIfMissing){
+            if ($fetchFromApiIfMissing) {
                 $missingImages[$url] = ['alt' => $image->getAlt(),'src' => $src];
 
                 /*  Resources require a hostUri where available  */
@@ -128,30 +131,41 @@ class WordPressHelper{
         }
 
         if ($fetchFromApiIfMissing && count($missingImages) > 0) {
-            $imageMap = self::fetchImagesFromApi($imageMap,$missingImages, $payload);
+            $imageMap = self::fetchImagesFromApi($imageMap, $missingImages, $payload);
         }
 
         return $helper->setImageAlts($imageMap);
     }
 
-    private static function fetchImagesFromApi(array $imageMap,array $missingImages,CreateResourcesPayload $payload): array{
+    private static function fetchImagesFromApi(
+        array $imageMap,
+        array $missingImages,
+        CreateResourcesPayload $payload
+    ): array
+    {
         $response = WordPressCoyoteApiClient::createResources($payload);
 
         if (is_null($response)) {
             return $imageMap;
         }
 
-        foreach($response as $resourceModel){
+        foreach ($response as $resourceModel) {
             $uri = $resourceModel->getSourceUri();
             $imageSrc = $missingImages[$uri]['src'];
 
             $representation = $resourceModel->getTopRepresentationByMetum(PluginConfiguration::METUM);
-            if (is_null($representation)){
+            if (is_null($representation)) {
                 DB::InsertRecord(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), '');
                 continue;
             }
 
-            DB::InsertRecord(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), $representation->getText());
+            DB::InsertRecord(
+                sha1($imageSrc),
+                $imageSrc,
+                $missingImages[$uri]['alt'],
+                $resourceModel->getId(),
+                $representation->getText()
+            );
             $imageMap[$uri] = $representation->getText();
         }
 
@@ -190,6 +204,4 @@ class WordPressHelper{
 </script>
 js;
     }
-
-    
 }
