@@ -6,23 +6,28 @@ use Coyote\ContentHelper\Image;
 use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
+use WP_Post;
 
 class BatchImportHelper
 {
-    public static function clear_batch_job() {
+    public static function clearBatchJob(): void
+    {
         delete_transient('coyote_batch_job');
         delete_transient('coyote_batch_offset');
     }
 
-    public static function set_batch_job($id, $type) {
+    public static function setBatchJob($id, $type): void
+    {
         set_transient('coyote_batch_job', ['id' => $id, 'type' => $type]);
     }
 
-    public static function get_batch_job() {
+    public static function getBatchJob(): ?string
+    {
         return get_transient('coyote_batch_job') ?? null;
     }
 
-    public static function get_process_batch($size) {
+    public static function getProcessBatch($size): array
+    {
         $post_types = PluginConfiguration::getProcessedPostTypes();
         $post_statuses = ['inherit', 'publish'];
 
@@ -37,7 +42,7 @@ class BatchImportHelper
         if ($offset === false) {
             $offset = 0;
 
-            $total_posts = array_reduce($post_types, function($carry, $type) use ($post_statuses) {
+            $total_posts = array_reduce($post_types, function ($carry, $type) use ($post_statuses) {
                 $counts = wp_count_posts($type);
 
                 foreach ($post_statuses as $status) {
@@ -81,7 +86,7 @@ class BatchImportHelper
         CreateResourcesPayload $payload,
         int $resourceGroupId,
         bool $skipUnpublishedParentPost,
-        \WP_Post $post
+        WP_Post $post
     ): CreateResourcesPayload {
         // attachment with mime type image, get alt and caption differently
         $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
@@ -103,7 +108,8 @@ class BatchImportHelper
         $attachmentUrl = coyote_attachment_url($post->ID);
 
         $image = new WordPressImage(
-            new Image($attachmentUrl, $alt, ''));
+            new Image($attachmentUrl, $alt, '')
+        );
         $image->setHostUri($host_uri);
         $image->setCaption($post->post_excerpt);
 
@@ -117,13 +123,14 @@ class BatchImportHelper
         return $payload;
     }
 
-    private static function postIsImageAttachment(\WP_Post $post): bool
+    private static function postIsImageAttachment(WP_Post $post): bool
     {
-        return $post->post_type === 'attachment' && strpos($post->post_mime_type, 'image/') === 0;
+        return $post->post_type === 'attachment' && str_starts_with($post->post_mime_type, 'image/');
     }
 
-    /** @return ResourceModel[]|null */
-    private static function createResources($posts, $skip_unpublished_parent_post): array {
+    /** @return ResourceModel[] */
+    private static function createResources($posts, $skip_unpublished_parent_post): array
+    {
         $resourceGroupId = PluginConfiguration::getApiResourceGroupId();
         $payload = new CreateResourcesPayload();
 

@@ -10,7 +10,6 @@ use WP_Post;
 
 class WordPressHelper
 {
-
     public static function getSrcAndImageData(WP_Post $post): array
     {
         $helper = new ContentHelper($post->post_content);

@@ -21,17 +21,17 @@ class WordPressActionsAndFilters {
 
     private static function enableBatchImport(): void
     {
-        add_action('wp_ajax_coyote_load_process_batch', array(BatchImportController::class, 'ajax_load_process_batch'));
-        add_action('wp_ajax_nopriv_coyote_load_process_batch', array(BatchImportController::class, 'ajax_load_process_batch'));
+        add_action('wp_ajax_coyote_load_process_batch', array(BatchImportController::class, 'ajaxLoadProcessBatch'));
+        add_action('wp_ajax_nopriv_coyote_load_process_batch', array(BatchImportController::class, 'ajaxLoadProcessBatch'));
 
-        add_action('wp_ajax_coyote_set_batch_job', array(BatchImportController::class, 'ajax_set_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_set_batch_job', array(BatchImportController::class, 'ajax_set_batch_job'));
+        add_action('wp_ajax_coyote_set_batch_job', array(BatchImportController::class, 'ajaxSetBatchJob'));
+        add_action('wp_ajax_nopriv_coyote_set_batch_job', array(BatchImportController::class, 'ajaxSetBatchJob'));
 
-        add_action('wp_ajax_coyote_clear_batch_job', array(BatchImportController::class, 'ajax_clear_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_clear_batch_job', array(BatchImportController::class, 'ajax_clear_batch_job'));
+        add_action('wp_ajax_coyote_clear_batch_job', array(BatchImportController::class, 'ajaxClearBatchJob'));
+        add_action('wp_ajax_nopriv_coyote_clear_batch_job', array(BatchImportController::class, 'ajaxClearBatchJob'));
 
-        add_action('wp_ajax_coyote_cancel_batch_job', array(BatchImportController::class, 'ajax_clear_batch_job'));
-        add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array(BatchImportController::class, 'ajax_clear_batch_job'));
+        add_action('wp_ajax_coyote_cancel_batch_job', array(BatchImportController::class, 'ajaxClearBatchJob'));
+        add_action('wp_ajax_nopriv_coyote_cancel_batch_job', array(BatchImportController::class, 'ajaxClearBatchJob'));
 
         add_action('wp_ajax_coyote_verify_resource_group', array(SettingsController::class, 'ajax_verify_resource_group'));
     }
