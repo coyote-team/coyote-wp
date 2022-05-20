@@ -40,7 +40,7 @@ class SettingsController {
         $this->profile_fetch_failed = false;
         $this->profile = $this->getProfile();
 
-        $this->batch_job = BatchImportHelper::get_batch_job();
+        $this->batch_job = BatchImportHelper::getBatchJob();
 
         $this->is_standalone = !!(get_option('coyote_is_standalone', false));
 
