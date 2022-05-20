@@ -9,6 +9,7 @@
 
 namespace Coyote;
 
+use Coyote\Traits\Logger;
 use Coyote\Controllers\BatchImportController;
 use Coyote\Controllers\SettingsController;
 use Coyote\Handlers\PostUpdateHandler;
@@ -16,6 +17,7 @@ use Coyote\WordPressPlugin\Actions;
 use Coyote\WordPressPlugin\Filters;
 
 class WordPressActionsAndFilters {
+    use Logger;
 
     private static function enableBatchImport(): void
     {
@@ -36,7 +38,7 @@ class WordPressActionsAndFilters {
 
     private static function setupContentFilters(): void
     {
-        Logger::log('Filters enabled.');
+        self::logDebug('Filters enabled.');
 
         add_filter('the_content', [Filters::class, 'filterPostContent'], 10, 1);
 //            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
@@ -87,7 +89,7 @@ class WordPressActionsAndFilters {
         if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::hasApiConfiguration()) {
             self::setupContentFilters();
         } else {
-            Logger::log('Filters disabled.');
+            self::logDebug('Filters disabled.');
         }
 
         if (PluginConfiguration::isNotStandalone()) {
@@ -97,14 +99,14 @@ class WordPressActionsAndFilters {
         add_filter('cron_schedules', [Filters::class, 'addCronSchedule']);
 
         if (PluginConfiguration::isDisabledByPlugin()) {
-            Logger::log('checking hook');
+            self::logDebug('checking coyote_check_standalone_hook');
             if (!wp_next_scheduled('coyote_check_standalone_hook')) {
                 // setting standalone recovery wp-cron hook
 
-                Logger::log('Setting standalone recovery wp-cron hook');
+                self::logDebug('Setting standalone recovery wp-cron hook');
                 wp_schedule_event(time(), 'five_minutes', 'coyote_check_standalone_hook');
             } else {
-                Logger::log('Standalone recovery hook already scheduled');
+                self::logDebug('Standalone recovery hook already scheduled');
             }
         }
     }

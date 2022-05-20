@@ -4,7 +4,8 @@ namespace Coyote;
 
 use Coyote\Model\ProfileModel;
 
-class PluginConfiguration{
+class PluginConfiguration
+{
 
     public const METUM = 'Alt';
     public const RESOURCE_GROUP_NAME = 'WordPress';
@@ -153,7 +154,11 @@ class PluginConfiguration{
     public static function deletePluginOptions(): void
     {
         $options = [
-            'coyote_api_version', 'coyote_api_token', 'coyote_api_endpoint', 'coyote_api_metum', 'coyote_api_organization_id',
+            'coyote_api_version',
+            'coyote_api_token',
+            'coyote_api_endpoint',
+            'coyote_api_metum',
+            'coyote_api_organization_id',
             'coyote_api_profile',
             'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
             'coyote_plugin_is_installed'
