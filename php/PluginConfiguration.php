@@ -89,9 +89,9 @@ class PluginConfiguration
     }
 
     /** @return int|bool */
-    public static function getApiErrorCount()
+    public static function getApiErrorCount(): bool|int
     {
-        return get_transient('coyote_api_error_count', false);
+        return get_transient('coyote_api_error_count') ?? false;
     }
 
     public static function setApiErrorCount(int $count): void
@@ -178,7 +178,7 @@ class PluginConfiguration
      * @param mixed $arg
      * @return bool
      */
-    private static function isNonEmptyString($arg): bool
+    private static function isNonEmptyString(?string $arg = null): bool
     {
         return is_string($arg) &&
             strlen($arg) >= 1;
