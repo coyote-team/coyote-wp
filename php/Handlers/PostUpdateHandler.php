@@ -9,12 +9,7 @@
 
 namespace Coyote\Handlers;
 
-// Exit if accessed directly.
-if (!defined( 'ABSPATH')) {
-    exit;
-}
-
-use Coyote\Logger;
+use Coyote\Traits\Logger;
 use Coyote\ContentHelper;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
@@ -23,21 +18,23 @@ use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressImage;
 use Exception;
 
-class PostUpdateHandler {
+class PostUpdateHandler
+{
+    use Logger;
 
     public static function run(array $data, array $postArr): array
     {
         $post_id = $postArr['ID'];
 
         if ($postArr['post_type'] === 'revision') {
-            Logger::log("Post update of {$post_id} is for revision, skipping");
+            self::logDebug("Post update of $post_id is for revision, skipping");
             return $data;
         }
 
         try {
             self::process(wp_unslash($data['post_content']), $post_id);
         } catch (Exception $error) {
-            Logger::log("Error processing post update for {$post_id}: " . $error->getMessage());
+            self::logDebug("Error processing post update for $post_id: " . $error->getMessage());
         }
 
         return $data;
@@ -45,7 +42,7 @@ class PostUpdateHandler {
 
     private static function process(string $content, string $post_id): void
     {
-        Logger::log("Processing update on post " . $post_id);
+        self::logDebug("Processing update on post " . $post_id);
 
         $permalink = get_permalink($post_id);
         $helper = new ContentHelper($content);

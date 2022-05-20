@@ -8,10 +8,9 @@ Version: 2.0
 Author URI: https://www.pac.bz
  */
 
-// Exit if accessed directly.
 use Coyote\WordPressPlugin;
 
-if (!defined( 'ABSPATH')) {
+if (!defined('WPINC')) {
     exit;
 }
 
@@ -40,7 +39,8 @@ define('COYOTE_HOOK_MEDIA_SCREENS', ['post', 'page', 'upload', 'ch_events']);
  * @param string $path
  * @return string
  */
-function coyote_asset_url(string $path) {
+function coyote_asset_url(string $path)
+{
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
 
@@ -49,7 +49,8 @@ function coyote_asset_url(string $path) {
  * @param string $path
  * @return string
  */
-function _coyote_file(string $type, string $path) {
+function _coyote_file(string $type, string $path)
+{
     return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
 }
 
@@ -57,7 +58,8 @@ function _coyote_file(string $type, string $path) {
  * @param int $attachment_id
  * @return string
  */
-function coyote_attachment_url($attachment_id) {
+function coyote_attachment_url($attachment_id)
+{
     $url = wp_get_attachment_url($attachment_id);
 
     $parts = wp_parse_url($url);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac7d97d64f7c732a22c66cfafb17c4e9",
+    "content-hash": "68cc2f14ac23ef7e92130a0e9d332d71",
     "packages": [
         {
             "name": "coyote/coyote-api-client",

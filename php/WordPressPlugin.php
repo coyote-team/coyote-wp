@@ -2,12 +2,20 @@
 
 namespace Coyote;
 
+use Coyote\Traits\Logger;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
 class WordPressPlugin
 {
-    public function __construct(string $pluginFile) {
+    use Logger;
+
+    public const PLUGIN_NAME = "Coyote";
+    public const I18N_NS = 'coyote';
+    public const LOG_PATH = COYOTE_PLUGIN_PATH . 'coyote.log';
+
+    public function __construct(string $pluginFile)
+    {
         WordPressActionsAndFilters::setupPluginHooks($pluginFile);
 
         if (!PluginConfiguration::isInstalled()) {
@@ -36,7 +44,7 @@ class WordPressPlugin
 
         if (PluginConfiguration::hasStoredApiProfile() && PluginConfiguration::hasUpdatesEnabled()) {
             // allow remote updates
-            Logger::log('Updates enabled.');
+            self::logDebug('Updates enabled.');
 
             (new RestApiController(
                 PluginConfiguration::PLUGIN_VERSION,
@@ -44,7 +52,7 @@ class WordPressPlugin
                 PluginConfiguration::getApiOrganizationId()
             ));
         } else {
-            Logger::log('Updates disabled.');
+            self::logDebug('Updates disabled.');
         }
     }
 

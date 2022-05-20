@@ -63,6 +63,4 @@ class ResourceRecord
     {
         return $this->coyoteDescription;
     }
-
-
 }
