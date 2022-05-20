@@ -89,7 +89,7 @@ class PluginConfiguration
     }
 
     /** @return int|bool */
-    public static function getApiErrorCount(): bool|int
+    public static function getApiErrorCount(): int
     {
         return get_transient('coyote_api_error_count') ?? false;
     }
