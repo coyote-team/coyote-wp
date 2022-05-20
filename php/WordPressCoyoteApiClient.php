@@ -2,6 +2,7 @@
 
 namespace Coyote;
 
+use Coyote\Traits\Logger;
 use Coyote\Model\ProfileModel;
 use Coyote\Model\ResourceGroupModel;
 use Coyote\Model\ResourceModel;
@@ -9,7 +10,9 @@ use Coyote\Payload\CreateResourceGroupPayload;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 
-class WordPressCoyoteApiClient{
+class WordPressCoyoteApiClient
+{
+    use Logger;
 
     /** @return ResourceModel[]|null */
     public static function createResources(CreateResourcesPayload $payload): ?array
@@ -65,7 +68,7 @@ class WordPressCoyoteApiClient{
             PluginConfiguration::setEnabledThroughRecovery();
 
             // clear the cron recovery attempt logic
-            Logger::log('Unscheduling standalone check');
+            self::logDebug('Un-scheduling standalone check');
             wp_clear_scheduled_hook('coyote_check_standalone_hook');
         }
 
@@ -75,7 +78,7 @@ class WordPressCoyoteApiClient{
 
     public static function registerApiError(string $message): void
     {
-        Logger::log("Coyote API error: $message");
+        self::logDebug("Coyote API error: $message");
 
         $count = PluginConfiguration::getApiErrorCount();
 
@@ -85,7 +88,7 @@ class WordPressCoyoteApiClient{
             $count = intval($count) + 1;
         }
 
-        Logger::log("Updating API error count to $count");
+        self::logDebug("Updating API error count to $count");
 
         PluginConfiguration::setApiErrorCount($count);
     }
@@ -110,5 +113,4 @@ class WordPressCoyoteApiClient{
             $organizationId
         );
     }
-
 }

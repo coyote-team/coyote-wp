@@ -5,22 +5,29 @@ namespace Coyote\WordPressPlugin;
 use Coyote\ContentHelper\Image;
 use Coyote\DB;
 use Coyote\DB\ResourceRecord;
-use Coyote\Logger;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressHelper;
 use Coyote\WordPressImage;
 use Coyote\WordPressPlugin;
+use Coyote\Traits\Logger;
 
 class Actions
 {
-    public static function displayAdminNotices() {
+    use Logger;
+
+    public static function displayAdminNotices(): void
+    {
         $errorCount = PluginConfiguration::getApiErrorCount();
 
         if (PluginConfiguration::isEnabled() && $errorCount >= 10) {
             PluginConfiguration::setDisabledByPlugin();
 
-            $message = __("The Coyote API client has thrown 10 consecutive errors, the Coyote plugin has switched to standalone mode.", COYOTE_I18N_NS);
+            $message = __(
+                "The Coyote API client has thrown 10 consecutive errors, " .
+                "the Coyote plugin has switched to standalone mode.",
+                WordPressPlugin::I18N_NS
+            );
 
             echo sprintf("<div class=\"notice notice-error\">
                     <p>%s</p>
@@ -81,8 +88,9 @@ js;
         );
     }
 
-    public static function checkStandaloneStatus() {
-        Logger::log('check_standalone hook firing');
+    public static function checkStandaloneStatus()
+    {
+        self::logDebug('check_standalone hook firing');
 
         if (PluginConfiguration::isStandalone() &&
             PluginConfiguration::isDisabled()
@@ -92,38 +100,39 @@ js;
             if (!is_null($profile)) {
                 // if we can obtain the profile, disable standalone mode
                 // and clear the scheduled event
-                Logger::log('Recovering from standalone mode');
+                self::logDebug('Recovering from standalone mode');
                 WordPressCoyoteApiClient::registerApiSuccess();
             } else {
-                Logger::log('Unable to recover from standalone mode');
+                self::logDebug('Unable to recover from standalone mode');
             }
         }
     }
 
     public static function onPluginUninstall(): void
     {
-        Logger::log("Uninstalling plugin");
+        self::logDebug("Uninstalling plugin");
 
-        Logger::log("Deleting table");
+        self::logDebug("Deleting table");
         DB::runSqlFromFile(WordPressPlugin::getSqlFile('uninstall_plugin.sql'));
 
-        Logger::log("Deleting options");
+        self::logDebug("Deleting options");
         PluginConfiguration::deletePluginOptions();
     }
 
-    public static function onPluginActivate() {
+    public static function onPluginActivate(): void
+    {
         if (PluginConfiguration::isInstalled()) {
-            Logger::log("Plugin was active previously, not adding table");
+            self::logDebug("Plugin was active previously, not adding table");
             return;
         }
 
-        Logger::log("Activating plugin");
+        self::logDebug("Activating plugin");
         PluginConfiguration::setInstalled();
         DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
     }
 
-    public static function onPluginDeactivate() {
-        Logger::log('Deactivating plugin');
+    public static function onPluginDeactivate(): void
+    {
+        self::logDebug('Deactivating plugin');
     }
-
 }

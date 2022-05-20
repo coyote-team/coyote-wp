@@ -7,7 +7,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Logger;
+use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
 use Coyote\Model\ProfileModel;
@@ -15,6 +15,8 @@ use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 
 class SettingsController {
+    use Logger;
+
     private string $page_title;
     private string $menu_title;
     private ?ProfileModel $profile;
@@ -108,21 +110,24 @@ class SettingsController {
         }
     }
 
-    public function change_standalone_mode($old, $new, $option) {
+    public function change_standalone_mode($old, $new, $option): void
+    {
         //clear any data about what caused standalone mode to be active, if any
         update_option('coyote_error_standalone', false);
         delete_transient('coyote_api_error_count');
     }
 
-    public function set_organization_id($option, $value) {
-        Logger::log(['setting organization id', $option, $value]);
+    public function set_organization_id($option, $value): void
+    {
+        self::logDebug('setting organization id', [$option, $value]);
         $this->change_organization_id(null, $value, $option);
     }
 
-    public function change_organization_id($old, $new, $option) {
+    public function change_organization_id($old, $new, $option): void
+    {
         // When changing an organization, the existing resource tracking records need to be removed; clear the table.
         $deleted = DB::clearResourceTable();
-        Logger::log("Deleted {$deleted} resources");
+        self::logDebug("Deleted $deleted resources");
 
         $resourceGroupUrl = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
         $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
@@ -136,7 +141,7 @@ class SettingsController {
         $profile = PluginConfiguration::getApiProfile();
 
         if (!is_null($profile)) {
-            Logger::log('Found stored profile');
+            self::logDebug('Found stored profile');
             return $profile;
         }
 
@@ -173,7 +178,7 @@ class SettingsController {
         if (!$this->is_standalone) {
             if ($this->profile) {
                 echo "<p>User: " . $this->profile->getName() . "</p>";
-            } else if ($this->profile_fetch_failed) {
+            } elseif ($this->profile_fetch_failed) {
                 echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
             }
 

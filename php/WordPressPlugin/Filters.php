@@ -2,14 +2,16 @@
 
 namespace Coyote\WordPressPlugin;
 
-use Coyote\Logger;
 use Coyote\PluginConfiguration;
+use Coyote\Traits\Logger;
 use Coyote\WordPressHelper;
 use Coyote\WordPressImage;
 use Coyote\ContentHelper\Image;
 
 class Filters
 {
+    use Logger;
+
     // add setting quicklink to plugin listing entry
     public static function addActionLinks($links): array {
         $url = admin_url('options-general.php?page=coyote_fields');
@@ -33,7 +35,7 @@ class Filters
         global $post;
 
         if ($post->post_type === 'attachment') {
-            Logger::log("Attachment post already processed, skipping");
+            self::logDebug("Attachment post already processed, skipping");
             return $postContent;
         }
 

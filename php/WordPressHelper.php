@@ -6,11 +6,12 @@ use Coyote\ContentHelper\Image;
 use Coyote\DB\ResourceRecord;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
+use WP_Post;
 
 class WordPressHelper
 {
 
-    public static function getSrcAndImageData(\WP_Post $post): array
+    public static function getSrcAndImageData(WP_Post $post): array
     {
         $helper = new ContentHelper($post->post_content);
         $images = $helper->getImages();
@@ -57,8 +58,7 @@ class WordPressHelper
     public static function getResourceForWordPressImage(
         WordPressImage $image,
         bool $fetchFromApiIfMissing = true
-    ): ?ResourceRecord
-    {
+    ): ?ResourceRecord {
         $record = DB::getRecordByHash(sha1($image->getUrl()));
 
         if (!is_null($record)) {
@@ -98,7 +98,7 @@ class WordPressHelper
         );
     }
 
-    public static function setImageAlts(\WP_Post $post, bool $fetchFromApiIfMissing = true): string
+    public static function setImageAlts(WP_Post $post, bool $fetchFromApiIfMissing = true): string
     {
         $helper = new ContentHelper($post->post_content);
         /** @var Image[] $images */
@@ -141,8 +141,7 @@ class WordPressHelper
         array $imageMap,
         array $missingImages,
         CreateResourcesPayload $payload
-    ): array
-    {
+    ): array {
         $response = WordPressCoyoteApiClient::createResources($payload);
 
         if (is_null($response)) {
@@ -197,8 +196,8 @@ class WordPressHelper
 <script>
     window.coyote = {};
     window.coyote.classic_editor = {
-        postId: "{$post->ID}",
-        prefix: "{$prefix}",
+        postId: "$post->ID",
+        prefix: "$prefix",
         mapping: $json_mapping
     };
 </script>

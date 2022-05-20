@@ -41,7 +41,7 @@ class BatchImportController
 
         if ($batch_size < self::MINIMUM_BATCH_SIZE) {
             $batch_size = self::MINIMUM_BATCH_SIZE;
-        } else if ($batch_size > self::MAXIMUM_BATCH_SIZE) {
+        } elseif ($batch_size > self::MAXIMUM_BATCH_SIZE) {
             $batch_size = self::MAXIMUM_BATCH_SIZE;
         }
 
@@ -49,5 +49,4 @@ class BatchImportController
 
         wp_die();
     }
-
 }
