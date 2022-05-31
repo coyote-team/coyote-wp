@@ -21,9 +21,13 @@ class BatchImportHelper
         set_transient('coyote_batch_job', ['id' => $id, 'type' => $type]);
     }
 
-    public static function getBatchJob(): ?string
+    public static function getBatchJob(): ?array
     {
-        return get_transient('coyote_batch_job') ?? null;
+        $batch_job = get_transient('coyote_batch_job');
+        if($batch_job === false){
+            return null;
+        }
+        return $batch_job;
     }
 
     public static function getProcessBatch($size): array
