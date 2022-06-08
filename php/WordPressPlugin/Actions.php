@@ -35,6 +35,15 @@ class Actions
         }
     }
 
+    public static function notifyCredentials(): void
+    {
+        $message = __("Incorrect Token, or Endpoint: Could not load Profile",WordPressPlugin::I18N_NS);
+        self::logDebug("Incorrect Profile Endpoint, or token");
+        echo sprintf("<div class=\"notice notice-error\">
+                    <p>%s</p>
+                </div>", $message);
+    }
+
     public static function adminEnqueueScripts(): void
     {
         global $post;

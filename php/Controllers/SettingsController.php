@@ -11,6 +11,7 @@ use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
 use Coyote\Model\ProfileModel;
+use Coyote\WordPressPlugin\Actions;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 
@@ -152,6 +153,7 @@ class SettingsController {
         if (is_null($profile)) {
             // TODO should be in PluginConfiguration
             delete_option('coyote_api_organization_id');
+            add_action('admin_notices', [Actions::class, 'notifyCredentials']);
             return null;
         }
 
