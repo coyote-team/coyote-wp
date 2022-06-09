@@ -496,7 +496,7 @@ class SettingsController {
 
         echo '</select>';
 
-        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
+        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organizations will wipe existing data, and requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
 
         echo '<p id="coyote_api_organization_id_hint">' . __('The Coyote organization to associate with.', COYOTE_I18N_NS) . '</p>';
     }
