@@ -165,6 +165,13 @@ class SettingsController {
             PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
         }
 
+        $role = array_values($profile->getMemberships())[0]->getRole();
+
+        if($role === 'viewer' || $role === 'guest'){
+            add_action('admin_notices', [Actions::class, 'notifyInvalidRole']);
+            return null;
+        }
+
         return $profile;
     }
 
@@ -179,7 +186,7 @@ class SettingsController {
 
         if (!$this->is_standalone) {
             if ($this->profile) {
-                echo "<p>User: " . $this->profile->getName() . "</p>";
+                echo "<p>User: " . $this->profile->getName() . " <br> Role: " . array_values($this->profile->getMemberships())[0]->getRole() ."</p>";
             } elseif ($this->profile_fetch_failed) {
                 echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
             }
