@@ -398,6 +398,10 @@ class SettingsController {
             array('label_for' => 'coyote_api_organization_id')
         );
 
+        if(empty(get_option('coyote_api_organization_id'))){
+            return;
+        }
+
         add_settings_section(
             self::advanced_settings_section,
             __('Advanced settings', COYOTE_I18N_NS),
@@ -504,6 +508,10 @@ class SettingsController {
         echo '</select>';
 
         echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organizations will wipe existing data, and requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
+
+        if(empty(get_option('coyote_api_organization_id'))){
+            echo '<div id="coyote_org_missing" role="alert" >' . __('Important: an organization needs to be selected before the plugin can be used.', COYOTE_I18N_NS) . '</div>';
+        }
 
         echo '<p id="coyote_api_organization_id_hint">' . __('The Coyote organization to associate with.', COYOTE_I18N_NS) . '</p>';
     }
