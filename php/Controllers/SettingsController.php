@@ -166,7 +166,7 @@ class SettingsController {
         }
 
         $role = array_values($profile->getMemberships())[0]->getRole();
-
+        // if a profile is found and the profile's role is below editor don't return the profile
         if($role === 'viewer' || $role === 'guest'){
             add_action('admin_notices', [Actions::class, 'notifyInvalidRole']);
             return null;
