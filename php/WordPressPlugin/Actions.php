@@ -35,21 +35,40 @@ class Actions
         }
     }
 
-    public static function notifyCredentials(): void
+    public static function notifyInvalidCredentials(): void
     {
-        $message = __("Incorrect Token, or Endpoint: Could not load Profile",WordPressPlugin::I18N_NS);
-        echo sprintf("<div class=\"notice notice-error\">
+        $profile = PluginConfiguration::getApiProfile();
+
+        if(PluginConfiguration::isEnabled() && is_null($profile)) {
+            $message = __("Incorrect Token, or Endpoint: Could not load Profile", WordPressPlugin::I18N_NS);
+            echo sprintf("<div class=\"notice notice-error\">
                     <p>%s</p>
                 </div>", $message);
+        }
     }
 
     public static function notifyInvalidRole(): void
     {
+        $membership = PluginConfiguration::getApiProfile()->getMemberships()[0]->getRole();
+
         $message = __("Invalid Role: Profiles must have a role of editor and above",WordPressPlugin::I18N_NS);
         echo sprintf("<div class=\"notice notice-error\">
                     <p>%s</p>
                 </div>", $message);
     }
+
+    public static function notifyValidProfile(): void
+    {
+        $profile = PluginConfiguration::getApiProfile();
+
+        if(PluginConfiguration::isEnabled() && !is_null($profile)) {
+            $message = __("Valid Profile Found", WordPressPlugin::I18N_NS);
+            echo sprintf("<div class=\"notice notice-success\">
+                    <p>%s</p>
+                </div>", $message);
+        }
+    }
+
 
     public static function adminEnqueueScripts(): void
     {

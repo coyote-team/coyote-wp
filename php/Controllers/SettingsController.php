@@ -27,6 +27,10 @@ class SettingsController {
     const page_slug  = 'coyote_fields';
     const position   = 250;
 
+    const VALID_PROFILE = 'validProfile';
+    const INVALID_PROFILE = 'validProfile';
+    const INVALID_ROLE = 'invalidRole';
+
     const settings_section = 'settings_section';
     const api_settings_section = 'api_settings_section';
     const advanced_settings_section = 'advanced_settings_section';
@@ -38,6 +42,7 @@ class SettingsController {
         $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
         $this->menu_title = __('Coyote', COYOTE_I18N_NS);
 
+        // Todo Remove Profile global variables to use Plugin Configuration in Settings Controller Instead
         $this->profile_fetch_failed = false;
         $this->profile = $this->getProfile();
 
@@ -56,6 +61,7 @@ class SettingsController {
             add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
             add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
             add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
+            $this->addAdminNotices();
         }
     }
 
@@ -96,19 +102,30 @@ class SettingsController {
     public function verify_settings($old, $new, $option) {
         $profile = WordPressCoyoteApiClient::getProfile();
 
+
         if (is_null($profile)) {
-            $this->profile_fetch_failed = true;
             // TODO these should be PluginConfiguration functions
             delete_option('coyote_api_profile');
             delete_option('coyote_api_organization_id');
-        } else {
+            set_transient(self::INVALID_PROFILE, 1);
+            return;
+        }
+        // TODO Create Private function to check permissions
+        $role = array_values($profile->getMemberships())[0]->getRole();
+
+        if($role === 'viewer' || $role === 'guest'){
+            set_transient(self::INVALID_ROLE,1);
+            return;
+        }
+
             $organizations = $profile->getOrganizations();
 
             // default to the first organization if there is only one available
             if (count($organizations) === 1) {
                 PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
             }
-        }
+
+            set_transient(self::VALID_PROFILE, 1);
     }
 
     public function change_standalone_mode($old, $new, $option): void
@@ -138,6 +155,19 @@ class SettingsController {
         }
     }
 
+    private function addAdminNotices(): void
+    {
+        if(get_transient(self::INVALID_PROFILE) == 1){
+            add_action('admin_notices', [Actions::class, 'notifyInvalidCredentials']);
+        }
+        if(get_transient(self::VALID_PROFILE) == 1){
+            add_action('admin_notices', [Actions::class, 'notifyValidProfile']);
+        }
+        if(get_transient(self::INVALID_ROLE) == 1){
+            add_action('admin_notices', [Actions::class, 'notifyInvalidRole']);
+        }
+    }
+
     private function getProfile(): ?ProfileModel {
         $profile = PluginConfiguration::getApiProfile();
 
@@ -153,7 +183,6 @@ class SettingsController {
         if (is_null($profile)) {
             // TODO should be in PluginConfiguration
             delete_option('coyote_api_organization_id');
-            add_action('admin_notices', [Actions::class, 'notifyCredentials']);
             return null;
         }
 
