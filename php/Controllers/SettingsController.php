@@ -28,7 +28,7 @@ class SettingsController {
     const position   = 250;
 
     const VALID_PROFILE = 'validProfile';
-    const INVALID_PROFILE = 'validProfile';
+    const INVALID_PROFILE = 'invalidProfile';
     const INVALID_ROLE = 'invalidRole';
 
     const settings_section = 'settings_section';
@@ -61,7 +61,7 @@ class SettingsController {
             add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
             add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
             add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
-            $this->addAdminNotices();
+            $this->checkInvalidAdminNotices();
         }
     }
 
@@ -99,6 +99,7 @@ class SettingsController {
         ));
     }
 
+    // TODO Add actions for admin notices to here, and change function name
     public function verify_settings($old, $new, $option) {
         $profile = WordPressCoyoteApiClient::getProfile();
 
@@ -125,7 +126,8 @@ class SettingsController {
                 PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
             }
 
-            set_transient(self::VALID_PROFILE, 1);
+        PluginConfiguration::setApiProfile($profile);
+        set_transient(self::VALID_PROFILE, 1);
     }
 
     public function change_standalone_mode($old, $new, $option): void
@@ -155,17 +157,21 @@ class SettingsController {
         }
     }
 
-    private function addAdminNotices(): void
+    private function checkInvalidAdminNotices(): void
     {
-        if(get_transient(self::INVALID_PROFILE) == 1){
-            add_action('admin_notices', [Actions::class, 'notifyInvalidCredentials']);
-        }
         if(get_transient(self::VALID_PROFILE) == 1){
             add_action('admin_notices', [Actions::class, 'notifyValidProfile']);
+            delete_transient(self::VALID_PROFILE);
         }
         if(get_transient(self::INVALID_ROLE) == 1){
             add_action('admin_notices', [Actions::class, 'notifyInvalidRole']);
+            delete_transient(self::INVALID_ROLE);
         }
+        if(get_transient(self::INVALID_PROFILE) == 1){
+            add_action('admin_notices', [Actions::class, 'notifyInvalidCredentials']);
+            delete_transient(self::INVALID_PROFILE);
+        }
+
     }
 
     private function getProfile(): ?ProfileModel {
@@ -197,7 +203,6 @@ class SettingsController {
         $role = array_values($profile->getMemberships())[0]->getRole();
         // if a profile is found and the profile's role is below editor don't return the profile
         if($role === 'viewer' || $role === 'guest'){
-            add_action('admin_notices', [Actions::class, 'notifyInvalidRole']);
             return null;
         }
 
@@ -210,13 +215,15 @@ class SettingsController {
                 <form method=\"post\" action=\"options.php\">
         ", $this->page_title);
 
+        $profile = PluginConfiguration::getApiProfile();
+
         settings_fields(self::page_slug);
         do_settings_sections(self::page_slug);
 
         if (!$this->is_standalone) {
-            if ($this->profile) {
-                echo "<p>User: " . $this->profile->getName() . " <br> Role: " . array_values($this->profile->getMemberships())[0]->getRole() ."</p>";
-            } elseif ($this->profile_fetch_failed) {
+            if ($profile) {
+                echo "<p>User: " . $profile->getName() . " <br> Role: " . array_values($profile->getMemberships())[0]->getRole() ."</p>";
+            } elseif (is_null(PluginConfiguration::getApiProfile())) {
                 echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
             }
 
@@ -234,7 +241,7 @@ class SettingsController {
     }
 
     public function tools() {
-        if (!$this->profile) {
+        if (is_null(PluginConfiguration::getApiProfile())) {
             return;
         }
 
@@ -364,7 +371,7 @@ class SettingsController {
             register_setting(self::page_slug, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
             register_setting(self::page_slug, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
 
-            if ($this->profile) {
+            if (!is_null(PluginConfiguration::getApiProfile())) {
                 register_setting(self::page_slug, 'coyote_api_organization_id', ['type' => 'integer', 'sanitize_callback' => [$this, 'sanitize_organization_id']]);
             }
         }
@@ -414,7 +421,7 @@ class SettingsController {
             array('label_for' => 'coyote_api_metum')
         );
 
-        if (!$this->profile) {
+        if (is_null(PluginConfiguration::getApiProfile())) {
             return;
         }
 
@@ -519,7 +526,7 @@ class SettingsController {
 
     public function api_organization_id_cb() {
         $organization_id = PluginConfiguration::getApiOrganizationId();
-        $organizations = $this->profile->getOrganizations();
+        $organizations = PluginConfiguration::getApiProfile()->getOrganizations();
         $single_org = count($organizations) === 1;
 
         echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">';
