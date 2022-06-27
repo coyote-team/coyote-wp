@@ -20,7 +20,6 @@ class SettingsController {
 
     private string $page_title;
     private string $menu_title;
-    private ?ProfileModel $profile;
     private bool $is_standalone;
 
     const capability = 'manage_options';
@@ -36,15 +35,10 @@ class SettingsController {
     const advanced_settings_section = 'advanced_settings_section';
 
     private $batch_job;
-    private bool $profile_fetch_failed;
 
     function __construct() {
         $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
         $this->menu_title = __('Coyote', COYOTE_I18N_NS);
-
-        // Todo Remove Profile global variables to use Plugin Configuration in Settings Controller Instead
-        $this->profile_fetch_failed = false;
-        $this->profile = $this->getProfile();
 
         $this->batch_job = BatchImportHelper::getBatchJob();
 
@@ -172,41 +166,6 @@ class SettingsController {
             delete_transient(self::INVALID_PROFILE);
         }
 
-    }
-
-    private function getProfile(): ?ProfileModel {
-        $profile = PluginConfiguration::getApiProfile();
-
-        if (!is_null($profile)) {
-            self::logDebug('Found stored profile');
-            return $profile;
-        }
-
-        if (PluginConfiguration::hasApiConfiguration()) {
-            $profile = WordPressCoyoteApiClient::getProfile();
-        }
-
-        if (is_null($profile)) {
-            // TODO should be in PluginConfiguration
-            delete_option('coyote_api_organization_id');
-            return null;
-        }
-
-        PluginConfiguration::setApiProfile($profile);
-        $organizations = $profile->getOrganizations();
-
-        // default to the first organization if there is only one available
-        if (count($organizations) === 1) {
-            PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
-        }
-
-        $role = array_values($profile->getMemberships())[0]->getRole();
-        // if a profile is found and the profile's role is below editor don't return the profile
-        if($role === 'viewer' || $role === 'guest'){
-            return null;
-        }
-
-        return $profile;
     }
 
     public function settings_page_cb() {
