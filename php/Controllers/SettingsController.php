@@ -105,10 +105,10 @@ class SettingsController {
             set_transient(self::INVALID_PROFILE, 1);
             return;
         }
-        // TODO Create Private function to check permissions
-        $role = array_values($profile->getMemberships())[0]->getRole();
 
-        if($role === 'viewer' || $role === 'guest'){
+        if($this->checkInvalidRole()){
+            delete_option('coyote_api_profile');
+            delete_option('coyote_api_organization_id');
             set_transient(self::INVALID_ROLE,1);
             return;
         }
@@ -166,6 +166,18 @@ class SettingsController {
             delete_transient(self::INVALID_PROFILE);
         }
 
+    }
+
+    private function checkInvalidRole(): bool
+    {
+
+        $role = array_values(WordPressCoyoteApiClient::getProfile()->getMemberships())[0]->getRole();
+
+        if($role === 'viewer' || $role === 'guest'){
+            return true;
+        }
+
+        return false;
     }
 
     public function settings_page_cb() {
