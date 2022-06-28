@@ -98,16 +98,15 @@ class SettingsController {
 
 
         if (is_null($profile)) {
-            // TODO these should be PluginConfiguration functions
-            delete_option('coyote_api_profile');
-            delete_option('coyote_api_organization_id');
+            PluginConfiguration::deleteApiProfileOption();
+            PluginConfiguration::deleteApiOrganizationIdOption();
             set_transient(self::INVALID_PROFILE, 1);
             return;
         }
 
         if($this->checkInvalidRole()){
-            delete_option('coyote_api_profile');
-            delete_option('coyote_api_organization_id');
+            PluginConfiguration::deleteApiProfileOption();
+            PluginConfiguration::deleteApiOrganizationIdOption();
             set_transient(self::INVALID_ROLE,1);
             return;
         }

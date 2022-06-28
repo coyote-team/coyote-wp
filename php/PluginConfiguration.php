@@ -169,6 +169,16 @@ class PluginConfiguration
         }
     }
 
+    public static function deleteApiProfileOption(): void
+    {
+        delete_option('coyote_api_profile');
+    }
+
+    public static function deleteApiOrganizationIdOption(): void
+    {
+        delete_option('coyote_api_organization_id');
+    }
+
     public static function setInstalled(): void
     {
         add_option('coyote_plugin_is_installed', true);
