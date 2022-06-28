@@ -50,8 +50,8 @@ class SettingsController {
         add_action('admin_menu', array($this, 'menu'));
 
         if (!$this->is_standalone) {
-            add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
-            add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
+            add_action('update_option_coyote_api_token', array($this, 'loadProfile'), 10, 3);
+            add_action('update_option_coyote_api_endpoint', array($this, 'loadProfile'), 10, 3);
             add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
             add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
             add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
@@ -93,8 +93,7 @@ class SettingsController {
         ));
     }
 
-    // TODO Add actions for admin notices to here, and change function name
-    public function verify_settings($old, $new, $option) {
+    public function loadProfile($old, $new, $option) {
         $profile = WordPressCoyoteApiClient::getProfile();
 
 
