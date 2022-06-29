@@ -29,6 +29,7 @@ class SettingsController {
     const VALID_PROFILE = 'validProfile';
     const INVALID_PROFILE = 'invalidProfile';
     const INVALID_ROLE = 'invalidRole';
+    const INVALID_PERMALINK = 'invalidPermalink';
 
     const settings_section = 'settings_section';
     const api_settings_section = 'api_settings_section';
@@ -163,7 +164,6 @@ class SettingsController {
             add_action('admin_notices', [Actions::class, 'notifyInvalidCredentials']);
             delete_transient(self::INVALID_PROFILE);
         }
-
     }
 
     private function checkInvalidRole(): bool
@@ -176,6 +176,14 @@ class SettingsController {
         }
 
         return false;
+    }
+
+    private function checkForPrettyPermalinks(): bool
+    {
+        if(!get_option('permalink_structure') && get_option('coyote_updates_enabled')){
+            return false;
+        }
+        return true;
     }
 
     public function settings_page_cb() {
@@ -537,8 +545,14 @@ class SettingsController {
 
     public function settings_updates_enabled_cb() {
         $setting = esc_html(get_option('coyote_updates_enabled', true));
+        $validPermalinks = $this->checkForPrettyPermalinks();
         $checked = $setting ? 'checked' : '';
         echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked} aria-describedby=\"coyote_updates_enabled_hint\">";
+
+        if(!$validPermalinks && $checked) {
+            echo '<p id="coyote_updates_enabled_warning" role="alert">' . __('Warning: The permalink type is set to "Plain" remote updates will not function with this permalink type. Please select a permalink type other than "Plain" in the permalink settings.', COYOTE_I18N_NS) . '</p>';
+        }
+
         echo '<p id="coyote_updates_enabled_hint">' . __('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
     }
 
