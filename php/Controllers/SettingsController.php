@@ -105,7 +105,7 @@ class SettingsController {
             return;
         }
 
-        if($this->checkInvalidRole()){
+        if($this->hasInsufficientPermissions()){
             PluginConfiguration::deleteApiProfileOption();
             PluginConfiguration::deleteApiOrganizationIdOption();
             set_transient(self::INVALID_ROLE,1);
@@ -166,16 +166,21 @@ class SettingsController {
         }
     }
 
-    private function checkInvalidRole(): bool
+    private function hasInsufficientPermissions(): bool
     {
+        $sufficientRoles = ['editor', 'admin', 'owner'];
 
-        $role = array_values(WordPressCoyoteApiClient::getProfile()->getMemberships())[0]->getRole();
+        $roles = array_map(function($membership) {
+            return $membership->getRole();
+        }, WordPressCoyoteApiClient::getProfile()->getMemberships());
 
-        if($role === 'viewer' || $role === 'guest'){
-            return true;
+        foreach ($roles as $role) {
+            if (in_array($role, $sufficientRoles)) {
+                return false;
+            }
         }
 
-        return false;
+        return true;
     }
 
     private function checkForPrettyPermalinks(): bool
