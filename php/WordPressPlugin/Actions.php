@@ -37,11 +37,12 @@ class Actions
 
     public static function notifyInvalidCredentials(): void
     {
-
+        if(PluginConfiguration::isEnabled() && is_null(PluginConfiguration::getApiProfile())) {
             $message = __("Incorrect Token, or Endpoint: Could not load Profile", WordPressPlugin::I18N_NS);
             echo sprintf("<div class=\"notice notice-error\">
                     <p>%s</p>
                 </div>", $message);
+        }
     }
 
     public static function notifyInvalidRole(): void
