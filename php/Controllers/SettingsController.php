@@ -196,17 +196,17 @@ class SettingsController {
          */
         $this->is_standalone            = !!(get_option('coyote_is_standalone', false));
 
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
 
-        add_action('admin_init', array($this, 'init'));
-        add_action('admin_menu', array($this, 'menu'));
+        add_action('admin_init', [$this, 'init']);
+        add_action('admin_menu', [$this, 'menu']);
 
         if (!$this->is_standalone) {
-            add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
-            add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
-            add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
-            add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
-            add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
+            add_action('update_option_coyote_api_token', [$this, 'verify_settings'], 10, 3);
+            add_action('update_option_coyote_api_endpoint', [$this, 'verify_settings'], 10, 3);
+            add_action('update_option_coyote_api_organization_id', [$this, 'change_organization_id'], 10, 3);
+            add_action('add_option_coyote_api_organization_id', [$this, 'set_organization_id'], 10, 2);
+            add_action('update_option_coyote_is_standalone', [$this, 'change_standalone_mode'], 10, 3);
         }
 
     }
@@ -522,7 +522,7 @@ class SettingsController {
             $this->menu_title_main,
             self::capability,
             self::menu_slug_main,
-            array($this, 'settings_page_cb'),
+            [$this, 'settings_page_cb'],
             self::menu_icon,
             self::position
         );
@@ -538,7 +538,7 @@ class SettingsController {
                 $this->submenu_title_advanced,
                 self::capability,
                 self::submenu_advanced_slug,
-                array($this, 'settings_subpage_advanced_cb'),
+                [$this, 'settings_subpage_advanced_cb'],
                 self::position
             );
         }
@@ -554,7 +554,7 @@ class SettingsController {
                 $this->submenu_title_tools,
                 self::capability,
                 self::submenu_tools_slug,
-                array($this, 'settings_subpage_tools_cb'),
+                [$this, 'settings_subpage_tools_cb'],
                 self::position
             );
         }
@@ -644,14 +644,14 @@ class SettingsController {
         add_settings_section(
             self::api_settings_section,
             __('API settings', COYOTE_I18N_NS),
-            array($this, 'noop_setting_section_cb'),
+            [$this, 'noop_setting_section_cb'],
             self::settings_slug_main
         );
 
         add_settings_field(
             'coyote_api_endpoint',
             __('Endpoint', COYOTE_I18N_NS),
-            array($this, 'api_endpoint_cb'),
+            [$this, 'api_endpoint_cb'],
             self::settings_slug_main,
             self::api_settings_section,
             array('label_for' => 'coyote_api_endpoint')
@@ -660,7 +660,7 @@ class SettingsController {
         add_settings_field(
             'coyote_api_token',
             __('Token', COYOTE_I18N_NS),
-            array($this, 'api_token_cb'),
+            [$this, 'api_token_cb'],
             self::settings_slug_main,
             self::api_settings_section,
             array('label_for' => 'coyote_api_token')
@@ -669,7 +669,7 @@ class SettingsController {
         add_settings_field(
             'coyote_api_metum',
             __('Metum', COYOTE_I18N_NS),
-            array($this, 'api_metum_cb'),
+            [$this, 'api_metum_cb'],
             self::settings_slug_main,
             self::api_settings_section,
             array('label_for' => 'coyote_api_metum')
@@ -685,7 +685,7 @@ class SettingsController {
         add_settings_field(
             'coyote_api_organization_id',
             __('Organization', COYOTE_I18N_NS),
-            array($this, 'api_organization_id_cb'),
+            [$this, 'api_organization_id_cb'],
             self::settings_slug_main,
             self::api_settings_section,
             array('label_for' => 'coyote_api_organization_id')
@@ -697,14 +697,14 @@ class SettingsController {
         add_settings_section(
             self::standalone_settings_section,
             __('Standalone settings', COYOTE_I18N_NS),
-            array($this, 'noop_setting_section_cb'),
+            [$this, 'noop_setting_section_cb'],
             self::settings_slug_main
         );
 
         add_settings_field(
             'coyote_is_standalone',
             __('Run in standalone mode', COYOTE_I18N_NS),
-            array($this, 'settings_is_standalone_cb'),
+            [$this, 'settings_is_standalone_cb'],
             self::settings_slug_main,
             self::standalone_settings_section,
             array('label_for' => 'coyote_is_standalone')
@@ -723,7 +723,7 @@ class SettingsController {
         add_settings_field(
             'coyote_filters_enabled',
             __('Filter images through Coyote', COYOTE_I18N_NS),
-            array($this, 'settings_filters_enabled_cb'),
+            [$this, 'settings_filters_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
             array('label_for' => 'coyote_filters_enabled')
@@ -732,7 +732,7 @@ class SettingsController {
         add_settings_field(
             'coyote_updates_enabled',
             __('Enable Coyote remote description updates', COYOTE_I18N_NS),
-            array($this, 'settings_updates_enabled_cb'),
+            [$this, 'settings_updates_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
             array('label_for' => 'coyote_updates_enabled')
@@ -741,7 +741,7 @@ class SettingsController {
         add_settings_field(
             'coyote_skip_unpublished_enabled',
             __('Skip unpublished items when importing', COYOTE_I18N_NS),
-            array($this, 'settings_skip_unpublished_enabled_cb'),
+            [$this, 'settings_skip_unpublished_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
             array('label_for' => 'coyote_skip_unpublished_enabled')
