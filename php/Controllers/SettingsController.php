@@ -342,9 +342,10 @@ class SettingsController {
                         /*
                          * Profile is set, output linked user in success notice
                          */
+                        $memberships = $this->profile->getMemberships();
                         ?>
                         <div class="notice notice-info">
-                            <p><?php printf( __('Linked API profile: %s', COYOTE_I18N_NS ), $this->profile->getName() ); ?></p>
+                            <p><?php printf( __('Linked API profile: %s (role: %s)', COYOTE_I18N_NS ), $this->profile->getName(), reset($memberships)->getRole() ); ?></p>
                         </div>
                         <?php
 
