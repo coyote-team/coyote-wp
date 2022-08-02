@@ -115,16 +115,13 @@ class PluginConfiguration
      */
     public static function possiblyMigrateApiProfile($profile): ?ProfileModel
     {
-        if(is_null( $profile ))
+        if (is_null($profile))
             return null;
 
-        if( ! $profile instanceof ProfileModel ) {
-            $profile = WordPressCoyoteApiClient::getProfile();
-            self::setApiProfile( $profile );
-        }
+        if (!$profile instanceof ProfileModel)
+            self::setApiProfile(WordPressCoyoteApiClient::getProfile());
 
         return $profile;
-
     }
 
     public static function setApiProfile(ProfileModel $profile): void
