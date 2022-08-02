@@ -14,7 +14,7 @@ class PluginConfiguration
 
     public static function getApiEndPoint(): ?string
     {
-        return get_option('coyote_api_endpoint', null);
+        return get_option('coyote_api_endpoint', "https://staging.coyote.pics");
     }
 
     public static function getApiToken(): ?string
@@ -25,6 +25,11 @@ class PluginConfiguration
     public static function getApiOrganizationId(): ?string
     {
         return get_option('coyote_api_organization_id', null);
+    }
+
+    public static function getMetum(): ?string
+    {
+        return get_option('coyote_api_metum', self::METUM);
     }
 
     public static function setApiOrganizationId(string $id): void
