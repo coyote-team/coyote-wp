@@ -216,9 +216,8 @@ class SettingsController {
 
         $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
 
-        if (!is_null($resourceGroup)) {
+        if (!is_null($resourceGroup))
             PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
-        }
 
         wp_die();
     }
@@ -324,10 +323,8 @@ class SettingsController {
      * @void string HTML for page holding form with setting inputs
      */
     public function settings_page_cb() {
-
         ?>
         <div class="wrap">
-
             <h2><?= $this->page_title_main; ?></h2>
             <form method="post" action="options.php">
                 <?php
@@ -348,7 +345,6 @@ class SettingsController {
                             <p><?php printf( __('Linked API profile: %s (role: %s)', COYOTE_I18N_NS ), $this->profile->getName(), reset($memberships)->getRole() ); ?></p>
                         </div>
                         <?php
-
                     } else if ($this->profile_fetch_failed) {
 
                         /*
@@ -359,10 +355,7 @@ class SettingsController {
                             <p><?php _e('Unable to load Coyote profile.', COYOTE_I18N_NS ); ?></p>
                         </div>
                         <?php
-
-
                     }
-
                 }
 
                 /*
@@ -375,9 +368,8 @@ class SettingsController {
                  * Only show the submit button when not in standalone
                  * this is a double check, this page shouldn't be served when in standalone mode
                  */
-                if (!$this->is_standalone) {
+                if (!$this->is_standalone)
                     submit_button();
-                }
 
                 ?>
             </form>
@@ -400,7 +392,6 @@ class SettingsController {
 
         ?>
         <div class="wrap">
-
             <h2><?= $this->submenu_title_advanced; ?></h2>
             <form method="post" action="options.php">
                 <?php
@@ -415,15 +406,13 @@ class SettingsController {
                  * Only show the submit button when not in standalone
                  * this is a double check, this page shouldn't be served when in standalone mode
                  */
-                if (!$this->is_standalone) {
+                if (!$this->is_standalone)
                     submit_button();
-                }
 
                 ?>
             </form>
         </div>
         <?php
-
     }
 
     /**
@@ -440,17 +429,13 @@ class SettingsController {
 
         ?>
         <div class="wrap">
-
             <h2><?= $this->subpage_title_tools; ?></h2>
             <form method="post" action="options.php">
-
                 <div id="coyote_verify_resource_group_container">
                     <button class="button button-primary" type="button" id="coyote_verify_resource_group" aria-describedby="coyote_verify_resource_group_hint">Verify resource group</button>
                     <span role="alert" id="coyote_verify_resource_group_status"></span>
                     <p id="coyote_verify_resource_group_hint">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
                 </div>
-
-                <hr>
 
                 <?php printf("<h3>%s</h3>", __("Process existing posts", COYOTE_I18N_NS)); ?>
 
@@ -469,19 +454,16 @@ class SettingsController {
                 printf( "<p>%s</p>", __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', COYOTE_I18N_NS));
                 printf( "<p>%s</p>", __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', COYOTE_I18N_NS));
                 printf( "<p>%s</p>", __('This process does not modify your WordPress content itself, and may be used more than once.', COYOTE_I18N_NS));
-
                 ?>
                 <div id="process-existing-posts">
                     <div class="form-group">
                         <label for="coyote_processor_endpoint"><?php _e('Processor endpoint', COYOTE_I18N_NS); ?></label>
                         <input readonly <?= $process_disabled; ?> id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value="<?= $processor_endpoint ?>">
                     </div>
-
                     <div class="form-group">
                         <label for="coyote_batch_size"><?php _e('Batch size', COYOTE_I18N_NS); ?>:</label>
                         <input id="coyote_batch_size" type="text" size="3" maxlength="3" value="<?= $batch_size; ?>">
                     </div>
-
                     <div id="process-controls">
                         <button id="coyote_process_existing_posts" <?= $process_disabled; ?> type="submit" class="button button-primary"><?php _e('Start processing job', COYOTE_I18N_NS); ?></button>
                         <button id="coyote_cancel_processing" <?= $cancel_disabled; ?> type="button" class="button"><?php _e('Cancel processing job', COYOTE_I18N_NS); ?></button>
@@ -492,21 +474,16 @@ class SettingsController {
                     <div>
                         <strong id="coyote_job_status"><?php _e('Status', COYOTE_I18N_NS); ?>: <span></span></strong>
                     </div>
-
                     <div>
                         <strong id="coyote_processing"><?php _e('Processing', COYOTE_I18N_NS); ?>: <span></span>%</strong>
                     </div>
-
                     <div>
                         <strong hidden id="coyote_processing_complete"><?php _e('Processing complete', COYOTE_I18N_NS); ?>.</strong>
                     </div>
                 </div>
-
             </form>
-
         </div>
         <?php
-
     }
 
     /**
@@ -601,15 +578,14 @@ class SettingsController {
              */
             register_setting(self::settings_slug_main, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
             register_setting(self::settings_slug_main, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
-            register_setting(self::settings_slug_main, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
 
-            if ($this->profile) {
+            if ($this->profile)
                 register_setting(self::settings_slug_main, 'coyote_api_organization_id', ['type' => 'integer', 'sanitize_callback' => [$this, 'sanitize_organization_id']]);
-            }
 
             /*
              * Register admin subpage advanced settings
              */
+            register_setting(self::settings_slug_advanced, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
             register_setting(self::settings_slug_advanced, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::settings_slug_advanced, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::settings_slug_advanced, 'coyote_skip_unpublished_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
@@ -760,7 +736,6 @@ class SettingsController {
          * Only render when in standalone mode
          */
         if ($this->is_standalone) {
-
             ?>
             <div class="notice notice-info">
                 <h3><?php _e('Standalone mode', COYOTE_I18N_NS); ?></h3>
@@ -768,14 +743,12 @@ class SettingsController {
             </div>
 
             <input id="coyote_is_standalone" value="false" type="hidden">
-            <?php submit_button(__('Turn off standalone mode', COYOTE_I18N_NS)); ?>
+            <?php submit_button(__('Turn off standalone mode', COYOTE_I18N_NS));
 
-            <?php
             return;
         }
 
         printf( "<p>%s</p>", __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', COYOTE_I18N_NS));
-
     }
 
     public function noop_setting_section_cb() {}
