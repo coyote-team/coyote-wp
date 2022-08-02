@@ -650,15 +650,6 @@ class SettingsController {
         );
 
         add_settings_field(
-            'coyote_api_endpoint',
-            __('Endpoint', COYOTE_I18N_NS),
-            [$this, 'api_endpoint_cb'],
-            self::settings_slug_main,
-            self::api_settings_section,
-            array('label_for' => 'coyote_api_endpoint')
-        );
-
-        add_settings_field(
             'coyote_api_token',
             __('Token', COYOTE_I18N_NS),
             [$this, 'api_token_cb'],
@@ -668,12 +659,12 @@ class SettingsController {
         );
 
         add_settings_field(
-            'coyote_api_metum',
-            __('Metum', COYOTE_I18N_NS),
-            [$this, 'api_metum_cb'],
+            'coyote_api_endpoint',
+            __('Endpoint', COYOTE_I18N_NS),
+            [$this, 'api_endpoint_cb'],
             self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_metum')
+            array('label_for' => 'coyote_api_endpoint')
         );
 
         /*
@@ -719,6 +710,15 @@ class SettingsController {
             __('Advanced settings', COYOTE_I18N_NS),
             [$this, 'noop_setting_section_cb'],
             self::settings_slug_advanced
+        );
+
+        add_settings_field(
+            'coyote_api_metum',
+            __('Metum', COYOTE_I18N_NS),
+            [$this, 'api_metum_cb'],
+            self::settings_slug_advanced,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_api_metum')
         );
 
         add_settings_field(
