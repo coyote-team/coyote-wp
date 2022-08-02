@@ -194,7 +194,7 @@ class SettingsController {
         /*
          * Check if standalone mode is active
          */
-        $this->is_standalone            = !!(get_option('coyote_is_standalone', false));
+        $this->is_standalone            = PluginConfiguration::isStandalone();
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
 
@@ -781,69 +781,78 @@ class SettingsController {
     public function noop_setting_section_cb() {}
 
     public function api_endpoint_cb() {
-        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . esc_url(get_option('coyote_api_endpoint', 'https://staging.coyote.pics')) . '" size="50" aria-describedby="coyote_api_endpoint_hint"/>';
-        echo '<p id="coyote_api_endpoint_hint">' . __('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="<?= esc_url(pluginConfiguration::getApiEndPoint()) ?>" size="50" aria-describedby="coyote_api_endpoint_hint"/>
+        <p id="coyote_api_endpoint_hint"><?php _e('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function api_token_cb() {
-        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . sanitize_text_field(get_option('coyote_api_token')) . '" size="30" aria-describedby="coyote_api_token_hint"/>';
-        echo '<p id="coyote_api_token_hint">' . __('The API token associated with your Coyote account.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_token" id="coyote_api_token" type="text" value="<?= sanitize_text_field(pluginConfiguration::getApiToken()); ?>" size="30" aria-describedby="coyote_api_token_hint"/>
+        <p id="coyote_api_token_hint"><?php _e('The API token associated with your Coyote account.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function api_metum_cb() {
-        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . sanitize_text_field(get_option('coyote_api_metum', 'Alt')) . '" size="20" aria-describedby="coyote_api_metum_hint"/>';
-        echo '<p id="coyote_api_metum_hint">' . __('The metum used by the API to categorise image descriptions, e.g. "Alt".', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_metum" id="coyote_api_metum" type="text" value="<?= sanitize_text_field(pluginConfiguration::getMetum()); ?>" size="20" aria-describedby="coyote_api_metum_hint"/>
+        <p id="coyote_api_metum_hint"><?php _e('The metum used by the API to categorise image descriptions, e.g. "Alt".', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function api_organization_id_cb() {
-        $organization_id = PluginConfiguration::getApiOrganizationId();
-        $organizations = $this->profile->getOrganizations();
-        $single_org = count($organizations) === 1;
+        $organization_id    = PluginConfiguration::getApiOrganizationId();
+        $organizations      = $this->profile->getOrganizations();
+        $single_org         = count($organizations) === 1;
+        ?>
+        <select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">
+            <?php
 
-        echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">';
+            if (!$single_org) {
+                ?>
+                <option <?php selected( empty($organization_id), true ); ?> value=''><?php _e('--select an organization--', COYOTE_I18N_NS); ?></option>
+                <?php
+            }
 
-        if (!$single_org) {
-            $default = empty($organization_id) ? 'selected' : '';
-            echo "<option {$default} value=''>" . __('--select an organization--', COYOTE_I18N_NS) . "</option>";
-        }
+            foreach ($organizations as $org) {
+                ?>
+                <option <?php selected( $org->getId(), $organization_id ); ?> value="<?= $org->getId(); ?>"><?= esc_html($org->getName()); ?></option>
+                <?php
+            }
+            ?>
+        </select>
 
-        foreach ($organizations as $org) {
-            $selected = $org->getId() === $organization_id ? 'selected' : '';
-            echo "<option {$selected} value=\"" . $org->getId() ."\">" . esc_html($org->getName()). "</option>";
-        }
-
-        echo '</select>';
-
-        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
-
-        echo '<p id="coyote_api_organization_id_hint">' . __('The Coyote organization to associate with.', COYOTE_I18N_NS) . '</p>';
+        <div id="coyote_org_change_alert" role="alert" data-message="<?php _e('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS); ?>"></div>
+        <p id="coyote_api_organization_id_hint"><?php _e('The Coyote organization to associate with.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_is_standalone_cb() {
-        $setting = esc_html(get_option('coyote_is_standalone', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked} aria-describedby=\"coyote_is_standalone_hint\">";
-        echo '<p id="coyote_is_standalone_hint">' . __('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_is_standalone" id="coyote_is_standalone" <?php checked( PluginConfiguration::isStandalone(), true ); ?> aria-describedby="coyote_is_standalone_hint">
+        <p id="coyote_is_standalone_hint"><?php _e('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_filters_enabled_cb() {
-        $setting = esc_html(get_option('coyote_filters_enabled', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked} aria-describedby=\"coyote_filters_enabled_hint\">";
-        echo '<p id="coyote_filters_enabled_hint">' . __('The plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_filters_enabled" id="coyote_filters_enabled" <?php checked( PluginConfiguration::hasFiltersEnabled(), true ); ?> aria-describedby="coyote_filters_enabled_hint">
+        <p id="coyote_filters_enabled_hint"><?php _e('The plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_updates_enabled_cb() {
-        $setting = esc_html(get_option('coyote_updates_enabled', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked} aria-describedby=\"coyote_updates_enabled_hint\">";
-        echo '<p id="coyote_updates_enabled_hint">' . __('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_updates_enabled" id="coyote_updates_enabled" <?php checked( PluginConfiguration::hasUpdatesEnabled(), true ); ?> aria-describedby="coyote_updates_enabled_hint">
+        <p id="coyote_updates_enabled_hint"><?php _e('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_skip_unpublished_enabled_cb() {
-        $setting = esc_html(get_option('coyote_skip_unpublished_enabled', false));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_skip_unpublished_enabled\" id=\"coyote_skip_unpublished_enabled\" {$checked} aria-describedby=\"coyote_skip_unpublished_enabled_hint\">";
-        echo '<p id="coyote_skip_unpublished_enabled_hint">' . __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_skip_unpublished_enabled" id="coyote_skip_unpublished_enabled" <?php checked( PluginConfiguration::isNotProcessingUnpublishedPosts(), true ); ?> aria-describedby="coyote_skip_unpublished_enabled_hint">
+        <p id="coyote_skip_unpublished_enabled_hint"><?php _e('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', COYOTE_I18N_NS); ?></p>
+        <?php
     }
 }
