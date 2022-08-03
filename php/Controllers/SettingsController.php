@@ -387,7 +387,7 @@ class SettingsController {
         /*
          * Return when no profile is set or when in standalone
          */
-        if (!$this->profile || $this->is_standalone)
+        if ($this->is_standalone)
             return;
 
         ?>
@@ -509,7 +509,7 @@ class SettingsController {
          * Register submenu page for Coyote advanced settings
          * Only when not in standalone mode and a valid profile is set
          */
-        if (!$this->is_standalone && $this->profile) {
+        if (!$this->is_standalone) {
             add_submenu_page(
                 self::menu_slug_main,
                 $this->subpage_title_advanced,
@@ -576,7 +576,6 @@ class SettingsController {
             /*
              * Register admin page main settings
              */
-            register_setting(self::settings_slug_main, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
             register_setting(self::settings_slug_main, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
 
             if ($this->profile)
@@ -585,6 +584,7 @@ class SettingsController {
             /*
              * Register admin subpage advanced settings
              */
+            register_setting(self::settings_slug_advanced, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
             register_setting(self::settings_slug_advanced, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
             register_setting(self::settings_slug_advanced, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::settings_slug_advanced, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
@@ -634,49 +634,40 @@ class SettingsController {
             array('label_for' => 'coyote_api_token')
         );
 
-        add_settings_field(
-            'coyote_api_endpoint',
-            __('Endpoint', COYOTE_I18N_NS),
-            [$this, 'api_endpoint_cb'],
-            self::settings_slug_main,
-            self::api_settings_section,
-            array('label_for' => 'coyote_api_endpoint')
-        );
-
         /*
          * Check if profile is set, if not return
          * This only renders the fields needed to register an API token
          */
-        if (!$this->profile)
-            return;
+        if ($this->profile) {
 
-        add_settings_field(
-            'coyote_api_organization_id',
-            __('Organization', COYOTE_I18N_NS),
-            [$this, 'api_organization_id_cb'],
-            self::settings_slug_main,
-            self::api_settings_section,
-            array('label_for' => 'coyote_api_organization_id')
-        );
+            add_settings_field(
+                'coyote_api_organization_id',
+                __('Organization', COYOTE_I18N_NS),
+                [$this, 'api_organization_id_cb'],
+                self::settings_slug_main,
+                self::api_settings_section,
+                array('label_for' => 'coyote_api_organization_id')
+            );
 
-        /*
-         * Register standalone settings section
-         */
-        add_settings_section(
-            self::standalone_settings_section,
-            __('Standalone settings', COYOTE_I18N_NS),
-            [$this, 'noop_setting_section_cb'],
-            self::settings_slug_main
-        );
+            /*
+             * Register standalone settings section
+             */
+            add_settings_section(
+                self::standalone_settings_section,
+                __('Standalone settings', COYOTE_I18N_NS),
+                [$this, 'noop_setting_section_cb'],
+                self::settings_slug_main
+            );
 
-        add_settings_field(
-            'coyote_is_standalone',
-            __('Run in standalone mode', COYOTE_I18N_NS),
-            [$this, 'settings_is_standalone_cb'],
-            self::settings_slug_main,
-            self::standalone_settings_section,
-            array('label_for' => 'coyote_is_standalone')
-        );
+            add_settings_field(
+                'coyote_is_standalone',
+                __('Run in standalone mode', COYOTE_I18N_NS),
+                [$this, 'settings_is_standalone_cb'],
+                self::settings_slug_main,
+                self::standalone_settings_section,
+                array('label_for' => 'coyote_is_standalone')
+            );
+        }
 
         /*
          * Register advanced settings section
@@ -687,6 +678,18 @@ class SettingsController {
             [$this, 'noop_setting_section_cb'],
             self::settings_slug_advanced
         );
+
+        add_settings_field(
+            'coyote_api_endpoint',
+            __('Endpoint', COYOTE_I18N_NS),
+            [$this, 'api_endpoint_cb'],
+            self::settings_slug_advanced,
+            self::advanced_settings_section,
+            array('label_for' => 'coyote_api_endpoint')
+        );
+
+        if(!$this->profile)
+            return;
 
         add_settings_field(
             'coyote_api_metum',
