@@ -14,9 +14,25 @@ use Coyote\Model\ProfileModel;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressPlugin;
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+use Twig\TwigFunction;
+
+require(COYOTE_PLUGIN_PATH . 'vendor/autoload.php');
 
 class SettingsController {
     use Logger;
+
+    /**
+     * Twig environment
+     */
+    protected $twig;
+
+    /**
+     * Twig templates directory path
+     * @var string twig_templates_dir_path
+     */
+    const twig_templates_dir_path = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
 
     /**
      * Profile fetched from API
@@ -173,6 +189,9 @@ class SettingsController {
      */
     function __construct() {
 
+        $this->twig = new Environment(new FilesystemLoader(self::twig_templates_dir_path));
+        $this->twig = $this->set_twig_functions($this->twig);
+
         /*
          * Set page and menu titles via i18n functions
          */
@@ -324,22 +343,33 @@ class SettingsController {
      * @void string HTML for page holding form with setting inputs
      */
     public function settings_page_cb() {
-        ?>
+
+        echo $this->twig->render('CoyotePage.html.twig', [
+            'pageTitle'             => $this->page_title_main,
+            'isStandalone'          => $this->is_standalone,
+            'profile'               => $this->profile,
+            'profileFetchFailed'    => $this->profile_fetch_failed,
+            'hasProfileMessage'     => __('Linked API profile: %s (role: %s)', WordPressPlugin::I18N_NS ),
+            'noProfileMessage'      => __('Unable to load Coyote profile.', WordPressPlugin::I18N_NS ),
+            'settingsSlug'          => self::settings_slug_main
+        ]);
+
+/*         ?>
         <div class="wrap">
             <h2><?= $this->page_title_main; ?></h2>
             <form method="post" action="options.php">
                 <?php
 
-                /*
+                 *//*
                  * Check for admin notices
-                 */
+                 *//*
                 if (!$this->is_standalone) {
 
                     if ($this->profile) {
 
-                        /*
+                         *//*
                          * Profile is set, output linked user in success notice
-                         */
+                         *//*
                         $memberships = $this->profile->getMemberships();
                         ?>
                         <div class="notice notice-info">
@@ -348,9 +378,9 @@ class SettingsController {
                         <?php
                     } else if ($this->profile_fetch_failed) {
 
-                        /*
+                         *//*
                          * Profile fetch failed, show error notice
-                         */
+                         *//*
                         ?>
                         <div class="notice notice-error">
                             <p><?php _e('Unable to load Coyote profile.', WordPressPlugin::I18N_NS ); ?></p>
@@ -359,24 +389,23 @@ class SettingsController {
                     }
                 }
 
-                /*
+                 *//*
                  * Show main setting fields
-                 */
+                 *//*
                 settings_fields(self::settings_slug_main);
                 do_settings_sections(self::settings_slug_main);
 
-                /*
+                 *//*
                  * Only show the submit button when not in standalone
                  * this is a double check, this page shouldn't be served when in standalone mode
-                 */
+                 *//*
                 if (!$this->is_standalone)
                     submit_button();
 
                 ?>
             </form>
         </div>
-        <?php
-
+        <?php */
     }
 
     /**
@@ -391,29 +420,35 @@ class SettingsController {
         if ($this->is_standalone)
             return;
 
-        ?>
+        echo $this->twig->render('AdvancedPage.html.twig', [
+            'pageTitle'             => $this->settings_slug_advanced,
+            'isStandalone'          => $this->is_standalone,
+            'settingsSlug'          => self::settings_slug_advanced
+        ]);
+
+/*         ?>
         <div class="wrap">
             <h2><?= $this->submenu_title_advanced; ?></h2>
             <form method="post" action="options.php">
                 <?php
 
-                /*
+                 *//*
                  * Show advanced setting fields
-                 */
+                 *//*
                 settings_fields(self::settings_slug_advanced);
                 do_settings_sections(self::settings_slug_advanced);
 
-                /*
+                 *//*
                  * Only show the submit button when not in standalone
                  * this is a double check, this page shouldn't be served when in standalone mode
-                 */
+                 *//*
                 if (!$this->is_standalone)
                     submit_button();
 
                 ?>
             </form>
         </div>
-        <?php
+        <?php */
     }
 
     /**
@@ -428,7 +463,32 @@ class SettingsController {
         if (!$this->profile || $this->is_standalone)
             return;
 
-        ?>
+        echo $this->twig->render('ToolsPage.html.twig', [
+            'pageTitle'                 => $this->subpage_title_tools,
+            'isStandalone'              => $this->is_standalone,
+            'emptyOrganizationOption'   => empty(get_option('coyote_api_organization_id')),
+            'processEndpoint'           => 'https://processor.coyote.pics',
+            'batchJob'                  => $this->batch_job,
+            'batchSize'                 => esc_html(get_option('coyote_processing_batch_size', 50)),
+            'text'                      => [
+                'processTitle'              => __('Process existing posts', WordPressPlugin::I18N_NS),
+                'emptyOrganizationMessage'  => __('Please select a Coyote organization to process posts.', WordPressPlugin::I18N_NS),
+                'explainingMessages'        => [
+                    __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', WordPressPlugin::I18N_NS),
+                    __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', WordPressPlugin::I18N_NS),
+                    __('This process does not modify your WordPress content itself, and may be used more than once.', WordPressPlugin::I18N_NS)
+                ],
+                'processEndpointLabel'      => __('Processor endpoint', WordPressPlugin::I18N_NS),
+                'batchSizeLabel'            => __('Batch size', WordPressPlugin::I18N_NS),
+                'processStatusLabel'        => __('Status', WordPressPlugin::I18N_NS),
+                'processProgressLabel'      => __('Processing', WordPressPlugin::I18N_NS),
+                'processCompleteLabel'      => __('Processing complete', WordPressPlugin::I18N_NS),
+                'startProcessButtonText'    => __('Start processing job', WordPressPlugin::I18N_NS),
+                'cancelProcessButtonText'   => __('Cancel processing job', WordPressPlugin::I18N_NS),
+            ]
+        ]);
+
+/*         ?>
         <div class="wrap">
             <h2><?= $this->subpage_title_tools; ?></h2>
             <form method="post" action="options.php">
@@ -484,7 +544,7 @@ class SettingsController {
                 </div>
             </form>
         </div>
-        <?php
+        <?php */
     }
 
     /**
@@ -831,5 +891,19 @@ class SettingsController {
         <input type="checkbox" name="coyote_skip_unpublished_enabled" id="coyote_skip_unpublished_enabled" <?php checked( PluginConfiguration::isNotProcessingUnpublishedPosts(), true ); ?> aria-describedby="coyote_skip_unpublished_enabled_hint">
         <p id="coyote_skip_unpublished_enabled_hint"><?php _e('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS); ?></p>
         <?php
+    }
+
+    private function set_twig_functions($twig) {
+        $twig->addFunction(new TwigFunction('settings_fields', function ($slug) {
+            return settings_fields($slug);
+        }));
+        $twig->addFunction(new TwigFunction('do_settings_sections', function ($slug) {
+            return do_settings_sections($slug);
+        }));
+        $twig->addFunction(new TwigFunction('submit_button', function () {
+            return submit_button();
+        }));
+
+        return $twig;
     }
 }
