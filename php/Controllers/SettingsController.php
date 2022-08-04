@@ -33,7 +33,7 @@ class SettingsController {
      * WP user capability to access plugin settings
      * @var string capability
      */
-    const capability                    = 'manage_options';
+    const capability = 'manage_options';
 
     /**
      * WP Admin settings main page title
@@ -51,48 +51,48 @@ class SettingsController {
      * WP Admin settings main admin url slug admin.php?page=[slug]
      * @var string menu_slug_main
      */
-    const menu_slug_main                = 'coyote';
+    const menu_slug_main = 'coyote';
 
     /**
      * WP Admin settings icon
      * @var string menu_icon
      * TODO: replace with Coyote icon?
      */
-    const menu_icon                     = 'dashicons-universal-access';
+    const menu_icon = 'dashicons-universal-access';
 
     /**
      * WP Admin settings position
      * @var int position
      */
-    const position                      = 250;
+    const position = 250;
 
     /**
      * Page slug used for main settings
      * used with settings_field(), do_settings_section() and register_setting()
      * @var string settings_slug_main
      */
-    const settings_slug_main            = 'coyote_fields';
+    const settings_slug_main = 'coyote_fields';
 
     /**
      * settings section slug for main fields
      * used with add_settings_section() which triggers standalone mode activated page
      * @var string settings_section
      */
-    const settings_section              = 'settings_section';
+    const settings_section = 'settings_section';
 
     /**
      * settings section slug for api fields
      * used with add_settings_section()
      * @var string settings_section
      */
-    const api_settings_section          = 'api_settings_section';
+    const api_settings_section = 'api_settings_section';
 
     /**
      * settings section slug for standalone fields
      * used with add_settings_section()
      * @var string standalone_settings_section
      */
-    const standalone_settings_section   = 'standalone_settings_section';
+    const standalone_settings_section = 'standalone_settings_section';
 
     /**
      * WP Admin settings advanced page title
@@ -110,21 +110,21 @@ class SettingsController {
      * WP Admin settings advanced admin url slug admin.php?page=[slug]
      * @var string menu_slug_main
      */
-    const submenu_advanced_slug         = 'coyote-advanced';
+    const submenu_advanced_slug = 'coyote-advanced';
 
     /**
      * Page slug used for advanced settings
      * used with settings_field(), do_settings_section() and register_setting()
      * @var string settings_slug_advanced
      */
-    const settings_slug_advanced        = 'coyote_fields_advanced';
+    const settings_slug_advanced = 'coyote_fields_advanced';
 
     /**
      * settings section slug for advanced fields
      * used with add_settings_section()
      * @var string advanced_settings_section
      */
-    const advanced_settings_section     = 'advanced_settings_section';
+    const advanced_settings_section = 'advanced_settings_section';
 
     /**
      * WP Admin settings tools page title
@@ -142,21 +142,21 @@ class SettingsController {
      * WP Admin settings tools admin url slug admin.php?page=[slug]
      * @var string submenu_tools_slug
      */
-    const submenu_tools_slug            = 'coyote-tools';
+    const submenu_tools_slug = 'coyote-tools';
 
     /**
      * Page slug used for tools settings
      * used with settings_field(), do_settings_section() and register_setting()
      * @var string settings_slug_tools
      */
-    const settings_slug_tools           = 'coyote_fields_tools';
+    const settings_slug_tools = 'coyote_fields_tools';
 
     /**
      * settings section slug for tools fields
      * used with add_settings_section()
      * @var string tools_settings_section
      */
-    const tools_settings_section        = 'tools_settings_section';
+    const tools_settings_section = 'tools_settings_section';
 
     /**
      * @var mixed batch_job WordPress transient
