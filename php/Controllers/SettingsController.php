@@ -508,7 +508,7 @@ class SettingsController {
 
         /*
          * Register submenu page for Coyote advanced settings
-         * Only when not in standalone mode and a valid profile is set
+         * Only when not in standalone mode
          */
         if (!$this->is_standalone) {
             add_submenu_page(
@@ -610,7 +610,7 @@ class SettingsController {
         );
 
         /*
-         * Check if in standalone, if so return (don't render any fields)
+         * Check if in standalone mode, if so return (don't render any fields)
          * This check can't be placed before the previous add_settings_section (if so no admin page content is rendered)
          */
         if ($this->is_standalone)
@@ -636,8 +636,8 @@ class SettingsController {
         );
 
         /*
-         * Check if profile is set, if not return
-         * This only renders the fields needed to register an API token
+         * Check if profile is set
+         * This renders all Coyote settings fields
          */
         if ($this->profile) {
 
@@ -689,6 +689,11 @@ class SettingsController {
             ['label_for' => 'coyote_api_endpoint']
         );
 
+        /*
+         * Check if profile is set, if not return
+         * If no profile is set, the rendering stops at this point
+         * only the required fields to link to the Coyote API are visible
+         */
         if(!$this->profile)
             return;
 
