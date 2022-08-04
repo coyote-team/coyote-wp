@@ -155,9 +155,13 @@ class PluginConfiguration
         delete_transient('coyote_api_error_count');
     }
 
+    /**
+     * Check if the current user has administrator privileges
+     * @return bool
+     */
     public static function userIsAdmin(): bool
     {
-        return is_admin();
+        return current_user_can('administrator');
     }
 
     public static function isProcessingUnpublishedPosts(): bool
