@@ -13,49 +13,203 @@ use Coyote\DB;
 use Coyote\Model\ProfileModel;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
+use Coyote\WordPressPlugin;
 
 class SettingsController {
     use Logger;
 
-    private string $page_title;
-    private string $menu_title;
+    /**
+     * Profile fetched from API
+     */
     private ?ProfileModel $profile;
+
+    /**
+     * Is plugin in standalone mode
+     * @var bool is_standalone
+     */
     private bool $is_standalone;
 
+    /**
+     * WP user capability to access plugin settings
+     * @var string capability
+     */
     const capability = 'manage_options';
-    const page_slug  = 'coyote_fields';
-    const position   = 250;
 
+    /**
+     * WP Admin settings main page title
+     * @var string page_title_main
+     */
+    private $page_title_main;
+
+    /**
+     * WP Admin settings main menu title
+     * @var string menu_title_main
+     */
+    private $menu_title_main;
+
+    /**
+     * WP Admin settings main admin url slug admin.php?page=[slug]
+     * @var string menu_slug_main
+     */
+    const menu_slug_main = 'coyote';
+
+    /**
+     * WP Admin settings icon
+     * @var string menu_icon
+     * TODO: replace with Coyote icon?
+     */
+    const menu_icon = 'dashicons-universal-access';
+
+    /**
+     * WP Admin settings position
+     * @var int position
+     */
+    const position = 250;
+
+    /**
+     * Page slug used for main settings
+     * used with settings_field(), do_settings_section() and register_setting()
+     * @var string settings_slug_main
+     */
+    const settings_slug_main = 'coyote_fields';
+
+    /**
+     * settings section slug for main fields
+     * used with add_settings_section() which triggers standalone mode activated page
+     * @var string settings_section
+     */
     const settings_section = 'settings_section';
+
+    /**
+     * settings section slug for api fields
+     * used with add_settings_section()
+     * @var string settings_section
+     */
     const api_settings_section = 'api_settings_section';
+
+    /**
+     * settings section slug for standalone fields
+     * used with add_settings_section()
+     * @var string standalone_settings_section
+     */
+    const standalone_settings_section = 'standalone_settings_section';
+
+    /**
+     * WP Admin settings advanced page title
+     * @var string subpage_title_advanced
+     */
+    private $subpage_title_advanced;
+
+    /**
+     * WP Admin settings advanced menu title
+     * @var string submenu_title_advanced
+     */
+    private $submenu_title_advanced;
+
+    /**
+     * WP Admin settings advanced admin url slug admin.php?page=[slug]
+     * @var string menu_slug_main
+     */
+    const submenu_advanced_slug = 'coyote-advanced';
+
+    /**
+     * Page slug used for advanced settings
+     * used with settings_field(), do_settings_section() and register_setting()
+     * @var string settings_slug_advanced
+     */
+    const settings_slug_advanced = 'coyote_fields_advanced';
+
+    /**
+     * settings section slug for advanced fields
+     * used with add_settings_section()
+     * @var string advanced_settings_section
+     */
     const advanced_settings_section = 'advanced_settings_section';
 
+    /**
+     * WP Admin settings tools page title
+     * @var string subpage_title_tools
+     */
+    private $subpage_title_tools;
+
+    /**
+     * WP Admin settings main menu title
+     * @var string menu_title_main
+     */
+    private $submenu_title_tools;
+
+    /**
+     * WP Admin settings tools admin url slug admin.php?page=[slug]
+     * @var string submenu_tools_slug
+     */
+    const submenu_tools_slug = 'coyote-tools';
+
+    /**
+     * Page slug used for tools settings
+     * used with settings_field(), do_settings_section() and register_setting()
+     * @var string settings_slug_tools
+     */
+    const settings_slug_tools = 'coyote_fields_tools';
+
+    /**
+     * settings section slug for tools fields
+     * used with add_settings_section()
+     * @var string tools_settings_section
+     */
+    const tools_settings_section = 'tools_settings_section';
+
+    /**
+     * @var mixed batch_job WordPress transient
+     */
     private $batch_job;
+
+    /**
+     * @var bool profile_fetch_failed
+     */
     private bool $profile_fetch_failed;
 
+    /**
+     * Constructor
+     */
     function __construct() {
-        $this->page_title = __('Coyote settings', COYOTE_I18N_NS);
-        $this->menu_title = __('Coyote', COYOTE_I18N_NS);
 
-        $this->profile_fetch_failed = false;
-        $this->profile = $this->getProfile();
+        /*
+         * Set page and menu titles via i18n functions
+         */
+        $this->page_title_main          = __('Coyote settings', WordPressPlugin::I18N_NS);
+        $this->menu_title_main          = __('Coyote', WordPressPlugin::I18N_NS);
+        $this->subpage_title_advanced   = __('Coyote advanced', WordPressPlugin::I18N_NS);
+        $this->submenu_title_advanced   = __('Advanced', WordPressPlugin::I18N_NS);
+        $this->subpage_title_tools      = __('Coyote tools', WordPressPlugin::I18N_NS);
+        $this->submenu_title_tools      = __('Tools', WordPressPlugin::I18N_NS);
 
-        $this->batch_job = BatchImportHelper::getBatchJob();
+        /*
+         * Set profile_fetch_failed to false and fetch profile
+         * when successful profile_fetch_failed will be set to true
+         */
+        $this->profile_fetch_failed     = false;
+        $this->profile                  = $this->getProfile();
 
-        $this->is_standalone = !!(get_option('coyote_is_standalone', false));
+        $this->batch_job                = BatchImportHelper::getBatchJob();
 
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+        /*
+         * Check if standalone mode is active
+         */
+        $this->is_standalone            = PluginConfiguration::isStandalone();
 
-        add_action('admin_init', array($this, 'init'));
-        add_action('admin_menu', array($this, 'menu'));
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
+
+        add_action('admin_init', [$this, 'init']);
+        add_action('admin_menu', [$this, 'menu']);
 
         if (!$this->is_standalone) {
-            add_action('update_option_coyote_api_token', array($this, 'verify_settings'), 10, 3);
-            add_action('update_option_coyote_api_endpoint', array($this, 'verify_settings'), 10, 3);
-            add_action('update_option_coyote_api_organization_id', array($this, 'change_organization_id'), 10, 3);
-            add_action('add_option_coyote_api_organization_id', array($this, 'set_organization_id'), 10, 2);
-            add_action('update_option_coyote_is_standalone', array($this, 'change_standalone_mode'), 10, 3);
+            add_action('update_option_coyote_api_token', [$this, 'verify_settings'], 10, 3);
+            add_action('update_option_coyote_api_endpoint', [$this, 'verify_settings'], 10, 3);
+            add_action('update_option_coyote_api_organization_id', [$this, 'change_organization_id'], 10, 3);
+            add_action('add_option_coyote_api_organization_id', [$this, 'set_organization_id'], 10, 2);
+            add_action('update_option_coyote_is_standalone', [$this, 'change_standalone_mode'], 10, 3);
         }
+
     }
 
     public static function ajax_verify_resource_group() {
@@ -63,9 +217,8 @@ class SettingsController {
 
         $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
 
-        if (!is_null($resourceGroup)) {
+        if (!is_null($resourceGroup))
             PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
-        }
 
         wp_die();
     }
@@ -166,122 +319,225 @@ class SettingsController {
         return $profile;
     }
 
+    /**
+     * WP Admin main settings page
+     * @void string HTML for page holding form with setting inputs
+     */
     public function settings_page_cb() {
-        echo sprintf("<div class=\"wrap\">
-                <h2>%s</h2>
-                <form method=\"post\" action=\"options.php\">
-        ", $this->page_title);
+        ?>
+        <div class="wrap">
+            <h2><?= $this->page_title_main; ?></h2>
+            <form method="post" action="options.php">
+                <?php
 
-        settings_fields(self::page_slug);
-        do_settings_sections(self::page_slug);
+                /*
+                 * Check for admin notices
+                 */
+                if (!$this->is_standalone) {
 
-        if (!$this->is_standalone) {
-            if ($this->profile) {
-                echo "<p>User: " . $this->profile->getName() . "</p>";
-            } elseif ($this->profile_fetch_failed) {
-                echo "<strong>" . __('Unable to load Coyote profile.', COYOTE_I18N_NS) . "</strong>";
-            }
+                    if ($this->profile) {
 
-            submit_button();
-        }
+                        /*
+                         * Profile is set, output linked user in success notice
+                         */
+                        $memberships = $this->profile->getMemberships();
+                        ?>
+                        <div class="notice notice-info">
+                            <p><?php printf( __('Linked API profile: %s (role: %s)', WordPressPlugin::I18N_NS ), $this->profile->getName(), reset($memberships)->getRole() ); ?></p>
+                        </div>
+                        <?php
+                    } else if ($this->profile_fetch_failed) {
 
-        echo "
-                </form>
-            </div>
-        ";
+                        /*
+                         * Profile fetch failed, show error notice
+                         */
+                        ?>
+                        <div class="notice notice-error">
+                            <p><?php _e('Unable to load Coyote profile.', WordPressPlugin::I18N_NS ); ?></p>
+                        </div>
+                        <?php
+                    }
+                }
 
-        if (!$this->is_standalone) {
-            $this->tools();
-        }
+                /*
+                 * Show main setting fields
+                 */
+                settings_fields(self::settings_slug_main);
+                do_settings_sections(self::settings_slug_main);
+
+                /*
+                 * Only show the submit button when not in standalone
+                 * this is a double check, this page shouldn't be served when in standalone mode
+                 */
+                if (!$this->is_standalone)
+                    submit_button();
+
+                ?>
+            </form>
+        </div>
+        <?php
+
     }
 
-    public function tools() {
-        if (!$this->profile) {
+    /**
+     * WP Admin advanced settings page
+     * @void string HTML for page holding form with setting inputs
+     */
+    public function settings_subpage_advanced_cb() {
+
+        /*
+         * Return when no profile is set or when in standalone
+         */
+        if (!$this->profile || $this->is_standalone)
             return;
-        }
 
-        echo sprintf("<h2>%s</h2>", __("Tools", COYOTE_I18N_NS));
+        ?>
+        <div class="wrap">
+            <h2><?= $this->submenu_title_advanced; ?></h2>
+            <form method="post" action="options.php">
+                <?php
 
-        echo "
-          <div id=\"coyote_verify_resource_group_container\">
-              <button class=\"button button-primary\" type=\"button\" id=\"coyote_verify_resource_group\" aria-describedby=\"coyote_verify_resource_group_hint\">Verify resource group</button>
-              <span role=\"alert\" id=\"coyote_verify_resource_group_status\"></span>
-              <p id=\"coyote_verify_resource_group_hint\">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
-          </div>
-        ";
+                /*
+                 * Show advanced setting fields
+                 */
+                settings_fields(self::settings_slug_advanced);
+                do_settings_sections(self::settings_slug_advanced);
 
-        $title  = __("Process existing posts", COYOTE_I18N_NS);
+                /*
+                 * Only show the submit button when not in standalone
+                 * this is a double check, this page shouldn't be served when in standalone mode
+                 */
+                if (!$this->is_standalone)
+                    submit_button();
 
-        echo sprintf("<hr>
-            <h3>%s</h3>
-        ", $title);
-
-        if (empty(get_option('coyote_api_organization_id'))) {
-            echo __('Please select a Coyote organization to process posts.', COYOTE_I18N_NS);
-            return;
-        }
-
-        $process_disabled = $this->batch_job ? 'disabled' : '';
-        $cancel_disabled = $this->batch_job ? '' : 'disabled';
-
-        $batch_size = esc_html(get_option('coyote_processing_batch_size', 50));
-
-        $processor_endpoint = 'https://processor.coyote.pics';
-
-        $info = __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', COYOTE_I18N_NS);
-        $error = __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', COYOTE_I18N_NS);
-        $idempotence = __('This process does not modify your WordPress content itself, and may be used more than once.', COYOTE_I18N_NS);
-
-        echo "
-            <p>{$info}</p>
-            <p>{$error}</p>
-            <p>{$idempotence}</p>
-            <div id=\"process-existing-posts\">
-                <div class=\"form-group\">
-                    <label for=\"coyote_processor_endpoint\">" . __('Processor endpoint', COYOTE_I18N_NS) . ":</label>
-                    <input readonly {$process_disabled} id=\"coyote_processor_endpoint\" name=\"coyote_processor_endpoint\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"{$processor_endpoint}\">
-                </div>
-
-                <div class=\"form-group\">
-                    <label for=\"coyote_batch_size\">" . __('Batch size', COYOTE_I18N_NS) . ":</label>
-                    <input id=\"coyote_batch_size\" type=\"text\" size=\"3\" maxlength=\"3\" value=\"{$batch_size}\">
-                </div>
-
-                <div id=\"process-controls\">
-                    <button id=\"coyote_process_existing_posts\" {$process_disabled} type=\"submit\" class=\"button button-primary\">" . __('Start processing job', COYOTE_I18N_NS) . "</button>
-                    <button id=\"coyote_cancel_processing\" {$cancel_disabled} type=\"button\" class=\"button\">" . __('Cancel processing job', COYOTE_I18N_NS). "</button>
-                </div>
-            </div>
-        ";
-
-        $hidden = $process_disabled ? '' : 'hidden';
-
-        echo "
-            <div id=\"coyote_processing_status\" {$hidden} aria-live=\"assertive\" aria-atomic=\"true\">
-                <div>
-                    <strong id=\"coyote_job_status\">" . __('Status', 'coyote') . ": <span></span></strong>
-                </div>
-
-                <div>
-                    <strong id=\"coyote_processing\">" . __('Processing', 'coyote') . ": <span></span>%</strong>
-                </div>
-
-                <div>
-                    <strong hidden id=\"coyote_processing_complete\">" . __('Processing complete', 'coyote') . ".</strong>
-                </div>
-            </div>
-        ";
+                ?>
+            </form>
+        </div>
+        <?php
     }
 
+    /**
+     * WP Admin tools settings page
+     * @void string HTML for page holding form with setting inputs
+     */
+    public function settings_subpage_tools_cb() {
+
+        /*
+         * Return when no profile is set or when in standalone
+         */
+        if (!$this->profile || $this->is_standalone)
+            return;
+
+        ?>
+        <div class="wrap">
+            <h2><?= $this->subpage_title_tools; ?></h2>
+            <form method="post" action="options.php">
+                <div id="coyote_verify_resource_group_container">
+                    <button class="button button-primary" type="button" id="coyote_verify_resource_group" aria-describedby="coyote_verify_resource_group_hint">Verify resource group</button>
+                    <span role="alert" id="coyote_verify_resource_group_status"></span>
+                    <p id="coyote_verify_resource_group_hint">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
+                </div>
+
+                <?php printf("<h3>%s</h3>", __("Process existing posts", WordPressPlugin::I18N_NS)); ?>
+
+                <?php
+                if (empty(get_option('coyote_api_organization_id'))) {
+                    _e('Please select a Coyote organization to process posts.', WordPressPlugin::I18N_NS);
+                    return;
+                }
+
+                $process_disabled       = $this->batch_job ? 'disabled' : '';
+                $cancel_disabled        = $this->batch_job ? '' : 'disabled';
+                $batch_size             = esc_html(get_option('coyote_processing_batch_size', 50));
+                $processor_endpoint     = 'https://processor.coyote.pics';
+                $hidden                 = $process_disabled ? '' : 'hidden';
+
+                printf( "<p>%s</p>", __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', WordPressPlugin::I18N_NS));
+                printf( "<p>%s</p>", __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', WordPressPlugin::I18N_NS));
+                printf( "<p>%s</p>", __('This process does not modify your WordPress content itself, and may be used more than once.', WordPressPlugin::I18N_NS));
+                ?>
+                <div id="process-existing-posts">
+                    <div class="form-group">
+                        <label for="coyote_processor_endpoint"><?php _e('Processor endpoint', WordPressPlugin::I18N_NS); ?></label>
+                        <input readonly <?= $process_disabled; ?> id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value="<?= $processor_endpoint ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="coyote_batch_size"><?php _e('Batch size', WordPressPlugin::I18N_NS); ?>:</label>
+                        <input id="coyote_batch_size" type="text" size="3" maxlength="3" value="<?= $batch_size; ?>">
+                    </div>
+                    <div id="process-controls">
+                        <button id="coyote_process_existing_posts" <?= $process_disabled; ?> type="submit" class="button button-primary"><?php _e('Start processing job', WordPressPlugin::I18N_NS); ?></button>
+                        <button id="coyote_cancel_processing" <?= $cancel_disabled; ?> type="button" class="button"><?php _e('Cancel processing job', WordPressPlugin::I18N_NS); ?></button>
+                    </div>
+                </div>
+
+                <div id="coyote_processing_status" <?= $hidden; ?> aria-live="assertive" aria-atomic="true">
+                    <div>
+                        <strong id="coyote_job_status"><?php _e('Status', WordPressPlugin::I18N_NS); ?>: <span></span></strong>
+                    </div>
+                    <div>
+                        <strong id="coyote_processing"><?php _e('Processing', WordPressPlugin::I18N_NS); ?>: <span></span>%</strong>
+                    </div>
+                    <div>
+                        <strong hidden id="coyote_processing_complete"><?php _e('Processing complete', WordPressPlugin::I18N_NS); ?>.</strong>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php
+    }
+
+    /**
+     * Register admin menu (sub)pages
+     */
     public function menu() {
-        add_submenu_page(
-            'options-general.php',
-            $this->page_title,
-            $this->menu_title,
+
+        /*
+         * Register menu page for Coyote settings
+         * The page is added in the main sidebar menu of WordPress
+         */
+        add_menu_page(
+            $this->page_title_main,
+            $this->menu_title_main,
             self::capability,
-            self::page_slug,
-            array($this, 'settings_page_cb')
+            self::menu_slug_main,
+            [$this, 'settings_page_cb'],
+            self::menu_icon,
+            self::position
         );
+
+        /*
+         * Register submenu page for Coyote advanced settings
+         * Only when not in standalone mode and a valid profile is set
+         */
+        if (!$this->is_standalone && $this->profile) {
+            add_submenu_page(
+                self::menu_slug_main,
+                $this->subpage_title_advanced,
+                $this->submenu_title_advanced,
+                self::capability,
+                self::submenu_advanced_slug,
+                [$this, 'settings_subpage_advanced_cb'],
+                self::position
+            );
+        }
+
+        /*
+         * Register submenu page for Coyote tools
+         * Only when not in standalone mode and a valid profile is set
+         */
+        if (!$this->is_standalone && $this->profile) {
+            add_submenu_page(
+                self::menu_slug_main,
+                $this->subpage_title_tools,
+                $this->submenu_title_tools,
+                self::capability,
+                self::submenu_tools_slug,
+                [$this, 'settings_subpage_tools_cb'],
+                self::position
+            );
+        }
+
     }
 
     public function sanitize_boolean($option) {
@@ -313,217 +569,264 @@ class SettingsController {
     }
 
     public function init() {
-        register_setting(self::page_slug, 'coyote_is_standalone', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+
+        register_setting(self::settings_slug_main, 'coyote_is_standalone', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
 
         if (!$this->is_standalone) {
-            register_setting(self::page_slug, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
-            register_setting(self::page_slug, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
-            register_setting(self::page_slug, 'coyote_skip_unpublished_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
 
-            register_setting(self::page_slug, 'coyote_processor_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
+            /*
+             * Register admin page main settings
+             */
+            register_setting(self::settings_slug_main, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
+            register_setting(self::settings_slug_main, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
 
-            register_setting(self::page_slug, 'coyote_api_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
-            register_setting(self::page_slug, 'coyote_api_token', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_token']]);
-            register_setting(self::page_slug, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
+            if ($this->profile)
+                register_setting(self::settings_slug_main, 'coyote_api_organization_id', ['type' => 'integer', 'sanitize_callback' => [$this, 'sanitize_organization_id']]);
 
-            if ($this->profile) {
-                register_setting(self::page_slug, 'coyote_api_organization_id', ['type' => 'integer', 'sanitize_callback' => [$this, 'sanitize_organization_id']]);
-            }
+            /*
+             * Register admin subpage advanced settings
+             */
+            register_setting(self::settings_slug_advanced, 'coyote_api_metum', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_metum']]);
+            register_setting(self::settings_slug_advanced, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+            register_setting(self::settings_slug_advanced, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+            register_setting(self::settings_slug_advanced, 'coyote_skip_unpublished_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+
+            /*
+             * Register admin subpage tools settings
+             */
+            register_setting(self::settings_slug_tools, 'coyote_processor_endpoint', ['type' => 'string', 'sanitize_callback' => [$this, 'sanitize_endpoint']]);
+
         }
 
+        /*
+         * Register settings section
+         * Overall section that is linked to all setting fields
+         */
         add_settings_section(
             self::settings_section,
-            __('Plugin settings', COYOTE_I18N_NS),
+            __('Plugin settings', WordPressPlugin::I18N_NS),
             [$this, 'plugin_setting_section_cb'],
-            self::page_slug
+            self::settings_slug_main
         );
 
-        if ($this->is_standalone) {
+        /*
+         * Check if in standalone, if so return (don't render any fields)
+         * This check can't be placed before the previous add_settings_section (if so no admin page content is rendered)
+         */
+        if ($this->is_standalone)
             return;
-        }
 
+        /*
+         * Register api settings section
+         */
         add_settings_section(
             self::api_settings_section,
-            __('API settings', COYOTE_I18N_NS),
-            array($this, 'noop_setting_section_cb'),
-            self::page_slug
-        );
-
-        add_settings_field(
-            'coyote_api_endpoint',
-            __('Endpoint', COYOTE_I18N_NS),
-            array($this, 'api_endpoint_cb'),
-            self::page_slug,
-            self::api_settings_section,
-            array('label_for' => 'coyote_api_endpoint')
+            __('API settings', WordPressPlugin::I18N_NS),
+            [$this, 'noop_setting_section_cb'],
+            self::settings_slug_main
         );
 
         add_settings_field(
             'coyote_api_token',
-            __('Token', COYOTE_I18N_NS),
-            array($this, 'api_token_cb'),
-            self::page_slug,
+            __('Token', WordPressPlugin::I18N_NS),
+            [$this, 'api_token_cb'],
+            self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_token')
+            ['label_for' => 'coyote_api_token']
         );
 
         add_settings_field(
-            'coyote_api_metum',
-            __('Metum', COYOTE_I18N_NS),
-            array($this, 'api_metum_cb'),
-            self::page_slug,
+            'coyote_api_endpoint',
+            __('Endpoint', WordPressPlugin::I18N_NS),
+            [$this, 'api_endpoint_cb'],
+            self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_metum')
+            ['label_for' => 'coyote_api_endpoint']
         );
 
-        if (!$this->profile) {
+        /*
+         * Check if profile is set, if not return
+         * This only renders the fields needed to register an API token
+         */
+        if (!$this->profile)
             return;
-        }
 
         add_settings_field(
             'coyote_api_organization_id',
-            __('Organization', COYOTE_I18N_NS),
-            array($this, 'api_organization_id_cb'),
-            self::page_slug,
+            __('Organization', WordPressPlugin::I18N_NS),
+            [$this, 'api_organization_id_cb'],
+            self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_organization_id')
+            ['label_for' => 'coyote_api_organization_id']
         );
 
+        /*
+         * Register standalone settings section
+         */
         add_settings_section(
-            self::advanced_settings_section,
-            __('Advanced settings', COYOTE_I18N_NS),
+            self::standalone_settings_section,
+            __('Standalone settings', WordPressPlugin::I18N_NS),
             [$this, 'noop_setting_section_cb'],
-            self::page_slug
+            self::settings_slug_main
         );
 
         add_settings_field(
             'coyote_is_standalone',
-            __('Run in standalone mode', COYOTE_I18N_NS),
-            array($this, 'settings_is_standalone_cb'),
-            self::page_slug,
+            __('Run in standalone mode', WordPressPlugin::I18N_NS),
+            [$this, 'settings_is_standalone_cb'],
+            self::settings_slug_main,
+            self::standalone_settings_section,
+            ['label_for' => 'coyote_is_standalone']
+        );
+
+        /*
+         * Register advanced settings section
+         */
+        add_settings_section(
             self::advanced_settings_section,
-            array('label_for' => 'coyote_is_standalone')
+            __('Advanced settings', WordPressPlugin::I18N_NS),
+            [$this, 'noop_setting_section_cb'],
+            self::settings_slug_advanced
+        );
+
+        add_settings_field(
+            'coyote_api_metum',
+            __('Metum', WordPressPlugin::I18N_NS),
+            [$this, 'api_metum_cb'],
+            self::settings_slug_advanced,
+            self::advanced_settings_section,
+            ['label_for' => 'coyote_api_metum']
         );
 
         add_settings_field(
             'coyote_filters_enabled',
-            __('Filter images through Coyote', COYOTE_I18N_NS),
-            array($this, 'settings_filters_enabled_cb'),
-            self::page_slug,
+            __('Filter images through Coyote', WordPressPlugin::I18N_NS),
+            [$this, 'settings_filters_enabled_cb'],
+            self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_filters_enabled')
+            ['label_for' => 'coyote_filters_enabled']
         );
 
         add_settings_field(
             'coyote_updates_enabled',
-            __('Enable Coyote remote description updates', COYOTE_I18N_NS),
-            array($this, 'settings_updates_enabled_cb'),
-            self::page_slug,
+            __('Enable Coyote remote description updates', WordPressPlugin::I18N_NS),
+            [$this, 'settings_updates_enabled_cb'],
+            self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_updates_enabled')
+            ['label_for' => 'coyote_updates_enabled']
         );
 
         add_settings_field(
             'coyote_skip_unpublished_enabled',
-            __('Skip unpublished items when importing', COYOTE_I18N_NS),
-            array($this, 'settings_skip_unpublished_enabled_cb'),
-            self::page_slug,
+            __('Skip unpublished items when importing', WordPressPlugin::I18N_NS),
+            [$this, 'settings_skip_unpublished_enabled_cb'],
+            self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_skip_unpublished_enabled')
+            ['label_for' => 'coyote_skip_unpublished_enabled']
         );
 
     }
 
+    /**
+     * WP Admin standalone page
+     * @void string HTML for page showing standalone is active
+     */
     public function plugin_setting_section_cb() {
+
+        /*
+         * Only render when in standalone mode
+         */
         if ($this->is_standalone) {
-            $heading = __('Standalone mode', COYOTE_I18N_NS);
-            $message = __('Coyote is running in standalone mode. No settings are available, and no remote Coyote API is used to manage resources and descriptions. Any locally stored image descriptions will be used to describe images.', COYOTE_I18N_NS);
-            echo "
-                <div id=\"coyote_is_standalone\">
-                    <h3>{$heading}</h3>
-                    <p>{$message}</p>
-                    <input id=\"coyote_is_standalone\" value=\"false\" type=\"hidden\">
-            ";
+            ?>
+            <div class="notice notice-info">
+                <h3><?php _e('Standalone mode', WordPressPlugin::I18N_NS); ?></h3>
+                <p><?php _e('Coyote is running in standalone mode. No settings are available, and no remote Coyote API is used to manage resources and descriptions. Any locally stored image descriptions will be used to describe images.', WordPressPlugin::I18N_NS); ?></p>
+            </div>
 
-            submit_button(__('Turn off standalone mode', COYOTE_I18N_NS));
-
-            echo "
-                </div>
-            ";
+            <input id="coyote_is_standalone" value="false" type="hidden">
+            <?php submit_button(__('Turn off standalone mode', WordPressPlugin::I18N_NS));
 
             return;
         }
 
-        $message = __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', COYOTE_I18N_NS);
-        echo "<p>{$message}</p>";
+        printf( "<p>%s</p>", __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', WordPressPlugin::I18N_NS));
     }
 
     public function noop_setting_section_cb() {}
 
     public function api_endpoint_cb() {
-        echo '<input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="' . esc_url(get_option('coyote_api_endpoint', 'https://staging.coyote.pics')) . '" size="50" aria-describedby="coyote_api_endpoint_hint"/>';
-        echo '<p id="coyote_api_endpoint_hint">' . __('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="<?= esc_url(pluginConfiguration::getApiEndPoint()) ?>" size="50" aria-describedby="coyote_api_endpoint_hint"/>
+        <p id="coyote_api_endpoint_hint"><?php _e('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function api_token_cb() {
-        echo '<input name="coyote_api_token" id="coyote_api_token" type="text" value="' . sanitize_text_field(get_option('coyote_api_token')) . '" size="30" aria-describedby="coyote_api_token_hint"/>';
-        echo '<p id="coyote_api_token_hint">' . __('The API token associated with your Coyote account.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_token" id="coyote_api_token" type="text" value="<?= sanitize_text_field(pluginConfiguration::getApiToken()); ?>" size="30" aria-describedby="coyote_api_token_hint"/>
+        <p id="coyote_api_token_hint"><?php _e('The API token associated with your Coyote account.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function api_metum_cb() {
-        echo '<input name="coyote_api_metum" id="coyote_api_metum" type="text" value="' . sanitize_text_field(get_option('coyote_api_metum', 'Alt')) . '" size="20" aria-describedby="coyote_api_metum_hint"/>';
-        echo '<p id="coyote_api_metum_hint">' . __('The metum used by the API to categorise image descriptions, e.g. "Alt".', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input name="coyote_api_metum" id="coyote_api_metum" type="text" value="<?= sanitize_text_field(pluginConfiguration::getMetum()); ?>" size="20" aria-describedby="coyote_api_metum_hint"/>
+        <p id="coyote_api_metum_hint"><?php _e('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function api_organization_id_cb() {
-        $organization_id = PluginConfiguration::getApiOrganizationId();
-        $organizations = $this->profile->getOrganizations();
-        $single_org = count($organizations) === 1;
+        $organization_id    = PluginConfiguration::getApiOrganizationId();
+        $organizations      = $this->profile->getOrganizations();
+        $single_org         = count($organizations) === 1;
+        ?>
+        <select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">
+            <?php
 
-        echo '<select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">';
+            if (!$single_org) {
+                ?>
+                <option <?php selected( empty($organization_id), true ); ?> value=''><?php _e('--select an organization--', WordPressPlugin::I18N_NS); ?></option>
+                <?php
+            }
 
-        if (!$single_org) {
-            $default = empty($organization_id) ? 'selected' : '';
-            echo "<option {$default} value=''>" . __('--select an organization--', COYOTE_I18N_NS) . "</option>";
-        }
+            foreach ($organizations as $org) {
+                ?>
+                <option <?php selected( $org->getId(), $organization_id ); ?> value="<?= $org->getId(); ?>"><?= esc_html($org->getName()); ?></option>
+                <?php
+            }
+            ?>
+        </select>
 
-        foreach ($organizations as $org) {
-            $selected = $org->getId() === $organization_id ? 'selected' : '';
-            echo "<option {$selected} value=\"" . $org->getId() ."\">" . esc_html($org->getName()). "</option>";
-        }
-
-        echo '</select>';
-
-        echo '<div id="coyote_org_change_alert" role="alert" data-message="' . __('Important: changing organization requires an import of coyote resources.', COYOTE_I18N_NS) . '"></div>';
-
-        echo '<p id="coyote_api_organization_id_hint">' . __('The Coyote organization to associate with.', COYOTE_I18N_NS) . '</p>';
+        <div id="coyote_org_change_alert" role="alert" data-message="<?php _e('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS); ?>"></div>
+        <p id="coyote_api_organization_id_hint"><?php _e('The Coyote organization to associate with.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_is_standalone_cb() {
-        $setting = esc_html(get_option('coyote_is_standalone', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_is_standalone\" id=\"coyote_is_standalone\" {$checked} aria-describedby=\"coyote_is_standalone_hint\">";
-        echo '<p id="coyote_is_standalone_hint">' . __('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_is_standalone" id="coyote_is_standalone" <?php checked( PluginConfiguration::isStandalone(), true ); ?> aria-describedby="coyote_is_standalone_hint">
+        <p id="coyote_is_standalone_hint"><?php _e('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_filters_enabled_cb() {
-        $setting = esc_html(get_option('coyote_filters_enabled', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_filters_enabled\" id=\"coyote_filters_enabled\" {$checked} aria-describedby=\"coyote_filters_enabled_hint\">";
-        echo '<p id="coyote_filters_enabled_hint">' . __('The plugin manages image descriptions for posts, pages and media.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_filters_enabled" id="coyote_filters_enabled" <?php checked( PluginConfiguration::hasFiltersEnabled(), true ); ?> aria-describedby="coyote_filters_enabled_hint">
+        <p id="coyote_filters_enabled_hint"><?php _e('The plugin manages image descriptions for posts, pages and media.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_updates_enabled_cb() {
-        $setting = esc_html(get_option('coyote_updates_enabled', true));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_updates_enabled\" id=\"coyote_updates_enabled\" {$checked} aria-describedby=\"coyote_updates_enabled_hint\">";
-        echo '<p id="coyote_updates_enabled_hint">' . __('The plugin responds to approved image description updates issued through the Coyote API.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_updates_enabled" id="coyote_updates_enabled" <?php checked( PluginConfiguration::hasUpdatesEnabled(), true ); ?> aria-describedby="coyote_updates_enabled_hint">
+        <p id="coyote_updates_enabled_hint"><?php _e('The plugin responds to approved image description updates issued through the Coyote API.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 
     public function settings_skip_unpublished_enabled_cb() {
-        $setting = esc_html(get_option('coyote_skip_unpublished_enabled', false));
-        $checked = $setting ? 'checked' : '';
-        echo "<input type=\"checkbox\" name=\"coyote_skip_unpublished_enabled\" id=\"coyote_skip_unpublished_enabled\" {$checked} aria-describedby=\"coyote_skip_unpublished_enabled_hint\">";
-        echo '<p id="coyote_skip_unpublished_enabled_hint">' . __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', COYOTE_I18N_NS) . '</p>';
+        ?>
+        <input type="checkbox" name="coyote_skip_unpublished_enabled" id="coyote_skip_unpublished_enabled" <?php checked( PluginConfiguration::isNotProcessingUnpublishedPosts(), true ); ?> aria-describedby="coyote_skip_unpublished_enabled_hint">
+        <p id="coyote_skip_unpublished_enabled_hint"><?php _e('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS); ?></p>
+        <?php
     }
 }
