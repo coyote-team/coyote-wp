@@ -112,7 +112,25 @@ class PluginConfiguration
 
     public static function getApiProfile(): ?ProfileModel
     {
-        return get_option('coyote_api_profile', null);
+        return self::possiblyMigrateApiProfile( get_option('coyote_api_profile', null) );
+    }
+
+    /*
+     * Check if ProfileModel is outdated (v1 object)
+     * If so, retrieve v2 model and update the object in the database
+     */
+    public static function possiblyMigrateApiProfile($profile): ?ProfileModel
+    {
+        if (is_null($profile))
+            return null;
+
+        if (!$profile instanceof ProfileModel)
+            $profile = WordPressCoyoteApiClient::getProfile();
+
+        if(!is_null($profile))
+            self::setApiProfile($profile);
+
+        return $profile;
     }
 
     public static function setApiProfile(ProfileModel $profile): void
