@@ -119,7 +119,10 @@ class PluginConfiguration
             return null;
 
         if (!$profile instanceof ProfileModel)
-            self::setApiProfile(WordPressCoyoteApiClient::getProfile());
+            $profile = WordPressCoyoteApiClient::getProfile();
+
+        if(!is_null($profile))
+            self::setApiProfile($profile);
 
         return $profile;
     }
