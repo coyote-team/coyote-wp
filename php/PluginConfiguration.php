@@ -30,7 +30,8 @@ class PluginConfiguration
 
     public static function getMetum(): ?string
     {
-        return get_option('coyote_api_metum', self::METUM);
+        $metum = get_option('coyote_api_metum', self::METUM);
+        return self::isNonEmptyString( $metum ) ? $metum : self::METUM;
     }
 
     public static function setApiOrganizationId(string $id): void
@@ -76,12 +77,12 @@ class PluginConfiguration
 
     public static function hasFiltersEnabled(): bool
     {
-        return get_option('coyote_filters_enabled', false);
+        return !!get_option('coyote_filters_enabled', false);
     }
 
     public static function hasUpdatesEnabled(): bool
     {
-        return get_option('coyote_updates_enabled', false);
+        return !!get_option('coyote_updates_enabled', false);
     }
 
     public static function hasStoredApiProfile(): bool
@@ -91,7 +92,7 @@ class PluginConfiguration
 
     public static function isInstalled(): bool
     {
-        return get_option('coyote_plugin_is_installed', false);
+        return !!get_option('coyote_plugin_is_installed', false);
     }
 
     /** @return int|bool */
@@ -167,7 +168,7 @@ class PluginConfiguration
 
     public static function isNotProcessingUnpublishedPosts(): bool
     {
-        return get_option('coyote_skip_unpublished_enabled', true);
+        return !!get_option('coyote_skip_unpublished_enabled', true);
     }
 
     public static function getProcessedPostTypes(): array
