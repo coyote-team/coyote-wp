@@ -8,13 +8,14 @@ class PluginConfiguration
 {
 
     public const METUM = 'Alt';
+    public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
 
     public static function getApiEndPoint(): ?string
     {
-        return get_option('coyote_api_endpoint', "https://staging.coyote.pics");
+        return get_option('coyote_api_endpoint', self::DEFAULT_ENDPOINT);
     }
 
     public static function getApiToken(): ?string
