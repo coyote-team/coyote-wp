@@ -632,7 +632,7 @@ class SettingsController {
             [$this, 'api_token_cb'],
             self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_token')
+            ['label_for' => 'coyote_api_token']
         );
 
         add_settings_field(
@@ -641,7 +641,7 @@ class SettingsController {
             [$this, 'api_endpoint_cb'],
             self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_endpoint')
+            ['label_for' => 'coyote_api_endpoint']
         );
 
         /*
@@ -657,7 +657,7 @@ class SettingsController {
             [$this, 'api_organization_id_cb'],
             self::settings_slug_main,
             self::api_settings_section,
-            array('label_for' => 'coyote_api_organization_id')
+            ['label_for' => 'coyote_api_organization_id']
         );
 
         /*
@@ -676,7 +676,7 @@ class SettingsController {
             [$this, 'settings_is_standalone_cb'],
             self::settings_slug_main,
             self::standalone_settings_section,
-            array('label_for' => 'coyote_is_standalone')
+            ['label_for' => 'coyote_is_standalone']
         );
 
         /*
@@ -695,7 +695,7 @@ class SettingsController {
             [$this, 'api_metum_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_api_metum')
+            ['label_for' => 'coyote_api_metum']
         );
 
         add_settings_field(
@@ -704,7 +704,7 @@ class SettingsController {
             [$this, 'settings_filters_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_filters_enabled')
+            ['label_for' => 'coyote_filters_enabled']
         );
 
         add_settings_field(
@@ -713,7 +713,7 @@ class SettingsController {
             [$this, 'settings_updates_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_updates_enabled')
+            ['label_for' => 'coyote_updates_enabled']
         );
 
         add_settings_field(
@@ -722,7 +722,7 @@ class SettingsController {
             [$this, 'settings_skip_unpublished_enabled_cb'],
             self::settings_slug_advanced,
             self::advanced_settings_section,
-            array('label_for' => 'coyote_skip_unpublished_enabled')
+            ['label_for' => 'coyote_skip_unpublished_enabled']
         );
 
     }
