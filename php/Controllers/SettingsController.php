@@ -714,43 +714,18 @@ class SettingsController {
     }
 
     public function api_organization_id_cb() {
-//         echo $this->twig->render('SettingsFields/Select.html.twig', [
-//             'name'                  => 'coyote_api_organization_id',
-//             'label'                 => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
-//             'notSingleLabel'        => __('--select an organization--', WordPressPlugin::I18N_NS),
-//             'options'               => $this->profile->getOrganizations(),
-//             'currentOption'         => PluginConfiguration::getApiOrganizationId(),
-//             'hasOnChangeAlert'      => true,
-//             'alert'                 => [
-//                 'id'                => 'coyote_org_change_alert',
-//                 'message'           => __('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS),
-//             ]
-//         ]);
-
-        $organization_id    = PluginConfiguration::getApiOrganizationId();
-        $organizations      = $this->profile->getOrganizations();
-        $single_org         = count($organizations) === 1;
-        ?>
-        <select name="coyote_api_organization_id" id="coyote_api_organization_id" aria-describedby="coyote_api_organization_id_hint">
-            <?php
-
-            if (!$single_org) {
-                ?>
-                <option <?php selected( empty($organization_id), true ); ?> value=''><?php _e('--select an organization--', WordPressPlugin::I18N_NS); ?></option>
-                <?php
-            }
-
-            foreach ($organizations as $org) {
-                ?>
-                <option <?php selected( $org->getId(), $organization_id ); ?> value="<?= $org->getId(); ?>"><?= esc_html($org->getName()); ?></option>
-                <?php
-            }
-            ?>
-        </select>
-
-        <div id="coyote_org_change_alert" role="alert" data-message="<?php _e('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS); ?>"></div>
-        <p id="coyote_api_organization_id_hint"><?php _e('The Coyote organization to associate with.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        // TODO test with multiple organizations
+        echo $this->twig->render('SettingsFields/Select.html.twig', [
+            'name'                  => 'coyote_api_organization_id',
+            'label'                 => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
+            'notSingleLabel'        => __('--select an organization--', WordPressPlugin::I18N_NS),
+            'options'               => $this->profile->getOrganizations(),
+            'currentOption'         => PluginConfiguration::getApiOrganizationId(),
+            'alert'                 => [
+                'id'                => 'coyote_org_change_alert',
+                'message'           => __('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS),
+            ]
+        ]);
     }
 
     public function settings_is_standalone_cb() {

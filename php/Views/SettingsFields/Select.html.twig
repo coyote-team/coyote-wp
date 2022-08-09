@@ -10,7 +10,7 @@
                 selected="selected"
             {% endif %}
         >
-            {{ text.notSingleLabel }}
+            {{ notSingleLabel }}
         </option>
     {% endif %}
 
@@ -25,7 +25,7 @@
         </option>
     {% endfor %}
 </select>
-{% if hasOnChangeAlert %}
+{% if not alert is empty %}
     <div id="{{ alert.id }}" role="alert" data-message="{{ alert.message }}"></div>
 {% endif %}
 <p id="{{ name }}_hint">
