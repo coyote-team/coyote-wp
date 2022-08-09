@@ -24,17 +24,6 @@ class SettingsController {
     use Logger;
 
     /**
-     * Twig environment
-     */
-    protected $twig;
-
-    /**
-     * Twig templates directory path
-     * @var string twig_templates_dir_path
-     */
-    const twig_templates_dir_path = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
-
-    /**
      * Profile fetched from API
      */
     private ?ProfileModel $profile;
@@ -185,12 +174,20 @@ class SettingsController {
     private bool $profile_fetch_failed;
 
     /**
+     * Twig environment
+     */
+    protected $twig;
+
+    /**
+     * Twig templates directory path
+     * @var string twig_templates_dir_path
+     */
+    const twig_templates_dir_path = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
+
+    /**
      * Constructor
      */
     function __construct() {
-
-        $this->twig = new Environment(new FilesystemLoader(self::twig_templates_dir_path));
-        $this->twig = $this->set_twig_functions($this->twig);
 
         /*
          * Set page and menu titles via i18n functions
@@ -228,6 +225,12 @@ class SettingsController {
             add_action('add_option_coyote_api_organization_id', [$this, 'set_organization_id'], 10, 2);
             add_action('update_option_coyote_is_standalone', [$this, 'change_standalone_mode'], 10, 3);
         }
+
+        /*
+         * Set Twig environment and add functions to it
+         */
+        $this->twig = new Environment(new FilesystemLoader(self::twig_templates_dir_path));
+        $this->twig = $this->set_twig_functions($this->twig);
 
     }
 
@@ -760,6 +763,9 @@ class SettingsController {
         ]);
     }
 
+    /*
+     * Functions to add to a Twig environment
+     */
     private function set_twig_functions($twig) {
         $twig->addFunction(new TwigFunction('settings_fields', function ($slug) {
             return settings_fields($slug);
