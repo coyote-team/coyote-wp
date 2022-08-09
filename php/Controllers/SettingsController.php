@@ -800,45 +800,93 @@ class SettingsController {
          * Only render when in standalone mode
          */
         if ($this->is_standalone) {
-            ?>
+            echo $this->twig->render('SettingsFields/HiddenActionNotice.html.twig', [
+                'type'                  => 'info',
+                'title'                 => __('Standalone mode', WordPressPlugin::I18N_NS),
+                'text'                  => __('Coyote is running in standalone mode. No settings are available, and no remote Coyote API is used to manage resources and descriptions. Any locally stored image descriptions will be used to describe images.', WordPressPlugin::I18N_NS),
+                'buttonText'            => __('Turn off standalone mode', WordPressPlugin::I18N_NS),
+                'hiddenAction'          => [
+                    'id'                => 'coyote_is_standalone',
+                    'value'             => 'false',
+                ]
+            ]);
+
+            /* ?>
             <div class="notice notice-info">
                 <h3><?php _e('Standalone mode', WordPressPlugin::I18N_NS); ?></h3>
                 <p><?php _e('Coyote is running in standalone mode. No settings are available, and no remote Coyote API is used to manage resources and descriptions. Any locally stored image descriptions will be used to describe images.', WordPressPlugin::I18N_NS); ?></p>
             </div>
 
             <input id="coyote_is_standalone" value="false" type="hidden">
-            <?php submit_button(__('Turn off standalone mode', WordPressPlugin::I18N_NS));
+            <?php submit_button(__('Turn off standalone mode', WordPressPlugin::I18N_NS)); */
 
             return;
         }
 
-        printf( "<p>%s</p>", __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', WordPressPlugin::I18N_NS));
+//         printf( "<p>%s</p>", __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', WordPressPlugin::I18N_NS));
+        echo $this->twig->render('SettingsFields/Paragraph.html.twig', [
+            'text' => __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', WordPressPlugin::I18N_NS),
+        ]);
     }
 
     public function noop_setting_section_cb() {}
 
     public function api_endpoint_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputText.html.twig', [
+            'name'                  => 'coyote_api_endpoint',
+            'label'                 => __('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', WordPressPlugin::I18N_NS),
+            'size'                  => 50,
+            'value'                 => esc_url(pluginConfiguration::getApiEndPoint())
+        ]);
+
+        /* ?>
         <input name="coyote_api_endpoint" id="coyote_api_endpoint" type="text" value="<?= esc_url(pluginConfiguration::getApiEndPoint()) ?>" size="50" aria-describedby="coyote_api_endpoint_hint"/>
         <p id="coyote_api_endpoint_hint"><?php _e('The endpoint for your Coyote instance, e.g. "https://staging.coyote.pics".', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function api_token_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputText.html.twig', [
+            'name'                  => 'coyote_api_token',
+            'label'                 => __('The API token associated with your Coyote account.', WordPressPlugin::I18N_NS),
+            'size'                  => 30,
+            'value'                 => sanitize_text_field(pluginConfiguration::getApiToken())
+        ]);
+
+        /* ?>
         <input name="coyote_api_token" id="coyote_api_token" type="text" value="<?= sanitize_text_field(pluginConfiguration::getApiToken()); ?>" size="30" aria-describedby="coyote_api_token_hint"/>
         <p id="coyote_api_token_hint"><?php _e('The API token associated with your Coyote account.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function api_metum_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputText.html.twig', [
+            'name'                  => 'coyote_api_metum',
+            'label'                 => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
+            'size'                  => 20,
+            'value'                 => sanitize_text_field(pluginConfiguration::getMetum())
+        ]);
+
+        /* ?>
         <input name="coyote_api_metum" id="coyote_api_metum" type="text" value="<?= sanitize_text_field(pluginConfiguration::getMetum()); ?>" size="20" aria-describedby="coyote_api_metum_hint"/>
         <p id="coyote_api_metum_hint"><?php _e('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function api_organization_id_cb() {
+//         echo $this->twig->render('SettingsFields/Select.html.twig', [
+//             'name'                  => 'coyote_api_organization_id',
+//             'label'                 => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
+//             'notSingleLabel'        => __('--select an organization--', WordPressPlugin::I18N_NS),
+//             'options'               => $this->profile->getOrganizations(),
+//             'currentOption'         => PluginConfiguration::getApiOrganizationId(),
+//             'hasOnChangeAlert'      => true,
+//             'alert'                 => [
+//                 'id'                => 'coyote_org_change_alert',
+//                 'message'           => __('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS),
+//             ]
+//         ]);
+
         $organization_id    = PluginConfiguration::getApiOrganizationId();
         $organizations      = $this->profile->getOrganizations();
         $single_org         = count($organizations) === 1;
@@ -866,31 +914,55 @@ class SettingsController {
     }
 
     public function settings_is_standalone_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputCheckbox.html.twig', [
+            'name'                  => 'coyote_is_standalone',
+            'label'                 => __('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', WordPressPlugin::I18N_NS),
+            'checked'               => PluginConfiguration::isStandalone()
+        ]);
+
+        /* ?>
         <input type="checkbox" name="coyote_is_standalone" id="coyote_is_standalone" <?php checked( PluginConfiguration::isStandalone(), true ); ?> aria-describedby="coyote_is_standalone_hint">
         <p id="coyote_is_standalone_hint"><?php _e('The plugin does not attempt to communicate with the API. The plugin configuration becomes unavailable until standalone mode is again disabled.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function settings_filters_enabled_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputCheckbox.html.twig', [
+            'name'                  => 'coyote_filters_enabled',
+            'label'                 => __('The plugin manages image descriptions for posts, pages and media.', WordPressPlugin::I18N_NS),
+            'checked'               => PluginConfiguration::hasFiltersEnabled()
+        ]);
+
+        /* ?>
         <input type="checkbox" name="coyote_filters_enabled" id="coyote_filters_enabled" <?php checked( PluginConfiguration::hasFiltersEnabled(), true ); ?> aria-describedby="coyote_filters_enabled_hint">
         <p id="coyote_filters_enabled_hint"><?php _e('The plugin manages image descriptions for posts, pages and media.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function settings_updates_enabled_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputCheckbox.html.twig', [
+            'name'                  => 'coyote_updates_enabled',
+            'label'                 => __('The plugin responds to approved image description updates issued through the Coyote API.', WordPressPlugin::I18N_NS),
+            'checked'               => PluginConfiguration::hasUpdatesEnabled()
+        ]);
+
+        /* ?>
         <input type="checkbox" name="coyote_updates_enabled" id="coyote_updates_enabled" <?php checked( PluginConfiguration::hasUpdatesEnabled(), true ); ?> aria-describedby="coyote_updates_enabled_hint">
         <p id="coyote_updates_enabled_hint"><?php _e('The plugin responds to approved image description updates issued through the Coyote API.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     public function settings_skip_unpublished_enabled_cb() {
-        ?>
+        echo $this->twig->render('SettingsFields/InputCheckbox.html.twig', [
+            'name'                  => 'coyote_skip_unpublished_enabled',
+            'label'                 => __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS),
+            'checked'               => PluginConfiguration::isNotProcessingUnpublishedPosts()
+        ]);
+
+        /* ?>
         <input type="checkbox" name="coyote_skip_unpublished_enabled" id="coyote_skip_unpublished_enabled" <?php checked( PluginConfiguration::isNotProcessingUnpublishedPosts(), true ); ?> aria-describedby="coyote_skip_unpublished_enabled_hint">
         <p id="coyote_skip_unpublished_enabled_hint"><?php _e('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS); ?></p>
-        <?php
+        <?php */
     }
 
     private function set_twig_functions($twig) {
@@ -902,6 +974,9 @@ class SettingsController {
         }));
         $twig->addFunction(new TwigFunction('submit_button', function () {
             return submit_button();
+        }));
+        $twig->addFunction(new TwigFunction('submit_button_text', function ($text) {
+            return submit_button($text);
         }));
 
         return $twig;
