@@ -2,6 +2,8 @@
 
 namespace Coyote;
 
+use Coyote\Model\MembershipModel;
+use Coyote\Model\OrganizationModel;
 use Coyote\Model\ProfileModel;
 
 class PluginConfiguration
@@ -10,6 +12,7 @@ class PluginConfiguration
     public const METUM = 'Alt';
     public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
+    public const ALLOWED_ROLES = ['editor','admin','owner'];
     public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
