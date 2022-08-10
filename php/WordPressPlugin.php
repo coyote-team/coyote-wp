@@ -33,10 +33,13 @@ class WordPressPlugin
 
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
-        self::setupControllers();
+		/*
+		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
+		 */
+		add_action('plugins_loaded', [$this, 'setupControllers']);
     }
 
-    private static function setupControllers(): void
+    public static function setupControllers(): void
     {
         if (PluginConfiguration::userIsAdmin()) {
             (new SettingsController());
