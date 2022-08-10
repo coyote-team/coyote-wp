@@ -47,6 +47,24 @@ class PluginConfiguration
         return $resourceGroupId > -1 ? $resourceGroupId : null;
     }
 
+	/*
+	 * Get Membership role linked to the API profile
+	 *
+	 * @return ?string role
+	 */
+	public static function getApiMembershipRole(): ?string
+	{
+		$profile = self::getApiProfile();
+		if (is_null($profile))
+			return null;
+
+		$memberships = $profile->getMemberships();
+		if (!is_array($memberships))
+			return null;
+
+		return reset($memberships)->getRole();
+	}
+
     public static function isStandalone(): bool
     {
         return get_option('coyote_is_standalone', false);
@@ -124,6 +142,7 @@ class PluginConfiguration
      */
     public static function possiblyMigrateApiProfile($profile): ?ProfileModel
     {
+	    error_log( print_r( $profile, true ));
         if (is_null($profile))
             return null;
 
