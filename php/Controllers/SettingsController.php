@@ -336,6 +336,13 @@ class SettingsController {
     }
 
     /**
+     * Get registered post types in WordPress
+     */
+    private function getRegisteredPostTypes(): array {
+        return get_post_types();
+    }
+
+    /**
      * WP Admin main settings page
      * @void string HTML for page holding form with setting inputs
      */

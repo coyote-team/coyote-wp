@@ -10,6 +10,7 @@ class PluginConfiguration
     public const METUM = 'Alt';
     public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
+    public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
@@ -178,7 +179,8 @@ class PluginConfiguration
 
     public static function getProcessedPostTypes(): array
     {
-        return ['page', 'post', 'attachment'];
+	    $processedPostTypes = get_option('coyote_api_processed_post_types', self::PROCESSED_POST_TYPES);
+	    return is_array( $processedPostTypes ) ? $processedPostTypes : self::PROCESSED_POST_TYPES;
     }
 
     public static function deletePluginOptions(): void
