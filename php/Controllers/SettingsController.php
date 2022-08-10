@@ -473,9 +473,8 @@ class SettingsController {
         return esc_html($metum);
     }
 
-    public function sanitize_organization_id($organization_id) {
-        // validate the organization id is valid?
-        return esc_html($organization_id);
+    public function sanitize_organization_id($organizationId) {
+        return (PluginConfiguration::isOrganizationRoleAllowed($organizationId)) ? esc_html($organizationId) : null;
     }
 
     public function init() {
