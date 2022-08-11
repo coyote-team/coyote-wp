@@ -1,0 +1,27 @@
+<div class="wrap">
+    <h2>{{ pageTitle }}</h2>
+    <form method="post" action="options.php">
+
+        {# Check for admin notices #}
+        {% if not isStandalone %}
+            {% if profile %}
+                {% set memberships = profile.getMemberships %}
+                <div class="notice notice-info">
+                    <p>{{ hasProfileMessage|format(profile.getname, memberships|first.getRole) }}</p>
+                </div>
+            {% elseif profileFetchFailed %}
+                <div class="notice notice-error">
+                    <p>{{ noProfileMessage }}</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {{ settings_fields(settingsSlug) }}
+        {{ do_settings_sections(settingsSlug) }}
+
+        {% if not isStandalone %}
+            {{ submit_button() }}
+        {% endif %}
+
+    </form>
+</div>

@@ -1,0 +1,14 @@
+<div class="wrap">
+    <h2>{{ pageTitle }}</h2>
+    <form method="post" action="options.php">
+
+        {{ settings_fields(settingsSlug) }}
+        {{ do_settings_sections(settingsSlug) }}
+
+
+        {% if not isStandalone %}
+            {{ submit_button() }}
+        {% endif %}
+
+    </form>
+</div>
