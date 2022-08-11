@@ -500,6 +500,7 @@ class SettingsController {
             register_setting(self::settings_slug_advanced, 'coyote_filters_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::settings_slug_advanced, 'coyote_updates_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
             register_setting(self::settings_slug_advanced, 'coyote_skip_unpublished_enabled', ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitize_boolean']]);
+            register_setting(self::settings_slug_advanced, 'coyote_plugin_processed_post_types', ['type' => 'array']);
 
             /*
              * Register admin subpage tools settings
@@ -643,6 +644,15 @@ class SettingsController {
             ['label_for' => 'coyote_skip_unpublished_enabled']
         );
 
+		add_settings_field(
+            'coyote_plugin_processed_post_types',
+            __('Select which post types to process', WordPressPlugin::I18N_NS),
+            [$this, 'settings_plugin_processed_post_types_cb'],
+            self::settings_slug_advanced,
+            self::advanced_settings_section,
+            ['label_for' => 'coyote_plugin_processed_post_types']
+        );
+
     }
 
     /**
@@ -745,5 +755,24 @@ class SettingsController {
             'label'                 => __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS),
             'checked'               => PluginConfiguration::isNotProcessingUnpublishedPosts()
         ]);
+    }
+
+	/**
+	 * Render post type checkbox inputs
+	 */
+    public function settings_plugin_processed_post_types_cb(): void {
+	    $processedPostTypes = PluginConfiguration::getProcessedPostTypes();
+		$availablePostTypes = SettingsController::getRegisteredPostTypes();
+		if(!empty($availablePostTypes)) {
+			foreach($availablePostTypes as $postType) {
+				echo $this->twig->render('Partials/InputCheckbox.html.twig', [
+		            'name'      => 'coyote_plugin_processed_post_types[]',
+		            'id'        => "coyote_plugin_processed_post_types_{$postType}",
+		            'value'     => $postType,
+		            'label'     => $postType,
+		            'checked'   => in_array($postType, $processedPostTypes)
+		        ]);
+			}
+		}
     }
 }

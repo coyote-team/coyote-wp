@@ -1,12 +1,34 @@
-<input
-    type="checkbox"
-    name="{{ name }}"
-    id="{{ name }}"
-    {% if checked %}
-        checked="checked"
-    {% endif %}
-    aria-describedby="{{ name }}_hint"
->
-<p id="{{ name }}_hint">
-    {{ label }}
-</p>
+{% if id is not empty %}
+    <p>
+        <input
+            type="checkbox"
+            name="{{ name }}"
+            id="{{ id }}"
+            {% if checked %}
+                checked="checked"
+            {% endif %}
+            {% if value %}
+                value="{{ value }}"
+            {% endif %}
+        >
+        <label for="{{ id }}">
+            {{ label }}
+        </label>
+    </p>
+{% else %}
+    <input
+        type="checkbox"
+        name="{{ name }}"
+        id="{{ name }}"
+        {% if checked %}
+            checked="checked"
+        {% endif %}
+        {% if value %}
+            value="{{ value }}"
+        {% endif %}
+        aria-describedby="{{ name }}_hint"
+    >
+    <p id="{{ name }}_hint">
+        {{ label }}
+    </p>
+{% endif %}

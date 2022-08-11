@@ -177,10 +177,18 @@ class PluginConfiguration
         return !!get_option('coyote_skip_unpublished_enabled', true);
     }
 
+	/**
+	 * get optionally stored post types to process
+	 *
+	 * @return array
+	 */
     public static function getProcessedPostTypes(): array
     {
-	    $processedPostTypes = get_option('coyote_api_processed_post_types', self::PROCESSED_POST_TYPES);
-	    return is_array( $processedPostTypes ) ? $processedPostTypes : self::PROCESSED_POST_TYPES;
+		$processedPostTypes = get_option('coyote_plugin_processed_post_types', 'not-exists');
+	    if(empty($processedPostTypes))
+		    return [];
+
+		return 'not-exists' !== $processedPostTypes ? $processedPostTypes : self::PROCESSED_POST_TYPES;
     }
 
     public static function deletePluginOptions(): void
