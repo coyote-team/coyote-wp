@@ -179,12 +179,6 @@ class SettingsController {
     protected $twig;
 
     /**
-     * Twig templates directory path
-     * @var string twig_templates_dir_path
-     */
-    const twig_templates_dir_path = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
-
-    /**
      * Constructor
      */
     function __construct() {
@@ -229,7 +223,7 @@ class SettingsController {
         /*
          * Set Twig environment and add functions to it
          */
-        $this->twig = new Environment(new FilesystemLoader(self::twig_templates_dir_path));
+        $this->twig = new Environment(new FilesystemLoader(PluginConfiguration::TWIG_TEMPLATES_PATH));
         $this->twig = $this->set_twig_functions($this->twig);
 
     }
