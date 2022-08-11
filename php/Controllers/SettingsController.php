@@ -18,8 +18,6 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Twig\TwigFunction;
 
-require(COYOTE_PLUGIN_PATH . 'vendor/autoload.php');
-
 class SettingsController {
     use Logger;
 
