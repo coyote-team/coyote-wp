@@ -7,10 +7,10 @@
             <p id="coyote_verify_resource_group_hint">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
         </div>
 
-        <h3>{{ text.processTitle }}</h3>
+        <h3>{{ 'Process existing posts'|translate }}</h3>
 
         {% if emptyOrganizationOption %}
-            <p>{{ text.emptyOrganizationMessage }}</p>
+            <p>{{ 'Please select a Coyote organization to process posts.'|translate }}</p>
         {% elseif not emptyOrganizationOption %}
 
             {% if batchJob %}
@@ -20,42 +20,42 @@
                 {% set processStatusHidden  = 'hidden' %}
             {% endif %}
 
-            {% for explanation in text.explainingMessages %}
-                <p>{{ explanation }}</p>
-            {% endfor %}
+            <p>{{ 'Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.'|translate }}</p>
+            <p>{{ 'If the status of the processing job keeps resulting in an error, consider decreasing the batch size.'|translate }}</p>
+            <p>{{ 'This process does not modify your WordPress content itself, and may be used more than once.'|translate }}</p>
 
             <div id="process-existing-posts">
                 <div class="form-group">
                     <label for="coyote_processor_endpoint">
-                        {{ text.processEndpointLabel }}
+                        {{ 'Processor endpoint'|translate }}
                     </label>
                     <input readonly {{ processDisabled }} id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value={{ processEndpoint }}>
                 </div>
                 <div class="form-group">
                     <label for="coyote_batch_size">
-                        {{ text.batchSizeLabel }}:
+                        {{ 'Batch size'|translate }}:
                     </label>
                     <input id="coyote_batch_size" type="text" size="3" maxlength="3" value={{ batchSize }}>
                 </div>
                 <div id="process-controls">
                     <button id="coyote_process_existing_posts" {{ processDisabled }} type="submit" class="button button-primary">
-                        {{ text.startProcessButtonText }}
+                        {{ 'Start processing job'|translate }}
                     </button>
                     <button id="coyote_cancel_processing" {{ cancelDisabled }} type="button" class="button">
-                        {{ text.cancelProcessButtonText }}
+                        {{ 'Cancel processing job'|translate }}
                     </button>
                 </div>
             </div>
 
             <div id="coyote_processing_status" {{ processStatusHidden }} aria-live="assertive" aria-atomic="true">
                 <div>
-                    <strong id="coyote_job_status">{{ text.processStatusLabel }}: <span></span></strong>
+                    <strong id="coyote_job_status">{{ 'Status'|translate }}: <span></span></strong>
                 </div>
                 <div>
-                    <strong id="coyote_processing">{{ text.processProgressLabel }}: <span></span>%</strong>
+                    <strong id="coyote_processing">{{ 'Processing'|translate }}: <span></span>%</strong>
                 </div>
                 <div>
-                    <strong hidden id="coyote_processing_complete">{{ text.processCompleteLabel }}.</strong>
+                    <strong hidden id="coyote_processing_complete">{{ 'Processing complete'|translate }}.</strong>
                 </div>
             </div>
 
