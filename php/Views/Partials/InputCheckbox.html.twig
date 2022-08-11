@@ -1,0 +1,12 @@
+<input
+    type="checkbox"
+    name="{{ name }}"
+    id="{{ name }}"
+    {% if checked %}
+        checked="checked"
+    {% endif %}
+    aria-describedby="{{ name }}_hint"
+>
+<p id="{{ name }}_hint">
+    {{ label }}
+</p>
