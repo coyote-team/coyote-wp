@@ -532,7 +532,7 @@ class SettingsController {
         add_settings_section(
             self::api_settings_section,
             __('API settings', WordPressPlugin::I18N_NS),
-            [$this, 'noop_setting_section_cb'],
+            '__return_null',
             self::settings_slug_main
         );
 
@@ -566,7 +566,7 @@ class SettingsController {
             add_settings_section(
                 self::standalone_settings_section,
                 __('Standalone settings', WordPressPlugin::I18N_NS),
-                [$this, 'noop_setting_section_cb'],
+                '__return_null',
                 self::settings_slug_main
             );
 
@@ -586,7 +586,7 @@ class SettingsController {
         add_settings_section(
             self::advanced_settings_section,
             __('Advanced settings', WordPressPlugin::I18N_NS),
-            [$this, 'noop_setting_section_cb'],
+            '__return_null',
             self::settings_slug_advanced
         );
 
@@ -673,8 +673,6 @@ class SettingsController {
             'text' => __('In order to use the plugin, configure the API settings accordingly. Once your profile has been retrieved and an organisation has been selected, you can optionally process any existing posts, pages and images to populate the Coyote instance.', WordPressPlugin::I18N_NS),
         ]);
     }
-
-    public function noop_setting_section_cb() {}
 
     public function api_endpoint_cb() {
         echo $this->twig->render('Partials/InputText.html.twig', [
