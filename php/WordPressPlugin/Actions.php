@@ -121,18 +121,20 @@ js;
 
     public static function onPluginActivate(): void
     {
-        if (PluginConfiguration::isInstalled()) {
-            self::logDebug("Plugin was active previously, not adding table");
-            return;
-        }
+	    PluginConfiguration::updatePluginVersion();
 
-        self::logDebug("Activating plugin");
-        PluginConfiguration::setInstalled();
-        DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
+		if (!PluginConfiguration::hasBeenInstalledBefore()) {
+		    self::logDebug("Plugin wasn't active previously, adding table");
+			DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
+	    }
+
+	    self::logDebug("Activating plugin");
+	    PluginConfiguration::setInstalled();
     }
 
     public static function onPluginDeactivate(): void
     {
+	    PluginConfiguration::setUnInstalled();
         self::logDebug('Deactivating plugin');
     }
 

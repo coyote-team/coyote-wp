@@ -18,6 +18,14 @@ class PluginConfiguration
     public const API_VERSION = 1;
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
 
+	/**
+	 * Update the plugin version in the database
+	 */
+	public static function updatePluginVersion(): void {
+		self::checkForUpdates();
+		update_option('coyote_plugin_version', self::PLUGIN_VERSION);
+	}
+
     public static function getApiEndPoint(): ?string
     {
         return get_option('coyote_api_endpoint', self::DEFAULT_ENDPOINT);
@@ -186,6 +194,21 @@ class PluginConfiguration
     }
 
 	/**
+	 * Check if the plugin has been activated earlier
+	 *
+	 * @return bool
+	 */
+	public static function hasBeenInstalledBefore(): bool
+	{
+		/*
+		 * if the plugin has been activated before and has been deactivated
+		 * the option 'coyote_plugin_is_installed' exists and = false
+		 * if the plugin hasn't been activated before the get_option return 'non-exists'
+		 */
+		return 'not-exists' !== get_option( 'coyote_plugin_is_installed', 'not-exists' );
+	}
+
+	/**
 	 * Get API error count
 	 * @return int
 	 */
@@ -319,7 +342,8 @@ class PluginConfiguration
             'coyote_api_organization_id',
             'coyote_api_profile',
             'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
-            'coyote_plugin_is_installed'
+            'coyote_plugin_is_installed',
+            'coyote_plugin_version'
         ];
 
         foreach ($options as $option) {
@@ -327,9 +351,20 @@ class PluginConfiguration
         }
     }
 
+	/**
+	 * Set plugin is installed in options table
+	 */
     public static function setInstalled(): void
     {
-        add_option('coyote_plugin_is_installed', true);
+        update_option('coyote_plugin_is_installed', true);
+    }
+
+	/**
+	 * Unset plugin is installed in options table
+	 */
+	public static function setUnInstalled(): void
+    {
+        update_option('coyote_plugin_is_installed', false);
     }
 
     /**
