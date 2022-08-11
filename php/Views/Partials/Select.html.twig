@@ -1,0 +1,33 @@
+<select
+    name="{{ name }}"
+    id="{{ name }}"
+    aria-describedby="{{ name }}_hint"
+>
+    {% if options|length > 1 %}
+        <option
+            value=''
+            {% if currentOption is empty %}
+                selected="selected"
+            {% endif %}
+        >
+            {{ notSingleLabel }}
+        </option>
+    {% endif %}
+
+    {% for option in options %}
+        <option
+            {% if option.getId() == currentOption %}
+                selected="selected"
+            {% endif %}
+            value="{{ option.getId() }}"
+        >
+            {{ option.getName() }}{{ options|length }}
+        </option>
+    {% endfor %}
+</select>
+{% if not alert is empty %}
+    <div id="{{ alert.id }}" role="alert" data-message="{{ alert.message }}"></div>
+{% endif %}
+<p id="{{ name }}_hint">
+    {{ label.hint }}
+</p>
