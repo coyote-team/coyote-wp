@@ -1,0 +1,66 @@
+<div class="wrap">
+    <h2>{{ pageTitle }}</h2>
+    <form method="post" action="options.php">
+        <div id="coyote_verify_resource_group_container">
+            <button class="button button-primary" type="button" id="coyote_verify_resource_group" aria-describedby="coyote_verify_resource_group_hint">Verify resource group</button>
+            <span role="alert" id="coyote_verify_resource_group_status"></span>
+            <p id="coyote_verify_resource_group_hint">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
+        </div>
+
+        <h3>{{ text.processTitle }}</h3>
+
+        {% if emptyOrganizationOption %}
+            <p>{{ text.emptyOrganizationMessage }}</p>
+        {% elseif not emptyOrganizationOption %}
+
+            {% if batchJob %}
+                {% set processDisabled      = 'disabled' %}
+            {% elseif not batchJob %}
+                {% set cancelDisabled       = 'disabled' %}
+                {% set processStatusHidden  = 'hidden' %}
+            {% endif %}
+
+            {% for explanation in text.explainingMessages %}
+                <p>{{ explanation }}</p>
+            {% endfor %}
+
+            <div id="process-existing-posts">
+                <div class="form-group">
+                    <label for="coyote_processor_endpoint">
+                        {{ text.processEndpointLabel }}
+                    </label>
+                    <input readonly {{ processDisabled }} id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value={{ processEndpoint }}>
+                </div>
+                <div class="form-group">
+                    <label for="coyote_batch_size">
+                        {{ text.batchSizeLabel }}:
+                    </label>
+                    <input id="coyote_batch_size" type="text" size="3" maxlength="3" value={{ batchSize }}>
+                </div>
+                <div id="process-controls">
+                    <button id="coyote_process_existing_posts" {{ processDisabled }} type="submit" class="button button-primary">
+                        {{ text.startProcessButtonText }}
+                    </button>
+                    <button id="coyote_cancel_processing" {{ cancelDisabled }} type="button" class="button">
+                        {{ text.cancelProcessButtonText }}
+                    </button>
+                </div>
+            </div>
+
+            <div id="coyote_processing_status" {{ processStatusHidden }} aria-live="assertive" aria-atomic="true">
+                <div>
+                    <strong id="coyote_job_status">{{ text.processStatusLabel }}: <span></span></strong>
+                </div>
+                <div>
+                    <strong id="coyote_processing">{{ text.processProgressLabel }}: <span></span>%</strong>
+                </div>
+                <div>
+                    <strong hidden id="coyote_processing_complete">{{ text.processCompleteLabel }}.</strong>
+                </div>
+            </div>
+
+        {% endif %}
+
+    </form>
+</div>
+
