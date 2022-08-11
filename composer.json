@@ -5,7 +5,8 @@
         "ext-json": "*",
         "coyote/coyote-php-content-helper": "^1.0",
         "coyote/coyote-api-client": "^1.0.8",
-        "monolog/monolog": "^2.6"
+        "monolog/monolog": "^2.6",
+        "twig/twig": "^3.0"
     },
     "autoload" : {
         "classmap": ["php/"]

@@ -12,6 +12,7 @@ class PluginConfiguration
     public const RESOURCE_GROUP_NAME = 'WordPress';
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
+    public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
 
     public static function getApiEndPoint(): ?string
     {
