@@ -340,8 +340,6 @@ class SettingsController {
      * @void string HTML for page holding form with setting inputs
      */
     public function settings_page_cb() {
-//     echo print_r($this->twig);
-
         echo $this->twig->render('CoyotePage.html.twig', [
             'pageTitle'             => $this->page_title_main,
             'isStandalone'          => $this->is_standalone,
