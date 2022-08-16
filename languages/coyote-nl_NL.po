@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Coyote 2.0\n"
-"POT-Creation-Date: 2022-08-16 14:07+0200\n"
-"PO-Revision-Date: 2022-08-16 14:08+0200\n"
+"POT-Creation-Date: 2022-08-16 15:41+0200\n"
+"PO-Revision-Date: 2022-08-16 15:42+0200\n"
 "Last-Translator: \n"
 "Language-Team: Coyote\n"
 "Language: nl_NL\n"
@@ -18,19 +18,22 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-1: sql\n"
 
 #: php/Views/CoyotePage.html.twig:10
-#, python-format
+#, fuzzy, python-format
 msgid "Linked API profile: %s (role: %s)"
 msgstr "Gelinkte API profiel: %s (rol: %s)"
 
 #: php/Views/CoyotePage.html.twig:14
+#, fuzzy
 msgid "Unable to load Coyote profile."
 msgstr "Kan Coyote profiel niet laden."
 
 #: php/Views/ToolsPage.html.twig:6
+#, fuzzy
 msgid "Verify resource group"
 msgstr "Resourcegroep verifiëren"
 
 #: php/Views/ToolsPage.html.twig:10
+#, fuzzy
 msgid ""
 "A resource group is required to make dynamic updates to image description "
 "work. When encountering update problems, verify the group exists."
@@ -40,14 +43,17 @@ msgstr ""
 "de groep bestaat."
 
 #: php/Views/ToolsPage.html.twig:14
+#, fuzzy
 msgid "Process existing posts"
 msgstr "Bestaande posts verwerken"
 
 #: php/Views/ToolsPage.html.twig:17
+#, fuzzy
 msgid "Please select a Coyote organization to process posts."
 msgstr "Selecteer een Coyote-organisatie om berichten te verwerken."
 
 #: php/Views/ToolsPage.html.twig:27
+#, fuzzy
 msgid ""
 "Using a remote service, your WordPress installation will be queried remotely "
 "and this process will populate the associated Coyote organisation. Depending "
@@ -59,6 +65,7 @@ msgstr ""
 "duren om te voltooien."
 
 #: php/Views/ToolsPage.html.twig:28
+#, fuzzy
 msgid ""
 "If the status of the processing job keeps resulting in an error, consider "
 "decreasing the batch size."
@@ -67,6 +74,7 @@ msgstr ""
 "overwegen de batchgrootte te verkleinen."
 
 #: php/Views/ToolsPage.html.twig:29
+#, fuzzy
 msgid ""
 "This process does not modify your WordPress content itself, and may be used "
 "more than once."
@@ -79,181 +87,239 @@ msgid "Processor endpoint"
 msgstr ""
 
 #: php/Views/ToolsPage.html.twig:40
+#, fuzzy
 msgid "Batch size"
 msgstr "Batch groote"
 
 #: php/Views/ToolsPage.html.twig:46
+#, fuzzy
 msgid "Start processing job"
-msgstr ""
+msgstr "Start verwerk taak"
 
 #: php/Views/ToolsPage.html.twig:49
+#, fuzzy
 msgid "Cancel processing job"
-msgstr ""
+msgstr "Annuleer verwerk taak"
 
 #: php/Views/ToolsPage.html.twig:56
+#, fuzzy
 msgid "Status"
 msgstr "Status"
 
 #: php/Views/ToolsPage.html.twig:59
+#, fuzzy
 msgid "Processing"
 msgstr "Processing"
 
 #: php/Views/ToolsPage.html.twig:62
+#, fuzzy
 msgid "Processing complete"
 msgstr "Processing compleet"
 
 #: php/Controllers/SettingsController.php:188
+#, fuzzy
 msgid "Coyote settings"
 msgstr "Coyote instellingen"
 
 #: php/Controllers/SettingsController.php:189
+#, fuzzy
 msgid "Coyote"
 msgstr "Coyote"
 
 #: php/Controllers/SettingsController.php:190
+#, fuzzy
 msgid "Coyote advanced"
 msgstr "Coyote geavanceerd"
 
 #: php/Controllers/SettingsController.php:191
+#, fuzzy
 msgid "Advanced"
 msgstr "Geavanceerd"
 
 #: php/Controllers/SettingsController.php:192
+#, fuzzy
 msgid "Coyote tools"
 msgstr "Coyote hulpmiddelen"
 
 #: php/Controllers/SettingsController.php:193
+#, fuzzy
 msgid "Tools"
 msgstr "Hulpmiddelen"
 
 #: php/Controllers/SettingsController.php:512
+#, fuzzy
 msgid "Plugin settings"
-msgstr "Coyote instellingen"
+msgstr "Plugin instellingen"
 
 #: php/Controllers/SettingsController.php:529
+#, fuzzy
 msgid "API settings"
-msgstr "Coyote instellingen"
+msgstr "API instellingen"
 
 #: php/Controllers/SettingsController.php:536
+#, fuzzy
 msgid "Token"
 msgstr "Token"
 
 #: php/Controllers/SettingsController.php:551
+#, fuzzy
 msgid "Organization"
 msgstr "Organisatie"
 
 #: php/Controllers/SettingsController.php:563
+#, fuzzy
 msgid "Standalone settings"
-msgstr "Coyote instellingen"
+msgstr "Standalone instellingen"
 
 #: php/Controllers/SettingsController.php:570
+#, fuzzy
 msgid "Run in standalone mode"
 msgstr "Voer uit in standalone modus"
 
 #: php/Controllers/SettingsController.php:583
+#, fuzzy
 msgid "Advanced settings"
 msgstr "Geavanceerd"
 
 #: php/Controllers/SettingsController.php:590
+#, fuzzy
 msgid "Endpoint"
 msgstr "Endpoint"
 
 #: php/Controllers/SettingsController.php:607
+#, fuzzy
 msgid "Metum"
 msgstr "Metum"
 
 #: php/Controllers/SettingsController.php:616
+#, fuzzy
 msgid "Filter images through Coyote"
 msgstr "Filter afbeelding door Coyote"
 
 #: php/Controllers/SettingsController.php:625
+#, fuzzy
 msgid "Enable Coyote remote description updates"
 msgstr "Gebruik Coyote externe updates voor beschrijving"
 
 #: php/Controllers/SettingsController.php:634
+#, fuzzy
 msgid "Skip unpublished items when importing"
 msgstr "Niet-gepubliceerde items overslaan bij het importeren"
 
 #: php/Controllers/SettingsController.php:655
+#, fuzzy
 msgid "Standalone mode"
 msgstr "Standalone modus"
 
 #: php/Controllers/SettingsController.php:656
+#, fuzzy
 msgid ""
 "Coyote is running in standalone mode. No settings are available, and no "
 "remote Coyote API is used to manage resources and descriptions. Any locally "
 "stored image descriptions will be used to describe images."
 msgstr ""
+"Coyote draait in stand-alone modus. Er zijn geen instellingen beschikbaar en "
+"er wordt geen externe Coyote-API gebruikt om bronnen en beschrijvingen te "
+"beheren. Alle lokaal opgeslagen afbeeldingsbeschrijvingen worden gebruikt om "
+"afbeeldingen te beschrijven."
 
 #: php/Controllers/SettingsController.php:657
+#, fuzzy
 msgid "Turn off standalone mode"
-msgstr ""
+msgstr "Zet standalone modus uit"
 
 #: php/Controllers/SettingsController.php:668
+#, fuzzy
 msgid ""
 "In order to use the plugin, configure the API settings accordingly. Once "
 "your profile has been retrieved and an organisation has been selected, you "
 "can optionally process any existing posts, pages and images to populate the "
 "Coyote instance."
 msgstr ""
+"Om de plug-in te gebruiken, configureert u de API-instellingen "
+"dienovereenkomstig. Zodra uw profiel is opgehaald en een organisatie is "
+"geselecteerd, kunt u eventueel bestaande berichten, pagina’s en afbeeldingen "
+"verwerken om de Coyote-instantie te vullen."
 
 #: php/Controllers/SettingsController.php:677
+#, fuzzy
 msgid ""
 "The endpoint for your Coyote instance, e.g. \"https://staging.coyote.pics\"."
 msgstr ""
+"Het eindpunt voor uw Coyote-instantie, b.v. “https://staging.coyote.pics”."
 
 #: php/Controllers/SettingsController.php:686
+#, fuzzy
 msgid "The API token associated with your Coyote account."
-msgstr ""
+msgstr "Het API-token dat is gekoppeld aan uw Coyote-account."
 
 #: php/Controllers/SettingsController.php:695
 #: php/Controllers/SettingsController.php:704
+#, fuzzy
 msgid ""
 "The metum used by the API to categorise image descriptions, e.g. \"Alt\"."
 msgstr ""
+"Het metum dat door de API wordt gebruikt om afbeeldingsbeschrijvingen te "
+"categoriseren, b.v. “Alt”."
 
 #: php/Controllers/SettingsController.php:705
 msgid "--select an organization--"
 msgstr ""
 
 #: php/Controllers/SettingsController.php:710
+#, fuzzy
 msgid ""
 "Important: changing organization requires an import of coyote resources."
 msgstr ""
+"Belangrijk: veranderende organisatie vereist een import van coyotebronnen."
 
 #: php/Controllers/SettingsController.php:718
+#, fuzzy
 msgid ""
 "The plugin does not attempt to communicate with the API. The plugin "
 "configuration becomes unavailable until standalone mode is again disabled."
 msgstr ""
+"De plug-in probeert niet te communiceren met de API. De plug-inconfiguratie "
+"is niet beschikbaar totdat de zelfstandige modus weer wordt uitgeschakeld."
 
 #: php/Controllers/SettingsController.php:726
+#, fuzzy
 msgid "The plugin manages image descriptions for posts, pages and media."
 msgstr ""
+"De plug-in beheert afbeeldingsbeschrijvingen voor berichten, pagina’s en "
+"media."
 
 #: php/Controllers/SettingsController.php:734
+#, fuzzy
 msgid ""
 "The plugin responds to approved image description updates issued through the "
 "Coyote API."
 msgstr ""
+"De plug-in reageert op goedgekeurde updates van de afbeeldingsbeschrijving "
+"die zijn uitgegeven via de Coyote API."
 
 #: php/Controllers/SettingsController.php:742
+#, fuzzy
 msgid ""
 "During import the plugin skips unpublished posts and media library images "
 "contained in unpublished posts."
 msgstr ""
+"Tijdens het importeren slaat de plug-in niet-gepubliceerde berichten en "
+"afbeeldingen uit de mediabibliotheek in niet-gepubliceerde berichten over."
 
 #: php/WordPressPlugin/Actions.php:27
+#, fuzzy
 msgid ""
 "The Coyote API client has thrown 10 consecutive errors, the Coyote plugin "
 "has switched to standalone mode."
 msgstr ""
+"De Coyote API-client heeft 10 opeenvolgende fouten gegenereerd, de Coyote-"
+"plug-in is overgeschakeld naar de zelfstandige modus."
 
 #: php/WordPressPlugin/Filters.php:20
 #, fuzzy
-#| msgid "Coyote settings"
 msgid "Settings"
-msgstr "Coyote instellingen"
+msgstr "Instellingen"
 
 #: php/WordPressPlugin/Filters.php:106
 msgid "Every Five Minutes"
@@ -580,9 +646,8 @@ msgstr ""
 
 #: php/media-template.php:753
 #, fuzzy
-#| msgid "Coyote settings"
 msgid "Playlist Settings"
-msgstr "Coyote instellingen"
+msgstr "Playlist instellingen"
 
 #: php/media-template.php:764
 msgid "Show Video List"
@@ -634,9 +699,8 @@ msgstr ""
 
 #: php/media-template.php:991
 #, fuzzy
-#| msgid "Advanced"
 msgid "Advanced Options"
-msgstr "Geavanceerd"
+msgstr "Geavanceerde options"
 
 #: php/media-template.php:995
 msgid "Image Title Attribute"
