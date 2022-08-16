@@ -1,11 +1,17 @@
 {% if id is not empty %}
-    <p>
+    <div>
         <input
             type="checkbox"
             name="{{ name }}"
             id="{{ id }}"
             {% if checked %}
                 checked="checked"
+            {% endif %}
+            {% if readonly %}
+                readonly="readonly"
+            {% endif %}
+            {% if disabled %}
+                disabled="disabled"
             {% endif %}
             {% if value %}
                 value="{{ value }}"
@@ -14,7 +20,7 @@
         <label for="{{ id }}">
             {{ label }}
         </label>
-    </p>
+    </div>
 {% else %}
     <input
         type="checkbox"
@@ -22,6 +28,12 @@
         id="{{ name }}"
         {% if checked %}
             checked="checked"
+        {% endif %}
+        {% if readonly %}
+            readonly="readonly"
+        {% endif %}
+        {% if disabled %}
+            disabled="disabled"
         {% endif %}
         {% if value %}
             value="{{ value }}"
