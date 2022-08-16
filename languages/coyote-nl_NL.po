@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Coyote 2.0\n"
-"POT-Creation-Date: 2022-08-16 13:43+0200\n"
-"PO-Revision-Date: 2022-08-16 13:44+0200\n"
+"POT-Creation-Date: 2022-08-16 14:07+0200\n"
+"PO-Revision-Date: 2022-08-16 14:08+0200\n"
 "Last-Translator: \n"
 "Language-Team: Coyote\n"
 "Language: nl_NL\n"
@@ -10,12 +10,97 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.0.1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: __;_e;_n;_x;esc_html__;esc_html_e\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: vendor\n"
 "X-Poedit-SearchPathExcluded-1: sql\n"
+
+#: php/Views/CoyotePage.html.twig:10
+#, python-format
+msgid "Linked API profile: %s (role: %s)"
+msgstr "Gelinkte API profiel: %s (rol: %s)"
+
+#: php/Views/CoyotePage.html.twig:14
+msgid "Unable to load Coyote profile."
+msgstr "Kan Coyote profiel niet laden."
+
+#: php/Views/ToolsPage.html.twig:6
+msgid "Verify resource group"
+msgstr "Resourcegroep verifiëren"
+
+#: php/Views/ToolsPage.html.twig:10
+msgid ""
+"A resource group is required to make dynamic updates to image description "
+"work. When encountering update problems, verify the group exists."
+msgstr ""
+"Er is een resourcegroep vereist om dynamische updates van de "
+"afbeeldingsbeschrijving te laten werken. Controleer bij updateproblemen of "
+"de groep bestaat."
+
+#: php/Views/ToolsPage.html.twig:14
+msgid "Process existing posts"
+msgstr "Bestaande posts verwerken"
+
+#: php/Views/ToolsPage.html.twig:17
+msgid "Please select a Coyote organization to process posts."
+msgstr "Selecteer een Coyote-organisatie om berichten te verwerken."
+
+#: php/Views/ToolsPage.html.twig:27
+msgid ""
+"Using a remote service, your WordPress installation will be queried remotely "
+"and this process will populate the associated Coyote organisation. Depending "
+"on your WordPress installation, this process may take a while to complete."
+msgstr ""
+"Met behulp van een remote service, zal uw WordPress installatie op afstand "
+"worden opgevraagd en dit proces zal de bijbehorende Coyote organisatie "
+"vullen. Afhankelijk van uw WordPress installatie, kan dit proces een tijdje "
+"duren om te voltooien."
+
+#: php/Views/ToolsPage.html.twig:28
+msgid ""
+"If the status of the processing job keeps resulting in an error, consider "
+"decreasing the batch size."
+msgstr ""
+"Als de status van de verwerkingstaak steeds op een fout uitdraait, kunt u "
+"overwegen de batchgrootte te verkleinen."
+
+#: php/Views/ToolsPage.html.twig:29
+msgid ""
+"This process does not modify your WordPress content itself, and may be used "
+"more than once."
+msgstr ""
+"Dit proces wijzigt uw WordPress inhoud zelf niet, en kan meer dan eens "
+"worden gebruikt."
+
+#: php/Views/ToolsPage.html.twig:34
+msgid "Processor endpoint"
+msgstr ""
+
+#: php/Views/ToolsPage.html.twig:40
+msgid "Batch size"
+msgstr "Batch groote"
+
+#: php/Views/ToolsPage.html.twig:46
+msgid "Start processing job"
+msgstr ""
+
+#: php/Views/ToolsPage.html.twig:49
+msgid "Cancel processing job"
+msgstr ""
+
+#: php/Views/ToolsPage.html.twig:56
+msgid "Status"
+msgstr "Status"
+
+#: php/Views/ToolsPage.html.twig:59
+msgid "Processing"
+msgstr "Processing"
+
+#: php/Views/ToolsPage.html.twig:62
+msgid "Processing complete"
+msgstr "Processing compleet"
 
 #: php/Controllers/SettingsController.php:188
 msgid "Coyote settings"
@@ -41,142 +126,70 @@ msgstr "Coyote hulpmiddelen"
 msgid "Tools"
 msgstr "Hulpmiddelen"
 
-#: php/Controllers/SettingsController.php:350
-#, php-format
-msgid "Linked API profile: %s (role: %s)"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:351
-msgid "Unable to load Coyote profile."
-msgstr ""
-
-#: php/Controllers/SettingsController.php:395
-msgid "Process existing posts"
-msgstr "Bestaande posts verwerken"
-
-#: php/Controllers/SettingsController.php:396
-msgid "Please select a Coyote organization to process posts."
-msgstr ""
-
-#: php/Controllers/SettingsController.php:398
-msgid ""
-"Using a remote service, your WordPress installation will be queried remotely "
-"and this process will populate the associated Coyote organisation. Depending "
-"on your WordPress installation, this process may take a while to complete."
-msgstr ""
-
-#: php/Controllers/SettingsController.php:399
-msgid ""
-"If the status of the processing job keeps resulting in an error, consider "
-"decreasing the batch size."
-msgstr ""
-
-#: php/Controllers/SettingsController.php:400
-msgid ""
-"This process does not modify your WordPress content itself, and may be used "
-"more than once."
-msgstr ""
-
-#: php/Controllers/SettingsController.php:402
-msgid "Processor endpoint"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:403
-msgid "Batch size"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:404
-msgid "Status"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:405
-msgid "Processing"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:406
-msgid "Processing complete"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:407
-msgid "Start processing job"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:408
-msgid "Cancel processing job"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:530
-#, fuzzy
-#| msgid "Coyote settings"
+#: php/Controllers/SettingsController.php:512
 msgid "Plugin settings"
 msgstr "Coyote instellingen"
 
-#: php/Controllers/SettingsController.php:547
-#, fuzzy
-#| msgid "Coyote settings"
+#: php/Controllers/SettingsController.php:529
 msgid "API settings"
 msgstr "Coyote instellingen"
 
-#: php/Controllers/SettingsController.php:554
+#: php/Controllers/SettingsController.php:536
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
-#: php/Controllers/SettingsController.php:569
+#: php/Controllers/SettingsController.php:551
 msgid "Organization"
-msgstr ""
+msgstr "Organisatie"
 
-#: php/Controllers/SettingsController.php:581
-#, fuzzy
-#| msgid "Coyote settings"
+#: php/Controllers/SettingsController.php:563
 msgid "Standalone settings"
 msgstr "Coyote instellingen"
 
-#: php/Controllers/SettingsController.php:588
+#: php/Controllers/SettingsController.php:570
 msgid "Run in standalone mode"
-msgstr ""
+msgstr "Voer uit in standalone modus"
 
-#: php/Controllers/SettingsController.php:601
-#, fuzzy
-#| msgid "Advanced"
+#: php/Controllers/SettingsController.php:583
 msgid "Advanced settings"
 msgstr "Geavanceerd"
 
-#: php/Controllers/SettingsController.php:608
+#: php/Controllers/SettingsController.php:590
 msgid "Endpoint"
-msgstr ""
+msgstr "Endpoint"
+
+#: php/Controllers/SettingsController.php:607
+msgid "Metum"
+msgstr "Metum"
+
+#: php/Controllers/SettingsController.php:616
+msgid "Filter images through Coyote"
+msgstr "Filter afbeelding door Coyote"
 
 #: php/Controllers/SettingsController.php:625
-msgid "Metum"
-msgstr ""
+msgid "Enable Coyote remote description updates"
+msgstr "Gebruik Coyote externe updates voor beschrijving"
 
 #: php/Controllers/SettingsController.php:634
-msgid "Filter images through Coyote"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:643
-msgid "Enable Coyote remote description updates"
-msgstr ""
-
-#: php/Controllers/SettingsController.php:652
 msgid "Skip unpublished items when importing"
-msgstr ""
+msgstr "Niet-gepubliceerde items overslaan bij het importeren"
 
-#: php/Controllers/SettingsController.php:673
+#: php/Controllers/SettingsController.php:655
 msgid "Standalone mode"
-msgstr ""
+msgstr "Standalone modus"
 
-#: php/Controllers/SettingsController.php:674
+#: php/Controllers/SettingsController.php:656
 msgid ""
 "Coyote is running in standalone mode. No settings are available, and no "
 "remote Coyote API is used to manage resources and descriptions. Any locally "
 "stored image descriptions will be used to describe images."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:675
+#: php/Controllers/SettingsController.php:657
 msgid "Turn off standalone mode"
 msgstr ""
 
-#: php/Controllers/SettingsController.php:686
+#: php/Controllers/SettingsController.php:668
 msgid ""
 "In order to use the plugin, configure the API settings accordingly. Once "
 "your profile has been retrieved and an organisation has been selected, you "
@@ -184,47 +197,47 @@ msgid ""
 "Coyote instance."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:695
+#: php/Controllers/SettingsController.php:677
 msgid ""
 "The endpoint for your Coyote instance, e.g. \"https://staging.coyote.pics\"."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:704
+#: php/Controllers/SettingsController.php:686
 msgid "The API token associated with your Coyote account."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:713
-#: php/Controllers/SettingsController.php:722
+#: php/Controllers/SettingsController.php:695
+#: php/Controllers/SettingsController.php:704
 msgid ""
 "The metum used by the API to categorise image descriptions, e.g. \"Alt\"."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:723
+#: php/Controllers/SettingsController.php:705
 msgid "--select an organization--"
 msgstr ""
 
-#: php/Controllers/SettingsController.php:728
+#: php/Controllers/SettingsController.php:710
 msgid ""
 "Important: changing organization requires an import of coyote resources."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:736
+#: php/Controllers/SettingsController.php:718
 msgid ""
 "The plugin does not attempt to communicate with the API. The plugin "
 "configuration becomes unavailable until standalone mode is again disabled."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:744
+#: php/Controllers/SettingsController.php:726
 msgid "The plugin manages image descriptions for posts, pages and media."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:752
+#: php/Controllers/SettingsController.php:734
 msgid ""
 "The plugin responds to approved image description updates issued through the "
 "Coyote API."
 msgstr ""
 
-#: php/Controllers/SettingsController.php:760
+#: php/Controllers/SettingsController.php:742
 msgid ""
 "During import the plugin skips unpublished posts and media library images "
 "contained in unpublished posts."
