@@ -14,10 +14,6 @@ class TwigExtension
      */
     public static function getFilters($twig)
     {
-        $twig->addFilter(new TwigFilter('translate', function ($text) {
-            return __($text, WordPressPlugin::I18N_NS);
-        }));
-
         return $twig;
     }
 
