@@ -36,22 +36,7 @@ class WordPressPlugin
 		/*
 		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
 		 */
-		add_action('plugins_loaded', [$this, 'setupControllers']);
-		add_action( 'plugins_loaded', [$this, 'loadPluginTextdomain'] );
-    }
-
-    public static function loadPluginTextdomain(): void
-    {
-        $test = load_plugin_textdomain(
-            'coyote',
-            false,
-            COYOTE_TRANSLATION_PATH
-        );
-        if($test) {
-            echo 'true';
-        } else {
-            echo 'false';
-        }
+		add_action('init', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void
