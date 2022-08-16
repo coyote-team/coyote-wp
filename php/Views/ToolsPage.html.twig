@@ -7,7 +7,8 @@
             <p id="coyote_verify_resource_group_hint">A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.</p>
         </div>
 
-        <h3>{{ 'Process existing posts'|translate }}</h3>
+        <h3>{{ __('Process existing posts') }}</h3>
+        <h3>{{ text.processTitle }}</h3>
 
         {% if emptyOrganizationOption %}
             <p>{{ 'Please select a Coyote organization to process posts.'|translate }}</p>

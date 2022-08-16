@@ -37,6 +37,9 @@ class TwigExtension
         $twig->addFunction(new TwigFunction('submit_button_text', function ($text) {
             return submit_button($text);
         }));
+        $twig->addFunction(new TwigFunction('__', function ($text) {
+            return __($text, WordPressPlugin::I18N_NS);
+        }));
 
         return $twig;
     }
