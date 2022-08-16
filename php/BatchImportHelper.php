@@ -29,14 +29,6 @@ class BatchImportHelper
     public static function getProcessBatch($size): array
     {
         $post_types = PluginConfiguration::getProcessedPostTypes();
-
-		/*
-		 * Post types to process can be set in advanced settings
-		 * It's possible to set an empty array, return [] when this occurs?
-		 */
-		if(empty($post_types))
-			return [];
-
         $post_statuses = ['inherit', 'publish'];
 
         if (PluginConfiguration::isProcessingUnpublishedPosts()) {

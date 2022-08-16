@@ -337,10 +337,9 @@ class SettingsController {
 
     /**
      * Get registered post types in WordPress
-     * TODO: only return public post_types? Can there be post_types that aren't public but can be handeld by Coyote?
      */
     private function getRegisteredPostTypes(): array {
-        return get_post_types();
+        return array_unique(array_merge(PluginConfiguration::PROCESSED_POST_TYPES, (array) get_post_types(['_builtin'=>false])));
     }
 
     /**
