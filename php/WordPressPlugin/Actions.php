@@ -141,15 +141,6 @@ js;
      */
     public static function loadPluginTextdomain(): void
     {
-        $test = load_plugin_textdomain(
-            WordPressPlugin::I18N_NS,
-            false,
-            COYOTE_TRANSLATION_PATH
-        );
-        if($test) {
-            echo 'true';
-        } else {
-            echo 'false';
-        }
+		load_plugin_textdomain(WordPressPlugin::I18N_NS, false, COYOTE_TRANSLATION_REL_PATH);
     }
 }

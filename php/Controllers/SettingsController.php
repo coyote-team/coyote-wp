@@ -366,7 +366,7 @@ class SettingsController {
             return;
 
         echo $this->twig->render('AdvancedPage.html.twig', [
-            'pageTitle'             => $this->settings_slug_advanced,
+            'pageTitle'             => $this->subpage_title_advanced,
             'isStandalone'          => $this->is_standalone,
             'settingsSlug'          => self::settings_slug_advanced
         ]);
