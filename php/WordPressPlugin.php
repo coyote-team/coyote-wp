@@ -36,7 +36,7 @@ class WordPressPlugin
 		/*
 		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
 		 */
-		add_action('plugins_loaded', [$this, 'setupControllers']);
+		add_action('init', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void

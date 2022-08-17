@@ -14,6 +14,7 @@ use Coyote\Model\ProfileModel;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressPlugin;
+use Coyote\TwigExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Twig\TwigFunction;
@@ -222,7 +223,8 @@ class SettingsController {
          * Set Twig environment and add functions to it
          */
         $this->twig = new Environment(new FilesystemLoader(PluginConfiguration::TWIG_TEMPLATES_PATH));
-        $this->twig = $this->set_twig_functions($this->twig);
+        $this->twig = TwigExtension::getFunctions($this->twig);
+        $this->twig = TwigExtension::getFilters($this->twig);
 
     }
 
@@ -338,14 +340,11 @@ class SettingsController {
      * @void string HTML for page holding form with setting inputs
      */
     public function settings_page_cb() {
-
         echo $this->twig->render('CoyotePage.html.twig', [
             'pageTitle'             => $this->page_title_main,
             'isStandalone'          => $this->is_standalone,
             'profile'               => $this->profile,
             'profileFetchFailed'    => $this->profile_fetch_failed,
-            'hasProfileMessage'     => __('Linked API profile: %s (role: %s)', WordPressPlugin::I18N_NS ),
-            'noProfileMessage'      => __('Unable to load Coyote profile.', WordPressPlugin::I18N_NS ),
             'settingsSlug'          => self::settings_slug_main
         ]);
     }
@@ -363,7 +362,7 @@ class SettingsController {
             return;
 
         echo $this->twig->render('AdvancedPage.html.twig', [
-            'pageTitle'             => $this->settings_slug_advanced,
+            'pageTitle'             => $this->subpage_title_advanced,
             'isStandalone'          => $this->is_standalone,
             'settingsSlug'          => self::settings_slug_advanced
         ]);
@@ -388,22 +387,6 @@ class SettingsController {
             'processEndpoint'           => 'https://processor.coyote.pics',
             'batchJob'                  => $this->batch_job,
             'batchSize'                 => esc_html(get_option('coyote_processing_batch_size', 50)),
-            'text'                      => [
-                'processTitle'              => __('Process existing posts', WordPressPlugin::I18N_NS),
-                'emptyOrganizationMessage'  => __('Please select a Coyote organization to process posts.', WordPressPlugin::I18N_NS),
-                'explainingMessages'        => [
-                    __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.', WordPressPlugin::I18N_NS),
-                    __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.', WordPressPlugin::I18N_NS),
-                    __('This process does not modify your WordPress content itself, and may be used more than once.', WordPressPlugin::I18N_NS)
-                ],
-                'processEndpointLabel'      => __('Processor endpoint', WordPressPlugin::I18N_NS),
-                'batchSizeLabel'            => __('Batch size', WordPressPlugin::I18N_NS),
-                'processStatusLabel'        => __('Status', WordPressPlugin::I18N_NS),
-                'processProgressLabel'      => __('Processing', WordPressPlugin::I18N_NS),
-                'processCompleteLabel'      => __('Processing complete', WordPressPlugin::I18N_NS),
-                'startProcessButtonText'    => __('Start processing job', WordPressPlugin::I18N_NS),
-                'cancelProcessButtonText'   => __('Cancel processing job', WordPressPlugin::I18N_NS),
-            ]
         ]);
     }
 
@@ -757,25 +740,5 @@ class SettingsController {
             'label'                 => __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS),
             'checked'               => PluginConfiguration::isNotProcessingUnpublishedPosts()
         ]);
-    }
-
-    /*
-     * Functions to add to a Twig environment
-     */
-    private function set_twig_functions($twig) {
-        $twig->addFunction(new TwigFunction('settings_fields', function ($slug) {
-            return settings_fields($slug);
-        }));
-        $twig->addFunction(new TwigFunction('do_settings_sections', function ($slug) {
-            return do_settings_sections($slug);
-        }));
-        $twig->addFunction(new TwigFunction('submit_button', function () {
-            return submit_button();
-        }));
-        $twig->addFunction(new TwigFunction('submit_button_text', function ($text) {
-            return submit_button($text);
-        }));
-
-        return $twig;
     }
 }

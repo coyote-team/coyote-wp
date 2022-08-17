@@ -34,6 +34,7 @@ define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('COYOTE_VERSION', '0.0.1');
 define('COYOTE_HOOK_MEDIA_SCREENS', ['post', 'page', 'upload', 'ch_events']);
+define('COYOTE_TRANSLATION_REL_PATH', dirname(plugin_basename(__FILE__)) . '/languages');
 
 /**
  * @param string $path

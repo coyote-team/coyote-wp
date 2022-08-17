@@ -86,6 +86,9 @@ class WordPressActionsAndFilters {
         add_action('coyote_api_client_error', [WordPressCoyoteApiClient::class, 'registerApiError']);
         add_action('coyote_api_client_success', [WordPressCoyoteApiClient::class, 'registerApiSuccess']);
 
+        // load plugin textdomain
+        add_action( 'init', [Actions::class, 'loadPluginTextdomain'] );
+
         if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::hasApiConfiguration()) {
             self::setupContentFilters();
         } else {

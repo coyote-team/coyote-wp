@@ -7,11 +7,11 @@
             {% if profile %}
                 {% set memberships = profile.getMemberships %}
                 <div class="notice notice-info">
-                    <p>{{ hasProfileMessage|format(profile.getname, memberships|first.getRole) }}</p>
+                    <p>{{ __('Linked API profile: %s (role: %s)')|format(profile.getname, memberships|first.getRole) }}</p>
                 </div>
             {% elseif profileFetchFailed %}
                 <div class="notice notice-error">
-                    <p>{{ noProfileMessage }}</p>
+                    <p>{{ __('Unable to load Coyote profile.') }}</p>
                 </div>
             {% endif %}
         {% endif %}

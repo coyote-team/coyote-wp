@@ -135,4 +135,12 @@ js;
     {
         self::logDebug('Deactivating plugin');
     }
+
+    /**
+     * Load the plugin text domain for translation.
+     */
+    public static function loadPluginTextdomain(): void
+    {
+		load_plugin_textdomain(WordPressPlugin::I18N_NS, false, COYOTE_TRANSLATION_REL_PATH);
+    }
 }
