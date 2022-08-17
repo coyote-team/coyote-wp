@@ -33,6 +33,15 @@ class PluginConfiguration
         return get_option('coyote_api_organization_id', null);
     }
 
+	/**
+	 * Check if an organization is set
+	 * @return bool
+	 */
+	public static function hasApiOrganizationId(): bool
+    {
+	    return self::isNonEmptyString(self::getApiOrganizationId());
+    }
+
     public static function getMetum(): ?string
     {
         $metum = get_option('coyote_api_metum', self::METUM);
@@ -44,13 +53,89 @@ class PluginConfiguration
         update_option('coyote_api_organization_id', $id);
     }
 
+	public static function deleteApiOrganizationId(): void
+    {
+        update_option('coyote_api_organization_id', null);
+    }
+
     public static function getApiResourceGroupId(): ?int
     {
         $resourceGroupId = intval(get_option('coyote_api_resource_group_id', -1));
         return $resourceGroupId > -1 ? $resourceGroupId : null;
     }
 
-	/*
+	/**
+	 * Get Membership linked to the API profile
+	 *
+	 * @param string|null $organizationId
+	 *
+	 * @return ?MembershipModel
+	 */
+	public static function getOrganizationMembership(string $organizationId = null): ?MembershipModel
+	{
+		// get linked organization id from options when id is omitted
+		if(is_null($organizationId))
+			$organizationId = self::getApiOrganizationId();
+
+		// when no organization id is set, return
+		if(is_null($organizationId))
+			return null;
+
+		// get the profile to retrieve the memberships
+		$profile = self::getApiProfile();
+		if (is_null($profile))
+			return null;
+
+		// filter the membership that is linked to the organization id
+		$matches = array_filter($profile->getMemberships(), function (MembershipModel $mem) use ( $organizationId ): bool {
+			return ($mem->getOrganization())->getId() === $organizationId;
+		});
+
+		if (count($matches) !== 1) {
+			return null;
+		}
+
+		return array_shift($matches);
+	}
+
+	/**
+	 * Get Membership role linked to the API profile
+	 *
+	 * @param string|null $organizationId
+	 *
+	 * @return ?string
+	 */
+	public static function getOrganizationMembershipRole(string $organizationId = null): ?string
+	{
+		$membershipModel = self::getOrganizationMembership($organizationId);
+		return is_null($membershipModel) ? null : $membershipModel->getRole();
+	}
+
+	/**
+	 * Check if organization membership role is allowed to link with the API
+	 *
+	 * @param null $organizationId
+	 *
+	 * @return bool
+	 */
+	public static function isOrganizationRoleAllowed($organizationId = null): bool
+	{
+		return in_array(self::getOrganizationMembershipRole($organizationId),self::ALLOWED_ROLES);
+	}
+
+	/**
+	 * @param ProfileModel $profile
+	 *
+	 * @return array
+	 */
+	public static function getAllowedOrganizationsInProfile(ProfileModel $profile): array
+	{
+		return array_filter($profile->getOrganizations(), function (OrganizationModel $org): bool {
+			return in_array( PluginConfiguration::getOrganizationMembershipRole($org->getId()), PluginConfiguration::ALLOWED_ROLES);
+		});
+	}
+
+	/**
 	 * Get Membership role linked to the API profile
 	 *
 	 * @return ?string role
@@ -118,7 +203,9 @@ class PluginConfiguration
         return !!get_option('coyote_plugin_is_installed', false);
     }
 
-    /** @return int|bool */
+	/**
+	 * @return int
+	 */
     public static function getApiErrorCount(): int
     {
         return get_transient('coyote_api_error_count') ?? false;
@@ -127,6 +214,13 @@ class PluginConfiguration
     public static function setApiErrorCount(int $count): void
     {
         set_transient('coyote_api_error_count', $count);
+    }
+
+	public static function raiseApiErrorCount(): void
+    {
+		$count = (int) self::getApiErrorCount() + 1;
+	    WordPressCoyoteApiClient::logDebug("Updating API error count to $count");
+	    self::setApiErrorCount($count);
     }
 
     public static function setResourceGroupId(int $id): void
@@ -145,7 +239,6 @@ class PluginConfiguration
      */
     public static function possiblyMigrateApiProfile($profile): ?ProfileModel
     {
-	    error_log( print_r( $profile, true ));
         if (is_null($profile))
             return null;
 
@@ -157,6 +250,18 @@ class PluginConfiguration
 
         return $profile;
     }
+
+	/**
+	 * Check if profile has allowed organization roles
+	 *
+	 * @param ProfileModel $profile
+	 *
+	 * @return bool
+	 */
+	public static function profileHasAllowOrganizationRoles(ProfileModel $profile): bool
+	{
+		return ! empty(self::getAllowedOrganizationsInProfile($profile));
+	}
 
     public static function setApiProfile(ProfileModel $profile): void
     {

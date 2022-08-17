@@ -79,18 +79,7 @@ class WordPressCoyoteApiClient
     public static function registerApiError(string $message): void
     {
         self::logDebug("Coyote API error: $message");
-
-        $count = PluginConfiguration::getApiErrorCount();
-
-        if ($count === false) {
-            $count = 1;
-        } else {
-            $count = intval($count) + 1;
-        }
-
-        self::logDebug("Updating API error count to $count");
-
-        PluginConfiguration::setApiErrorCount($count);
+        PluginConfiguration::raiseApiErrorCount();
     }
 
     private static function getVersionedApiURI(): string
