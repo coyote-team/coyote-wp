@@ -7,6 +7,7 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
+use Coyote\Model\OrganizationModel;
 use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
@@ -283,7 +284,7 @@ class SettingsController {
     {
         //clear any data about what caused standalone mode to be active, if any
         update_option('coyote_error_standalone', false);
-        delete_transient('coyote_api_error_count');
+        PluginConfiguration::clearApiErrorCount();
     }
 
     public function set_organization_id($option, $value): void
@@ -304,6 +305,8 @@ class SettingsController {
         if (!is_null($resourceGroup)) {
             PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
         }
+
+	    PluginConfiguration::clearApiErrorCount();
     }
 
     private function getProfile(): ?ProfileModel {
@@ -319,17 +322,17 @@ class SettingsController {
         }
 
         if (is_null($profile)) {
-            // TODO should be in PluginConfiguration
-            delete_option('coyote_api_organization_id');
+            PluginConfiguration::deleteApiOrganizationId();
             return null;
         }
 
         PluginConfiguration::setApiProfile($profile);
-        $organizations = $profile->getOrganizations();
+        $organizations = PluginConfiguration::getAllowedOrganizationsInProfile($profile);
 
         // default to the first organization if there is only one available
         if (count($organizations) === 1) {
-            PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
+	        PluginConfiguration::setApiOrganizationId( array_pop( $organizations )->getId() );
+	        PluginConfiguration::clearApiErrorCount();
         }
 
         return $profile;
@@ -351,6 +354,7 @@ class SettingsController {
             'pageTitle'             => $this->page_title_main,
             'isStandalone'          => $this->is_standalone,
             'profile'               => $this->profile,
+            'membership'            => PluginConfiguration::getOrganizationMembership(PluginConfiguration::getApiOrganizationId()),
             'profileFetchFailed'    => $this->profile_fetch_failed,
             'settingsSlug'          => self::settings_slug_main
         ]);
@@ -384,7 +388,7 @@ class SettingsController {
         /*
          * Return when no profile is set or when in standalone
          */
-        if (!$this->profile || $this->is_standalone)
+        if (!PluginConfiguration::hasApiOrganizationId() || $this->is_standalone)
             return;
 
         echo $this->twig->render('ToolsPage.html.twig', [
@@ -436,7 +440,7 @@ class SettingsController {
          * Register submenu page for Coyote tools
          * Only when not in standalone mode and a valid profile is set
          */
-        if (!$this->is_standalone && $this->profile) {
+        if (!$this->is_standalone && PluginConfiguration::hasApiOrganizationId()) {
             add_submenu_page(
                 self::menu_slug_main,
                 $this->subpage_title_tools,
@@ -547,20 +551,27 @@ class SettingsController {
 
         /*
          * Check if profile is set
-         * This renders all Coyote settings fields
+         * This renders the organization field
          */
         if ($this->profile) {
 
-            add_settings_field(
-                'coyote_api_organization_id',
-                __('Organization', WordPressPlugin::I18N_NS),
-                [$this, 'api_organization_id_cb'],
-                self::settings_slug_main,
-                self::api_settings_section,
-                ['label_for' => 'coyote_api_organization_id']
-            );
+	        add_settings_field(
+		        'coyote_api_organization_id',
+		        __( 'Organization', WordPressPlugin::I18N_NS ),
+		        [ $this, 'api_organization_id_cb' ],
+		        self::settings_slug_main,
+		        self::api_settings_section,
+		        [ 'label_for' => 'coyote_api_organization_id' ]
+	        );
+        }
 
-            /*
+	    /*
+		 * Check if organization is set
+		 * This renders all Coyote settings fields
+		 */
+		if (PluginConfiguration::hasApiOrganizationId()) {
+
+			/*
              * Register standalone settings section
              */
             add_settings_section(
@@ -600,11 +611,11 @@ class SettingsController {
         );
 
         /*
-         * Check if profile is set, if not return
+         * Check if valid profile + organization is set, if not return
          * If no profile is set, the rendering stops at this point
          * only the required fields to link to the Coyote API are visible
          */
-        if(!$this->profile)
+        if(!$this->profile || !PluginConfiguration::hasApiOrganizationId())
             return;
 
         add_settings_field(
@@ -711,17 +722,24 @@ class SettingsController {
     }
 
     public function api_organization_id_cb() {
-        echo $this->twig->render('Partials/Select.html.twig', [
-            'name'                  => 'coyote_api_organization_id',
-            'label'                 => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
-            'notSingleLabel'        => __('--select an organization--', WordPressPlugin::I18N_NS),
-            'options'               => $this->profile->getOrganizations(),
-            'currentOption'         => PluginConfiguration::getApiOrganizationId(),
-            'alert'                 => [
-                'id'                => 'coyote_org_change_alert',
-                'message'           => __('Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS),
-            ]
-        ]);
+		if (!PluginConfiguration::profileHasAllowOrganizationRoles($this->profile)) {
+			echo $this->twig->render( 'Partials/AdminNotice.html.twig', [
+				'type'      => 'error',
+				'message'   => __( 'No allowed organization found in your profile.', WordPressPlugin::I18N_NS ),
+			] );
+		} else {
+			echo $this->twig->render( 'Partials/Select.html.twig', [
+				'name'           => 'coyote_api_organization_id',
+				'label'          => __( 'The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS ),
+				'notSingleLabel' => __( '--select an organization--', WordPressPlugin::I18N_NS ),
+				'options'        => PluginConfiguration::getAllowedOrganizationsInProfile($this->profile),
+				'currentOption'  => PluginConfiguration::getApiOrganizationId(),
+				'alert'          => [
+					'id'      => 'coyote_org_change_alert',
+					'message' => __( 'Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS ),
+				]
+			] );
+		}
     }
 
     public function settings_is_standalone_cb() {
