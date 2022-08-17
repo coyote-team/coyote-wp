@@ -10,6 +10,7 @@ class PluginConfiguration
     public const METUM = 'Alt';
     public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
+    public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
@@ -176,9 +177,16 @@ class PluginConfiguration
         return !!get_option('coyote_skip_unpublished_enabled', true);
     }
 
+	/**
+	 * get optionally stored post types to process
+	 * self::PROCESSED_POST_TYPES are always returned!
+	 *
+	 * @return array
+	 */
     public static function getProcessedPostTypes(): array
     {
-        return ['page', 'post', 'attachment'];
+		$processedPostTypes = get_option('coyote_plugin_processed_post_types', 'not-exists');
+	    return 'not-exists' === $processedPostTypes ? self::PROCESSED_POST_TYPES : array_unique(array_merge(self::PROCESSED_POST_TYPES, (array) $processedPostTypes));
     }
 
     public static function deletePluginOptions(): void
