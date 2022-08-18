@@ -70,7 +70,20 @@ class WordPressPlugin
     }
 
 	/**
-	 * Plugin has been updated, run custom scripts
+	 * Check if the plugin has been updated
+	 */
+	public static function checkForUpdates(): void {
+		/*
+		 * If the plugin version is newer than registered in the database the plugin has been updated to a newer version
+		 * fire action hook that can be used to run custom update scripts
+		 * the current and new version numbers are passed as arguments
+		 */
+		if (version_compare(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION, '<') )
+			self::pluginUpdatedHandler(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION);
+	}
+
+	/**
+	 * Plugin has been updated, run migration code
 	 *
 	 * @param $currentVersion
 	 * @param $newVersion
