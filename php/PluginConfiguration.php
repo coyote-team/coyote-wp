@@ -258,7 +258,7 @@ class PluginConfiguration
 	 *
 	 * @return bool
 	 */
-	public static function profileHasAllowOrganizationRoles(ProfileModel $profile): bool
+	public static function profileHasAllowedOrganizationRoles(ProfileModel $profile): bool
 	{
 		return ! empty(self::getAllowedOrganizationsInProfile($profile));
 	}

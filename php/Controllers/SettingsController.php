@@ -549,21 +549,28 @@ class SettingsController {
             ['label_for' => 'coyote_api_token']
         );
 
-        /*
-         * Check if profile is set
-         * This renders the organization field
-         */
-        if ($this->profile) {
-
-	        add_settings_field(
-		        'coyote_api_organization_id',
-		        __( 'Organization', WordPressPlugin::I18N_NS ),
-		        [ $this, 'api_organization_id_cb' ],
-		        self::settings_slug_main,
-		        self::api_settings_section,
-		        [ 'label_for' => 'coyote_api_organization_id' ]
-	        );
-        }
+		/*
+		 * Check if profile is set and the profile has valid organizations
+		 * This renders the organization field
+		 */
+		if ($this->profile && PluginConfiguration::profileHasAllowedOrganizationRoles($this->profile)) {
+			add_settings_field(
+				'coyote_api_organization_id',
+				__( 'Organization', WordPressPlugin::I18N_NS ),
+				[ $this, 'api_organization_id_cb' ],
+				self::settings_slug_main,
+				self::api_settings_section,
+				[ 'label_for' => 'coyote_api_organization_id' ]
+			);
+		} else if($this->profile && !PluginConfiguration::profileHasAllowedOrganizationRoles($this->profile)) {
+			/*
+			 * Show an error notice when no valid organizations are found
+			 */
+			echo $this->twig->render( 'Partials/AdminNotice.html.twig', [
+				'type'      => 'error',
+				'message'   => __("There are no allowed organizations found in your profile. Please check if you're using the right token with the correct endpoint.", WordPressPlugin::I18N_NS ),
+			] );
+		}
 
 	    /*
 		 * Check if organization is set
@@ -721,26 +728,19 @@ class SettingsController {
         ]);
     }
 
-    public function api_organization_id_cb() {
-		if (!PluginConfiguration::profileHasAllowOrganizationRoles($this->profile)) {
-			echo $this->twig->render( 'Partials/AdminNotice.html.twig', [
-				'type'      => 'error',
-				'message'   => __( 'No allowed organization found in your profile.', WordPressPlugin::I18N_NS ),
-			] );
-		} else {
-			echo $this->twig->render( 'Partials/Select.html.twig', [
-				'name'           => 'coyote_api_organization_id',
-				'label'          => __( 'The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS ),
-				'notSingleLabel' => __( '--select an organization--', WordPressPlugin::I18N_NS ),
-				'options'        => PluginConfiguration::getAllowedOrganizationsInProfile($this->profile),
-				'currentOption'  => PluginConfiguration::getApiOrganizationId(),
-				'alert'          => [
-					'id'      => 'coyote_org_change_alert',
-					'message' => __( 'Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS ),
-				]
-			] );
-		}
-    }
+	public function api_organization_id_cb() {
+		echo $this->twig->render( 'Partials/Select.html.twig', [
+			'name'           => 'coyote_api_organization_id',
+			'label'          => __( 'The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS ),
+			'notSingleLabel' => __( '--select an organization--', WordPressPlugin::I18N_NS ),
+			'options'        => PluginConfiguration::getAllowedOrganizationsInProfile($this->profile),
+			'currentOption'  => PluginConfiguration::getApiOrganizationId(),
+			'alert'          => [
+				'id'      => 'coyote_org_change_alert',
+				'message' => __( 'Important: changing organization requires an import of coyote resources.', WordPressPlugin::I18N_NS ),
+			]
+		] );
+	}
 
     public function settings_is_standalone_cb() {
         echo $this->twig->render('Partials/InputCheckbox.html.twig', [
