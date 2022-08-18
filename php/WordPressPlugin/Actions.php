@@ -119,28 +119,30 @@ js;
         PluginConfiguration::deletePluginOptions();
     }
 
-    public static function onPluginActivate(): void
-    {
-        if (PluginConfiguration::isInstalled()) {
-            self::logDebug("Plugin was active previously, not adding table");
-            return;
-        }
+	public static function onPluginActivate(): void
+	{
+		PluginConfiguration::updatePluginVersion();
 
-        self::logDebug("Activating plugin");
-        PluginConfiguration::setInstalled();
-        DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
-    }
+		if (!PluginConfiguration::hasBeenInstalledBefore()) {
+			self::logDebug("Plugin wasn't active previously, adding table");
+			DB::runSqlFromFile(WordPressPlugin::getSqlFile('create_resource_table.sql'));
+		}
 
-    public static function onPluginDeactivate(): void
-    {
-        self::logDebug('Deactivating plugin');
-    }
+		self::logDebug("Activating plugin");
+		PluginConfiguration::setInstalled();
+	}
 
-    /**
-     * Load the plugin text domain for translation.
-     */
-    public static function loadPluginTextdomain(): void
-    {
+	public static function onPluginDeactivate(): void
+	{
+		PluginConfiguration::setUnInstalled();
+		self::logDebug('Deactivating plugin');
+	}
+
+	/**
+	 * Load the plugin text domain for translation.
+	 */
+	public static function loadPluginTextdomain(): void
+	{
 		load_plugin_textdomain(WordPressPlugin::I18N_NS, false, COYOTE_TRANSLATION_REL_PATH);
-    }
+	}
 }

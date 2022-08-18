@@ -8,15 +8,47 @@ use Coyote\Model\ProfileModel;
 
 class PluginConfiguration
 {
+	/**
+	 * @var string PLUGIN_VERSION Coyote WordPress Plugin version
+	 */
+	public const PLUGIN_VERSION = '2.0.0';
+
+	/**
+	 * Set the version of the API to connect to on the endpoint
+	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+	 *
+	 * @var int API_VERSION Coyote API version
+	 */
+	public const API_VERSION = 1;
+
+	/**
+	 * Set the version of the API to connect to on the endpoint
+	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+	 *
+	 * @var string DEFAULT_ENDPOINT
+	 */
+	public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
 
     public const METUM = 'Alt';
-    public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
     public const ALLOWED_ROLES = ['editor', 'admin', 'owner'];
     public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
-    public const PLUGIN_VERSION = '2.0.0';
-    public const API_VERSION = 1;
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
+
+	/**
+	 * Update the plugin version in the database
+	 */
+	public static function updatePluginVersion(): void {
+		WordPressPlugin::checkForUpdates();
+		update_option('coyote_plugin_version', self::PLUGIN_VERSION);
+	}
+
+	/**
+	 * @return string plugin version stored in database
+	 */
+	public static function getStoredPluginVersion(): string {
+		return get_option('coyote_plugin_version', '1');
+	}
 
     public static function getApiEndPoint(): ?string
     {
@@ -186,6 +218,21 @@ class PluginConfiguration
     }
 
 	/**
+	 * Check if the plugin has been activated earlier
+	 *
+	 * @return bool
+	 */
+	public static function hasBeenInstalledBefore(): bool
+	{
+		/*
+		 * if the plugin has been activated before and has been deactivated
+		 * the option 'coyote_plugin_is_installed' exists and = false
+		 * if the plugin hasn't been activated before the get_option return 'non-exists'
+		 */
+		return 'not-exists' !== get_option( 'coyote_plugin_is_installed', 'not-exists' );
+	}
+
+	/**
 	 * Get API error count
 	 * @return int
 	 */
@@ -319,7 +366,8 @@ class PluginConfiguration
             'coyote_api_organization_id',
             'coyote_api_profile',
             'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
-            'coyote_plugin_is_installed'
+            'coyote_plugin_is_installed',
+            'coyote_plugin_version'
         ];
 
         foreach ($options as $option) {
@@ -327,9 +375,20 @@ class PluginConfiguration
         }
     }
 
+	/**
+	 * Set plugin is installed in options table
+	 */
     public static function setInstalled(): void
     {
-        add_option('coyote_plugin_is_installed', true);
+        update_option('coyote_plugin_is_installed', true);
+    }
+
+	/**
+	 * Unset plugin is installed in options table
+	 */
+	public static function setUnInstalled(): void
+    {
+        update_option('coyote_plugin_is_installed', false);
     }
 
     /**
