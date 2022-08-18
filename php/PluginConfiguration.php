@@ -39,8 +39,15 @@ class PluginConfiguration
 	 * Update the plugin version in the database
 	 */
 	public static function updatePluginVersion(): void {
-		self::checkForUpdates();
+		WordPressPlugin::checkForUpdates();
 		update_option('coyote_plugin_version', self::PLUGIN_VERSION);
+	}
+
+	/**
+	 * @return string plugin version stored in database
+	 */
+	public static function getStoredPluginVersion(): string {
+		return get_option('coyote_plugin_version', '1');
 	}
 
     public static function getApiEndPoint(): ?string
@@ -399,12 +406,4 @@ class PluginConfiguration
         return self::isNonEmptyString(self::getApiEndPoint()) &&
             self::isNonEmptyString(self::getApiToken());
     }
-
-	/**
-	 * Plugin has been updated, run custom scripts
-	 *
-	 * @param $currentVersion
-	 * @param $newVersion
-	 */
-	public static function pluginUpdatedHandler($currentVersion, $newVersion): void {}
 }
