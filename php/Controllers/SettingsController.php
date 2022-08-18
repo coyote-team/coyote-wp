@@ -7,7 +7,6 @@ if (!defined( 'ABSPATH')) {
     exit;
 }
 
-use Coyote\Model\OrganizationModel;
 use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
@@ -18,7 +17,6 @@ use Coyote\WordPressPlugin;
 use Coyote\TwigExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
-use Twig\TwigFunction;
 
 class SettingsController {
     use Logger;
@@ -284,7 +282,7 @@ class SettingsController {
     {
         //clear any data about what caused standalone mode to be active, if any
         update_option('coyote_error_standalone', false);
-        PluginConfiguration::clearApiErrorCount();
+		PluginConfiguration::clearApiErrorCount();
     }
 
     public function set_organization_id($option, $value): void
@@ -306,7 +304,7 @@ class SettingsController {
             PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
         }
 
-	    PluginConfiguration::clearApiErrorCount();
+		PluginConfiguration::clearApiErrorCount();
     }
 
     private function getProfile(): ?ProfileModel {
@@ -329,11 +327,11 @@ class SettingsController {
         PluginConfiguration::setApiProfile($profile);
         $organizations = PluginConfiguration::getAllowedOrganizationsInProfile($profile);
 
-        // default to the first organization if there is only one available
-        if (count($organizations) === 1) {
-	        PluginConfiguration::setApiOrganizationId( array_pop( $organizations )->getId() );
-	        PluginConfiguration::clearApiErrorCount();
-        }
+		// default to the first organization if there is only one available
+		if (count($organizations) === 1) {
+			PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
+			PluginConfiguration::clearApiErrorCount();
+		}
 
         return $profile;
     }
@@ -572,13 +570,13 @@ class SettingsController {
 			] );
 		}
 
-	    /*
+		/*
 		 * Check if organization is set
 		 * This renders all Coyote settings fields
 		 */
 		if (PluginConfiguration::hasApiOrganizationId()) {
 
-			/*
+            /*
              * Register standalone settings section
              */
             add_settings_section(
@@ -777,20 +775,20 @@ class SettingsController {
 	/**
 	 * Render post type checkbox inputs
 	 */
-    public function settings_plugin_processed_post_types_cb(): void {
-	    $processedPostTypes = PluginConfiguration::getProcessedPostTypes();
+	public function settings_plugin_processed_post_types_cb(): void {
+		$processedPostTypes = PluginConfiguration::getProcessedPostTypes();
 		$availablePostTypes = SettingsController::getRegisteredPostTypes();
 		if(!empty($availablePostTypes)) {
 			foreach($availablePostTypes as $postType) {
 				echo $this->twig->render('Partials/InputCheckbox.html.twig', [
-		            'name'      => 'coyote_plugin_processed_post_types[]',
-		            'id'        => "coyote_plugin_processed_post_types_{$postType}",
-		            'value'     => $postType,
-		            'label'     => $postType,
-		            'checked'   => in_array($postType, $processedPostTypes),
-		            'disabled'  => in_array($postType, PluginConfiguration::PROCESSED_POST_TYPES)
-		        ]);
+					'name'      => 'coyote_plugin_processed_post_types[]',
+					'id'        => "coyote_plugin_processed_post_types_{$postType}",
+					'value'     => $postType,
+					'label'     => $postType,
+					'checked'   => in_array($postType, $processedPostTypes),
+					'disabled'  => in_array($postType, PluginConfiguration::PROCESSED_POST_TYPES)
+				]);
 			}
 		}
-    }
+	}
 }
