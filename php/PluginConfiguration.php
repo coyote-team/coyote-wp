@@ -12,7 +12,7 @@ class PluginConfiguration
     public const METUM = 'Alt';
     public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
-    public const ALLOWED_ROLES = ['editor','admin','owner'];
+    public const ALLOWED_ROLES = ['editor', 'admin', 'owner'];
     public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
     public const PLUGIN_VERSION = '2.0.0';
     public const API_VERSION = 1;
@@ -38,9 +38,9 @@ class PluginConfiguration
 	 * @return bool
 	 */
 	public static function hasApiOrganizationId(): bool
-    {
-	    return self::isNonEmptyString(self::getApiOrganizationId());
-    }
+	{
+		return self::isNonEmptyString(self::getApiOrganizationId());
+	}
 
     public static function getMetum(): ?string
     {
@@ -54,9 +54,9 @@ class PluginConfiguration
     }
 
 	public static function deleteApiOrganizationId(): void
-    {
-        update_option('coyote_api_organization_id', null);
-    }
+	{
+		update_option('coyote_api_organization_id', null);
+	}
 
     public static function getApiResourceGroupId(): ?int
     {
@@ -135,24 +135,6 @@ class PluginConfiguration
 		});
 	}
 
-	/**
-	 * Get Membership role linked to the API profile
-	 *
-	 * @return ?string role
-	 */
-	public static function getApiMembershipRole(): ?string
-	{
-		$profile = self::getApiProfile();
-		if (is_null($profile))
-			return null;
-
-		$memberships = $profile->getMemberships();
-		if (!is_array($memberships))
-			return null;
-
-		return reset($memberships)->getRole();
-	}
-
     public static function isStandalone(): bool
     {
         return get_option('coyote_is_standalone', false);
@@ -204,24 +186,35 @@ class PluginConfiguration
     }
 
 	/**
+	 * Get API error count
 	 * @return int
 	 */
-    public static function getApiErrorCount(): int
-    {
-        return get_transient('coyote_api_error_count') ?? false;
-    }
+	public static function getApiErrorCount(): int
+	{
+		return get_transient('coyote_api_error_count') ?? false;
+	}
 
-    public static function setApiErrorCount(int $count): void
-    {
-        set_transient('coyote_api_error_count', $count);
-    }
+	/**
+	 * Set API error count
+	 *
+	 * @param int $count new value to set the error count to
+	 *
+	 * @return void
+	 */
+	public static function setApiErrorCount(int $count): void
+	{
+		set_transient('coyote_api_error_count', $count);
+	}
 
+	/**
+	 * Raise the API error count (current count +1)
+	 */
 	public static function raiseApiErrorCount(): void
-    {
+	{
 		$count = (int) self::getApiErrorCount() + 1;
-	    WordPressCoyoteApiClient::logDebug("Updating API error count to $count");
-	    self::setApiErrorCount($count);
-    }
+		WordPressCoyoteApiClient::logDebug("Updating API error count to $count");
+		self::setApiErrorCount($count);
+	}
 
     public static function setResourceGroupId(int $id): void
     {
@@ -310,11 +303,11 @@ class PluginConfiguration
 	 *
 	 * @return array
 	 */
-    public static function getProcessedPostTypes(): array
-    {
+	public static function getProcessedPostTypes(): array
+	{
 		$processedPostTypes = get_option('coyote_plugin_processed_post_types', 'not-exists');
-	    return 'not-exists' === $processedPostTypes ? self::PROCESSED_POST_TYPES : array_unique(array_merge(self::PROCESSED_POST_TYPES, (array) $processedPostTypes));
-    }
+		return 'not-exists' === $processedPostTypes ? self::PROCESSED_POST_TYPES : array_unique(array_merge(self::PROCESSED_POST_TYPES, (array) $processedPostTypes));
+	}
 
     public static function deletePluginOptions(): void
     {
