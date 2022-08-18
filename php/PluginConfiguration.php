@@ -8,14 +8,31 @@ use Coyote\Model\ProfileModel;
 
 class PluginConfiguration
 {
+	/**
+	 * @var string PLUGIN_VERSION Coyote WordPress Plugin version
+	 */
+	public const PLUGIN_VERSION = '2.0.0';
+
+	/**
+	 * Set the version of the API to connect to on the endpoint
+	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+	 *
+	 * @var int API_VERSION Coyote API version
+	 */
+	public const API_VERSION = 1;
+
+	/**
+	 * Set the version of the API to connect to on the endpoint
+	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+	 *
+	 * @var string DEFAULT_ENDPOINT
+	 */
+	public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
 
     public const METUM = 'Alt';
-    public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
     public const ALLOWED_ROLES = ['editor', 'admin', 'owner'];
     public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
-    public const PLUGIN_VERSION = '2.0.0';
-    public const API_VERSION = 1;
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
 
 	/**
@@ -382,4 +399,12 @@ class PluginConfiguration
         return self::isNonEmptyString(self::getApiEndPoint()) &&
             self::isNonEmptyString(self::getApiToken());
     }
+
+	/**
+	 * Plugin has been updated, run custom scripts
+	 *
+	 * @param $currentVersion
+	 * @param $newVersion
+	 */
+	public static function pluginUpdatedHandler($currentVersion, $newVersion): void {}
 }
