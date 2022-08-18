@@ -68,4 +68,15 @@ class WordPressPlugin
     {
         return self::getPluginFile('sql', $name);
     }
+
+	/**
+	 * Plugin has been updated, run custom scripts
+	 *
+	 * @param $currentVersion
+	 * @param $newVersion
+	 */
+	public static function pluginUpdatedHandler($currentVersion, $newVersion): void
+	{
+
+	}
 }
