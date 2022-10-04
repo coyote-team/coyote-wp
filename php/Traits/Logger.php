@@ -2,6 +2,10 @@
 
 namespace Coyote\Traits;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\WordPressPlugin;
 use Monolog\Handler\StreamHandler;
 

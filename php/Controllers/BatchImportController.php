@@ -2,15 +2,18 @@
 
 namespace Coyote\Controllers;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\BatchImportHelper;
-use JetBrains\PhpStorm\NoReturn;
 
 class BatchImportController
 {
     private const MINIMUM_BATCH_SIZE = 10;
     private const MAXIMUM_BATCH_SIZE = 200;
 
-    #[NoReturn] public static function ajaxSetBatchJob(): void
+    public static function ajaxSetBatchJob(): void
     {
         session_write_close();
         check_ajax_referer('coyote_ajax');
@@ -25,7 +28,7 @@ class BatchImportController
         wp_die();
     }
 
-    #[NoReturn] public static function ajaxClearBatchJob(): void
+    public static function ajaxClearBatchJob(): void
     {
         session_write_close();
         check_ajax_referer('coyote_ajax');
@@ -37,19 +40,19 @@ class BatchImportController
         wp_die();
     }
 
-    #[NoReturn] public static function ajaxLoadProcessBatch(): void
+    public static function ajaxLoadProcessBatch(): void
     {
         session_write_close();
 
-        $batch_size = intval($_GET['size']);
+        $batchSize = intval($_GET['size']);
 
-        if ($batch_size < self::MINIMUM_BATCH_SIZE) {
-            $batch_size = self::MINIMUM_BATCH_SIZE;
-        } elseif ($batch_size > self::MAXIMUM_BATCH_SIZE) {
-            $batch_size = self::MAXIMUM_BATCH_SIZE;
+        if ($batchSize < self::MINIMUM_BATCH_SIZE) {
+            $batchSize = self::MINIMUM_BATCH_SIZE;
+        } elseif ($batchSize > self::MAXIMUM_BATCH_SIZE) {
+            $batchSize = self::MAXIMUM_BATCH_SIZE;
         }
 
-        echo json_encode(BatchImportHelper::getProcessBatch($batch_size));
+        echo json_encode(BatchImportHelper::getProcessBatch($batchSize));
 
         wp_die();
     }

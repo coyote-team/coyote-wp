@@ -2,6 +2,10 @@
 
 namespace Coyote;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\Traits\Logger;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
@@ -33,10 +37,10 @@ class WordPressPlugin
 
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
-		/*
-		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
-		 */
-		add_action('plugins_loaded', [$this, 'setupControllers']);
+        /*
+         * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
+         */
+        add_action('plugins_loaded', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void

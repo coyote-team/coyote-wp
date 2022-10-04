@@ -9,11 +9,13 @@
 
 namespace Coyote\Controllers;
 
-use Coyote\Traits\Logger;
+if (!defined('WP_INC')) {
+    exit;
+}
 
+use Coyote\Traits\Logger;
 use Coyote\CoyoteApiClient;
 use Coyote\Handlers\ResourceUpdateHandler;
-
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use WP_REST_Server;

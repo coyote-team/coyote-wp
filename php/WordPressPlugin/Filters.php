@@ -2,6 +2,10 @@
 
 namespace Coyote\WordPressPlugin;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\PluginConfiguration;
 use Coyote\Traits\Logger;
 use Coyote\WordPressHelper;
@@ -19,11 +23,11 @@ class Filters
         $url = admin_url('options-general.php?page=coyote_fields');
         $text = __('Settings');
 
-        $settings_links = [
+        $settingsLinks = [
             "<a href=\"$url\">$text</a>"
         ];
 
-        return array_merge($links, $settings_links);
+        return array_merge($links, $settingsLinks);
     }
 
     public static function addTinyMcePlugin()
@@ -53,12 +57,13 @@ class Filters
             return $response;
         }
 
-        $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
-            $response['alt'],
-            ''
-        ));
+        $url = WordpressHelper::getAttachmentUrl($attachment->ID);
 
+        if (is_null($url)) {
+            return $response;
+        }
+
+        $image = new WordPressImage(new Image($url, $response['alt'], ''));
         $image->setCaption($response['caption']);
 
         $resource = WordPressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
@@ -84,11 +89,13 @@ class Filters
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
 
-        $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
-            '',
-            ''
-        ));
+        $url = WordpressHelper::getAttachmentUrl($attachment->ID);
+
+        if (is_null($url)) {
+            return $attr;
+        }
+
+        $image = new WordPressImage(new Image($url, '', ''));
 
         $resource = WordPressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
 
@@ -103,7 +110,7 @@ class Filters
     {
         $schedules['five_minutes'] = [
             'interval' => 300,
-            'display'  => esc_html__('Every Five Minutes')
+            'display' => esc_html__('Every Five Minutes')
         ];
 
         return $schedules;

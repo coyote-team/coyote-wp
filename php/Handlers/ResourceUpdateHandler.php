@@ -9,6 +9,10 @@
 
 namespace Coyote\Handlers;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\Traits\Logger;
 use Coyote\DB;
 

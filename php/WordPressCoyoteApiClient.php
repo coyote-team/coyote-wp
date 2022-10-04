@@ -2,6 +2,10 @@
 
 namespace Coyote;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\Traits\Logger;
 use Coyote\Model\ProfileModel;
 use Coyote\Model\ResourceGroupModel;

@@ -2,6 +2,10 @@
 
 namespace Coyote\WordPressPlugin;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\ContentHelper\Image;
 use Coyote\DB;
 use Coyote\DB\ResourceRecord;
@@ -48,11 +52,13 @@ class Actions
             return;
         }
 
-        $image = new WordPressImage(new Image(
-            coyote_attachment_url($post->ID),
-            '',
-            ''
-        ));
+        $url = WordpressHelper::getAttachmentUrl($post->ID);
+
+        if (is_null($url)) {
+            return;
+        }
+
+        $image = new WordPressImage(new Image($url, '', ''));
 
         /** @var ResourceRecord|null $resource */
         $resource = WordpressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());

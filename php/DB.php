@@ -9,21 +9,23 @@
 
 namespace Coyote;
 
-// Exit if accessed directly.
-use Coyote\DB\ResourceRecord;
-
-if (!defined( 'ABSPATH')) {
+if (!defined('WP_INC')) {
     exit;
 }
 
-class DB {
+use Coyote\DB\ResourceRecord;
+use stdClass;
+
+class DB
+{
     private static function getResourceTableName(): string
     {
         global $wpdb;
         return $wpdb->prefix . 'coyote_image_resource';
     }
 
-    private static function replaceSqlVariables(string $sql): string {
+    private static function replaceSqlVariables(string $sql): string
+    {
         global $wpdb;
 
         $search_strings = array(
@@ -42,7 +44,8 @@ class DB {
         return $sql;
     }
 
-    public static function runSqlFromFile(string $path) {
+    public static function runSqlFromFile(string $path)
+    {
         global $wpdb;
         $sql = self::replaceSqlVariables(file_get_contents($path));
         $wpdb->query($sql);
@@ -70,7 +73,7 @@ class DB {
         string $hash,
         string $src,
         string $alt,
-        int $resourceId,
+        int    $resourceId,
         string $resourceAlt
     ): ?ResourceRecord {
         global $wpdb;
@@ -107,7 +110,7 @@ class DB {
         return self::mapTableRowToResourceRecord($row);
     }
 
-    private static function mapTableRowToResourceRecord(\stdClass $record): ResourceRecord
+    private static function mapTableRowToResourceRecord(stdClass $record): ResourceRecord
     {
         return new ResourceRecord(
             $record->source_uri_sha1,

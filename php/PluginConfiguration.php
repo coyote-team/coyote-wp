@@ -2,11 +2,14 @@
 
 namespace Coyote;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\Model\ProfileModel;
 
 class PluginConfiguration
 {
-
     public const METUM = 'Alt';
     public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
     public const RESOURCE_GROUP_NAME = 'WordPress';
@@ -32,7 +35,7 @@ class PluginConfiguration
     public static function getMetum(): ?string
     {
         $metum = get_option('coyote_api_metum', self::METUM);
-        return self::isNonEmptyString( $metum ) ? $metum : self::METUM;
+        return self::isNonEmptyString($metum) ? $metum : self::METUM;
     }
 
     public static function setApiOrganizationId(string $id): void
@@ -114,7 +117,7 @@ class PluginConfiguration
 
     public static function getApiProfile(): ?ProfileModel
     {
-        return self::possiblyMigrateApiProfile( get_option('coyote_api_profile', null) );
+        return self::possiblyMigrateApiProfile(get_option('coyote_api_profile', null));
     }
 
     /*
@@ -123,14 +126,17 @@ class PluginConfiguration
      */
     public static function possiblyMigrateApiProfile($profile): ?ProfileModel
     {
-        if (is_null($profile))
+        if (is_null($profile)) {
             return null;
+        }
 
-        if (!$profile instanceof ProfileModel)
+        if (!$profile instanceof ProfileModel) {
             $profile = WordPressCoyoteApiClient::getProfile();
+        }
 
-        if(!is_null($profile))
+        if (!is_null($profile)) {
             self::setApiProfile($profile);
+        }
 
         return $profile;
     }

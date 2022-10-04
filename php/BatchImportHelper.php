@@ -2,6 +2,10 @@
 
 namespace Coyote;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\ContentHelper\Image;
 use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
@@ -28,11 +32,11 @@ class BatchImportHelper
 
     public static function getProcessBatch($size): array
     {
-        $post_types = PluginConfiguration::getProcessedPostTypes();
-        $post_statuses = ['inherit', 'publish'];
+        $postTypes = PluginConfiguration::getProcessedPostTypes();
+        $postStatuses = ['inherit', 'publish'];
 
         if (PluginConfiguration::isProcessingUnpublishedPosts()) {
-            $post_statuses = array_merge($post_statuses, ['pending', 'draft', 'private']);
+            $postStatuses = array_merge($postStatuses, ['pending', 'draft', 'private']);
         }
 
         $offset = get_transient('coyote_batch_offset');
@@ -42,10 +46,10 @@ class BatchImportHelper
         if ($offset === false) {
             $offset = 0;
 
-            $total_posts = array_reduce($post_types, function ($carry, $type) use ($post_statuses) {
+            $totalPosts = array_reduce($postTypes, function ($carry, $type) use ($postStatuses) {
                 $counts = wp_count_posts($type);
 
-                foreach ($post_statuses as $status) {
+                foreach ($postStatuses as $status) {
                     if (property_exists($counts, $status)) {
                         $carry += $counts->$status;
                     }
@@ -54,16 +58,16 @@ class BatchImportHelper
                 return $carry;
             }, 0);
 
-            $response['total'] = $total_posts;
+            $response['total'] = $totalPosts;
         }
 
         $batch = get_posts(array(
-            'order'       => 'ASC',
-            'order_by'    => 'ID',
-            'offset'      => $offset,
+            'order' => 'ASC',
+            'order_by' => 'ID',
+            'offset' => $offset,
             'numberposts' => $size,
-            'post_type'   => $post_types,
-            'post_status' => $post_statuses,
+            'post_type' => $postTypes,
+            'post_status' => $postStatuses,
             'post_parent' => null,
         ));
 
@@ -84,40 +88,45 @@ class BatchImportHelper
 
     private static function addAttachmentResourceToPayload(
         CreateResourcesPayload $payload,
-        int $resourceGroupId,
-        bool $skipUnpublishedParentPost,
-        WP_Post $post
+        int                    $resourceGroupId,
+        bool                   $skipUnpublishedParentPost,
+        WP_Post                $post
     ): CreateResourcesPayload {
         // attachment with mime type image, get alt and caption differently
         $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
 
         if ($post->post_status === 'inherit' && $post->post_parent) {
             // child of a page
-            $parent_post = get_post($post->post_parent);
+            $parentPost = get_post($post->post_parent);
 
             // only process images in published posts
-            if ($parent_post && $parent_post->post_status !== 'publish' && $skipUnpublishedParentPost) {
+            if ($parentPost && $parentPost->post_status !== 'publish' && $skipUnpublishedParentPost) {
                 return $payload;
             }
 
-            $host_uri = get_permalink($parent_post);
+            $hostUri = get_permalink($parentPost);
         } else {
-            $host_uri = get_permalink($post);
+            $hostUri = get_permalink($post);
         }
 
-        $attachmentUrl = coyote_attachment_url($post->ID);
+        $attachmentUrl = WordpressHelper::getAttachmentUrl($post->ID);
+
+        if (is_null($attachmentUrl)) {
+            return $payload;
+        }
 
         $image = new WordPressImage(
             new Image($attachmentUrl, $alt, '')
         );
-        $image->setHostUri($host_uri);
+
+        $image->setHostUri($hostUri);
         $image->setCaption($post->post_excerpt);
 
         $payload->addResource(new CreateResourcePayload(
             $image->getCaption() ?? $image->getUrl(),
             $image->getUrl(),
             $resourceGroupId,
-            $host_uri
+            $hostUri
         ));
 
         return $payload;
@@ -129,7 +138,7 @@ class BatchImportHelper
     }
 
     /** @return ResourceModel[] */
-    private static function createResources($posts, $skip_unpublished_parent_post): array
+    private static function createResources($posts, $skipUnpublishedParentPost): array
     {
         $resourceGroupId = PluginConfiguration::getApiResourceGroupId();
         $payload = new CreateResourcesPayload();
@@ -139,7 +148,7 @@ class BatchImportHelper
                 $payload = self::addAttachmentResourceToPayload(
                     $payload,
                     $resourceGroupId,
-                    $skip_unpublished_parent_post,
+                    $skipUnpublishedParentPost,
                     $post
                 );
                 continue;
@@ -147,16 +156,16 @@ class BatchImportHelper
 
             $helper = new ContentHelper($post->post_content);
             $images = $helper->getImages();
-            $host_uri = get_permalink($post);
+            $hostUri = get_permalink($post);
 
             foreach ($images as $contentImage) {
                 $image = new WordPressImage($contentImage);
-                $image->setHostUri($host_uri);
+                $image->setHostUri($hostUri);
                 $payload->addResource(new CreateResourcePayload(
                     $image->getCaption() ?? $image->getUrl(),
                     $image->getUrl(),
                     $resourceGroupId,
-                    $host_uri
+                    $hostUri
                 ));
             }
         }

@@ -9,6 +9,10 @@
 
 namespace Coyote\Handlers;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\Traits\Logger;
 use Coyote\ContentHelper;
 use Coyote\Payload\CreateResourcePayload;
@@ -24,27 +28,27 @@ class PostUpdateHandler
 
     public static function run(array $data, array $postArr): array
     {
-        $post_id = $postArr['ID'];
+        $postID = $postArr['ID'];
 
         if ($postArr['post_type'] === 'revision') {
-            self::logDebug("Post update of $post_id is for revision, skipping");
+            self::logDebug("Post update of $postID is for revision, skipping");
             return $data;
         }
 
         try {
-            self::process(wp_unslash($data['post_content']), $post_id);
+            self::process(wp_unslash($data['post_content']), $postID);
         } catch (Exception $error) {
-            self::logDebug("Error processing post update for $post_id: " . $error->getMessage());
+            self::logDebug("Error processing post update for $postID: " . $error->getMessage());
         }
 
         return $data;
     }
 
-    private static function process(string $content, string $post_id): void
+    private static function process(string $content, string $postID): void
     {
-        self::logDebug("Processing update on post " . $post_id);
+        self::logDebug("Processing update on post " . $postID);
 
-        $permalink = get_permalink($post_id);
+        $permalink = get_permalink($postID);
         $helper = new ContentHelper($content);
 
         $images = $helper->getImages();

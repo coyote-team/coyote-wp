@@ -2,6 +2,10 @@
 
 namespace Coyote\DB;
 
+if (!defined('WP_INC')) {
+    exit;
+}
+
 class ResourceRecord
 {
     private string $sha1;
@@ -13,7 +17,7 @@ class ResourceRecord
     public function __construct(
         string $sha1,
         string $uri,
-        int $resourceId,
+        int    $resourceId,
         string $originalDesc,
         string $coyoteDesc
     ) {

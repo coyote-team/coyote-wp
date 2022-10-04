@@ -2,7 +2,10 @@
 
 namespace Coyote;
 
-use Coyote\ContentHelper\Image;
+if (!defined('WP_INC')) {
+    exit;
+}
+
 use Coyote\DB\ResourceRecord;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
@@ -56,7 +59,7 @@ class WordPressHelper
 
     public static function getResourceForWordPressImage(
         WordPressImage $image,
-        bool $fetchFromApiIfMissing = true
+        bool           $fetchFromApiIfMissing = true
     ): ?ResourceRecord {
         $record = DB::getRecordByHash(sha1($image->getUrl()));
 
@@ -100,7 +103,6 @@ class WordPressHelper
     public static function setImageAlts(WP_Post $post, bool $fetchFromApiIfMissing = true): string
     {
         $helper = new ContentHelper($post->post_content);
-        /** @var Image[] $images */
         $images = $helper->getImages();
         $permalink = get_permalink($post->ID);
 
@@ -121,7 +123,7 @@ class WordPressHelper
             }
 
             if ($fetchFromApiIfMissing) {
-                $missingImages[$url] = ['alt' => $image->getAlt(),'src' => $src];
+                $missingImages[$url] = ['alt' => $image->getAlt(), 'src' => $src];
 
                 /*  Resources require a hostUri where available  */
                 $image->setHostUri($permalink);
@@ -137,8 +139,8 @@ class WordPressHelper
     }
 
     private static function fetchImagesFromApi(
-        array $imageMap,
-        array $missingImages,
+        array                  $imageMap,
+        array                  $missingImages,
         CreateResourcesPayload $payload
     ): array {
         $response = WordPressCoyoteApiClient::createResources($payload);
@@ -202,4 +204,22 @@ class WordPressHelper
 </script>
 js;
     }
+
+    /**
+     * @param int $attachmentId
+     * @return null|string
+     */
+    public static function getAttachmentUrl(int $attachmentId): ?string
+    {
+        $url = wp_get_attachment_url($attachmentId);
+
+        $parts = wp_parse_url($url);
+
+        if ($parts === false) {
+            return null;
+        }
+
+        return '//' . $parts['host'] . esc_url($parts['path']);
+    }
+
 }
