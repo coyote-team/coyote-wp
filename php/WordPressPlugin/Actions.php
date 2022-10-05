@@ -52,8 +52,14 @@ class Actions
             return;
         }
 
+        $url = WordPressHelper::getAttachmentURL($post->ID);
+
+        if (is_null($url)) {
+            return;
+        }
+
         $image = new WordPressImage(new Image(
-            coyote_attachment_url($post->ID),
+            $url,
             '',
             ''
         ));

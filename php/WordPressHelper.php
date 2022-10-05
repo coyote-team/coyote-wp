@@ -205,4 +205,22 @@ class WordPressHelper
 </script>
 js;
     }
+
+    /**
+     * @param int $attachmentID
+     * @return string
+     */
+    public static function getAttachmentURL(int $attachmentID): ?string
+    {
+        $url = wp_get_attachment_url($attachmentID);
+
+        $parts = wp_parse_url($url);
+
+        if ($parts === false) {
+            return null;
+        }
+
+        return '//' . $parts['host'] . esc_url($parts['path']);
+    }
+
 }
