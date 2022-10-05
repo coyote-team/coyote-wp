@@ -8,26 +8,26 @@ use Coyote\Model\ProfileModel;
 
 class PluginConfiguration
 {
-	/**
-	 * @var string PLUGIN_VERSION Coyote WordPress Plugin version
-	 */
-	public const PLUGIN_VERSION = '2.0.0';
+    /**
+     * @var string PLUGIN_VERSION Coyote WordPress Plugin version
+     */
+    public const PLUGIN_VERSION = '2.0.0';
 
-	/**
-	 * Set the version of the API to connect to on the endpoint
-	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
-	 *
-	 * @var int API_VERSION Coyote API version
-	 */
-	public const API_VERSION = 1;
+    /**
+     * Set the version of the API to connect to on the endpoint
+     * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+     *
+     * @var int API_VERSION Coyote API version
+     */
+    public const API_VERSION = 1;
 
-	/**
-	 * Set the version of the API to connect to on the endpoint
-	 * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
-	 *
-	 * @var string DEFAULT_ENDPOINT
-	 */
-	public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
+    /**
+     * Set the version of the API to connect to on the endpoint
+     * [endpoint]/api/[version] e.g. https://staging.coyote.pics/api/1
+     *
+     * @var string DEFAULT_ENDPOINT
+     */
+    public const DEFAULT_ENDPOINT = 'https://staging.coyote.pics';
 
     public const METUM = 'Alt';
     public const RESOURCE_GROUP_NAME = 'WordPress';
@@ -35,20 +35,22 @@ class PluginConfiguration
     public const PROCESSED_POST_TYPES = ['page', 'post', 'attachment'];
     public const TWIG_TEMPLATES_PATH = COYOTE_PLUGIN_PATH . 'php' . DIRECTORY_SEPARATOR . 'Views';
 
-	/**
-	 * Update the plugin version in the database
-	 */
-	public static function updatePluginVersion(): void {
-		WordPressPlugin::checkForUpdates();
-		update_option('coyote_plugin_version', self::PLUGIN_VERSION);
-	}
+    /**
+     * Update the plugin version in the database
+     */
+    public static function updatePluginVersion(): void
+    {
+        WordPressPlugin::checkForUpdates();
+        update_option('coyote_plugin_version', self::PLUGIN_VERSION);
+    }
 
-	/**
-	 * @return string plugin version stored in database
-	 */
-	public static function getStoredPluginVersion(): string {
-		return get_option('coyote_plugin_version', '1');
-	}
+    /**
+     * @return string plugin version stored in database
+     */
+    public static function getStoredPluginVersion(): string
+    {
+        return get_option('coyote_plugin_version', '1');
+    }
 
     public static function getApiEndPoint(): ?string
     {
@@ -65,19 +67,19 @@ class PluginConfiguration
         return get_option('coyote_api_organization_id', null);
     }
 
-	/**
-	 * Check if an organization is set
-	 * @return bool
-	 */
-	public static function hasApiOrganizationId(): bool
-	{
-		return self::isNonEmptyString(self::getApiOrganizationId());
-	}
+    /**
+     * Check if an organization is set
+     * @return bool
+     */
+    public static function hasApiOrganizationId(): bool
+    {
+        return self::isNonEmptyString(self::getApiOrganizationId());
+    }
 
     public static function getMetum(): ?string
     {
         $metum = get_option('coyote_api_metum', self::METUM);
-        return self::isNonEmptyString( $metum ) ? $metum : self::METUM;
+        return self::isNonEmptyString($metum) ? $metum : self::METUM;
     }
 
     public static function setApiOrganizationId(string $id): void
@@ -85,10 +87,10 @@ class PluginConfiguration
         update_option('coyote_api_organization_id', $id);
     }
 
-	public static function deleteApiOrganizationId(): void
-	{
-		update_option('coyote_api_organization_id', null);
-	}
+    public static function deleteApiOrganizationId(): void
+    {
+        update_option('coyote_api_organization_id', null);
+    }
 
     public static function getApiResourceGroupId(): ?int
     {
@@ -96,76 +98,85 @@ class PluginConfiguration
         return $resourceGroupId > -1 ? $resourceGroupId : null;
     }
 
-	/**
-	 * Get Membership linked to the API profile
-	 *
-	 * @param string|null $organizationId
-	 *
-	 * @return ?MembershipModel
-	 */
-	public static function getOrganizationMembership(string $organizationId = null): ?MembershipModel
-	{
-		// get linked organization id from options when id is omitted
-		if(is_null($organizationId))
-			$organizationId = self::getApiOrganizationId();
+    /**
+     * Get Membership linked to the API profile
+     *
+     * @param string|null $organizationId
+     *
+     * @return ?MembershipModel
+     */
+    public static function getOrganizationMembership(string $organizationId = null): ?MembershipModel
+    {
+        // get linked organization id from options when id is omitted
+        if (is_null($organizationId)) {
+            $organizationId = self::getApiOrganizationId();
+        }
 
-		// when no organization id is set, return
-		if(is_null($organizationId))
-			return null;
+        // when no organization id is set, return
+        if (is_null($organizationId)) {
+            return null;
+        }
 
-		// get the profile to retrieve the memberships
-		$profile = self::getApiProfile();
-		if (is_null($profile))
-			return null;
+        // get the profile to retrieve the memberships
+        $profile = self::getApiProfile();
+        if (is_null($profile)) {
+            return null;
+        }
 
-		// filter the membership that is linked to the organization id
-		$matches = array_filter($profile->getMemberships(), function (MembershipModel $mem) use ( $organizationId ): bool {
-			return ($mem->getOrganization())->getId() === $organizationId;
-		});
+        // filter the membership that is linked to the organization id
+        $matches = array_filter(
+            $profile->getMemberships(),
+            function (MembershipModel $mem) use ($organizationId): bool {
+                return ($mem->getOrganization())->getId() === $organizationId;
+            }
+        );
 
-		if (count($matches) !== 1) {
-			return null;
-		}
+        if (count($matches) !== 1) {
+            return null;
+        }
 
-		return array_shift($matches);
-	}
+        return array_shift($matches);
+    }
 
-	/**
-	 * Get Membership role linked to the API profile
-	 *
-	 * @param string|null $organizationId
-	 *
-	 * @return ?string
-	 */
-	public static function getOrganizationMembershipRole(string $organizationId = null): ?string
-	{
-		$membershipModel = self::getOrganizationMembership($organizationId);
-		return is_null($membershipModel) ? null : $membershipModel->getRole();
-	}
+    /**
+     * Get Membership role linked to the API profile
+     *
+     * @param string|null $organizationId
+     *
+     * @return ?string
+     */
+    public static function getOrganizationMembershipRole(string $organizationId = null): ?string
+    {
+        $membershipModel = self::getOrganizationMembership($organizationId);
+        return is_null($membershipModel) ? null : $membershipModel->getRole();
+    }
 
-	/**
-	 * Check if organization membership role is allowed to link with the API
-	 *
-	 * @param null $organizationId
-	 *
-	 * @return bool
-	 */
-	public static function isOrganizationRoleAllowed($organizationId = null): bool
-	{
-		return in_array(self::getOrganizationMembershipRole($organizationId),self::ALLOWED_ROLES);
-	}
+    /**
+     * Check if organization membership role is allowed to link with the API
+     *
+     * @param null $organizationId
+     *
+     * @return bool
+     */
+    public static function isOrganizationRoleAllowed($organizationId = null): bool
+    {
+        return in_array(self::getOrganizationMembershipRole($organizationId), self::ALLOWED_ROLES);
+    }
 
-	/**
-	 * @param ProfileModel $profile
-	 *
-	 * @return array
-	 */
-	public static function getAllowedOrganizationsInProfile(ProfileModel $profile): array
-	{
-		return array_filter($profile->getOrganizations(), function (OrganizationModel $org): bool {
-			return in_array( PluginConfiguration::getOrganizationMembershipRole($org->getId()), PluginConfiguration::ALLOWED_ROLES);
-		});
-	}
+    /**
+     * @param ProfileModel $profile
+     *
+     * @return array
+     */
+    public static function getAllowedOrganizationsInProfile(ProfileModel $profile): array
+    {
+        return array_filter($profile->getOrganizations(), function (OrganizationModel $org): bool {
+            return in_array(
+                PluginConfiguration::getOrganizationMembershipRole($org->getId()),
+                PluginConfiguration::ALLOWED_ROLES
+            );
+        });
+    }
 
     public static function isStandalone(): bool
     {
@@ -217,51 +228,51 @@ class PluginConfiguration
         return !!get_option('coyote_plugin_is_installed', false);
     }
 
-	/**
-	 * Check if the plugin has been activated earlier
-	 *
-	 * @return bool
-	 */
-	public static function hasBeenInstalledBefore(): bool
-	{
-		/*
-		 * if the plugin has been activated before and has been deactivated
-		 * the option 'coyote_plugin_is_installed' exists and = false
-		 * if the plugin hasn't been activated before the get_option return 'non-exists'
-		 */
-		return 'not-exists' !== get_option( 'coyote_plugin_is_installed', 'not-exists' );
-	}
+    /**
+     * Check if the plugin has been activated earlier
+     *
+     * @return bool
+     */
+    public static function hasBeenInstalledBefore(): bool
+    {
+        /*
+         * if the plugin has been activated before and has been deactivated
+         * the option 'coyote_plugin_is_installed' exists and = false
+         * if the plugin hasn't been activated before the get_option return 'non-exists'
+         */
+        return 'not-exists' !== get_option('coyote_plugin_is_installed', 'not-exists');
+    }
 
-	/**
-	 * Get API error count
-	 * @return int
-	 */
-	public static function getApiErrorCount(): int
-	{
-		return get_transient('coyote_api_error_count') ?? false;
-	}
+    /**
+     * Get API error count
+     * @return int
+     */
+    public static function getApiErrorCount(): int
+    {
+        return get_transient('coyote_api_error_count') ?? 0;
+    }
 
-	/**
-	 * Set API error count
-	 *
-	 * @param int $count new value to set the error count to
-	 *
-	 * @return void
-	 */
-	public static function setApiErrorCount(int $count): void
-	{
-		set_transient('coyote_api_error_count', $count);
-	}
+    /**
+     * Set API error count
+     *
+     * @param int $count new value to set the error count to
+     *
+     * @return void
+     */
+    public static function setApiErrorCount(int $count): void
+    {
+        set_transient('coyote_api_error_count', $count);
+    }
 
-	/**
-	 * Raise the API error count (current count +1)
-	 */
-	public static function raiseApiErrorCount(): void
-	{
-		$count = (int) self::getApiErrorCount() + 1;
-		WordPressCoyoteApiClient::logDebug("Updating API error count to $count");
-		self::setApiErrorCount($count);
-	}
+    /**
+     * Raise the API error count (current count +1)
+     */
+    public static function raiseApiErrorCount(): void
+    {
+        $count = self::getApiErrorCount() + 1;
+        WordPressCoyoteApiClient::logDebug("Updating API error count to $count");
+        self::setApiErrorCount($count);
+    }
 
     public static function setResourceGroupId(int $id): void
     {
@@ -270,7 +281,7 @@ class PluginConfiguration
 
     public static function getApiProfile(): ?ProfileModel
     {
-        return self::possiblyMigrateApiProfile( get_option('coyote_api_profile', null) );
+        return self::possiblyMigrateApiProfile(get_option('coyote_api_profile', null));
     }
 
     /*
@@ -279,29 +290,32 @@ class PluginConfiguration
      */
     public static function possiblyMigrateApiProfile($profile): ?ProfileModel
     {
-        if (is_null($profile))
+        if (is_null($profile)) {
             return null;
+        }
 
-        if (!$profile instanceof ProfileModel)
+        if (!$profile instanceof ProfileModel) {
             $profile = WordPressCoyoteApiClient::getProfile();
+        }
 
-        if(!is_null($profile))
+        if (!is_null($profile)) {
             self::setApiProfile($profile);
+        }
 
         return $profile;
     }
 
-	/**
-	 * Check if profile has allowed organization roles
-	 *
-	 * @param ProfileModel $profile
-	 *
-	 * @return bool
-	 */
-	public static function profileHasAllowedOrganizationRoles(ProfileModel $profile): bool
-	{
-		return ! empty(self::getAllowedOrganizationsInProfile($profile));
-	}
+    /**
+     * Check if profile has allowed organization roles
+     *
+     * @param ProfileModel $profile
+     *
+     * @return bool
+     */
+    public static function profileHasAllowedOrganizationRoles(ProfileModel $profile): bool
+    {
+        return !empty(self::getAllowedOrganizationsInProfile($profile));
+    }
 
     public static function setApiProfile(ProfileModel $profile): void
     {
@@ -344,17 +358,19 @@ class PluginConfiguration
         return !!get_option('coyote_skip_unpublished_enabled', true);
     }
 
-	/**
-	 * get optionally stored post types to process
-	 * self::PROCESSED_POST_TYPES are always returned!
-	 *
-	 * @return array
-	 */
-	public static function getProcessedPostTypes(): array
-	{
-		$processedPostTypes = get_option('coyote_plugin_processed_post_types', 'not-exists');
-		return 'not-exists' === $processedPostTypes ? self::PROCESSED_POST_TYPES : array_unique(array_merge(self::PROCESSED_POST_TYPES, (array) $processedPostTypes));
-	}
+    /**
+     * get optionally stored post types to process
+     * self::PROCESSED_POST_TYPES are always returned!
+     *
+     * @return array
+     */
+    public static function getProcessedPostTypes(): array
+    {
+        $processedPostTypes = get_option('coyote_plugin_processed_post_types', 'not-exists');
+        return 'not-exists' === $processedPostTypes
+            ? self::PROCESSED_POST_TYPES
+            : array_unique(array_merge(self::PROCESSED_POST_TYPES, (array)$processedPostTypes));
+    }
 
     public static function deletePluginOptions(): void
     {
@@ -375,18 +391,18 @@ class PluginConfiguration
         }
     }
 
-	/**
-	 * Set plugin is installed in options table
-	 */
+    /**
+     * Set plugin is installed in options table
+     */
     public static function setInstalled(): void
     {
         update_option('coyote_plugin_is_installed', true);
     }
 
-	/**
-	 * Unset plugin is installed in options table
-	 */
-	public static function setUnInstalled(): void
+    /**
+     * Unset plugin is installed in options table
+     */
+    public static function setUnInstalled(): void
     {
         update_option('coyote_plugin_is_installed', false);
     }

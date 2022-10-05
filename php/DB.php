@@ -11,38 +11,42 @@ namespace Coyote;
 
 // Exit if accessed directly.
 use Coyote\DB\ResourceRecord;
+use stdClass;
 
-if (!defined( 'ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-class DB {
+class DB
+{
     private static function getResourceTableName(): string
     {
         global $wpdb;
         return $wpdb->prefix . 'coyote_image_resource';
     }
 
-    private static function replaceSqlVariables(string $sql): string {
+    private static function replaceSqlVariables(string $sql): string
+    {
         global $wpdb;
 
-        $search_strings = array(
+        $searchStrings = array(
             '%image_resource_table_name%',
             '%wp_post_table_name%',
             '%charset_collate%'
         );
 
-        $replace_strings = array(
+        $replaceStrings = array(
             self::getResourceTableName(),
             $wpdb->prefix . 'posts',
             $wpdb->get_charset_collate()
         );
 
-        $sql = str_replace($search_strings, $replace_strings, $sql);
+        $sql = str_replace($searchStrings, $replaceStrings, $sql);
         return $sql;
     }
 
-    public static function runSqlFromFile(string $path) {
+    public static function runSqlFromFile(string $path)
+    {
         global $wpdb;
         $sql = self::replaceSqlVariables(file_get_contents($path));
         $wpdb->query($sql);
@@ -70,7 +74,7 @@ class DB {
         string $hash,
         string $src,
         string $alt,
-        int $resourceId,
+        int    $resourceId,
         string $resourceAlt
     ): ?ResourceRecord {
         global $wpdb;
@@ -83,8 +87,8 @@ class DB {
             'coyote_description' => $resourceAlt
         ];
 
-        $data_types = ["%s", "%s", "%d", "%s", "%s"];
-        $wpdb->insert(self::getResourceTableName(), $record, $data_types);
+        $dataTypes = ["%s", "%s", "%d", "%s", "%s"];
+        $wpdb->insert(self::getResourceTableName(), $record, $dataTypes);
 
         return self::getRecordByHash($hash);
     }
@@ -93,12 +97,12 @@ class DB {
     {
         global $wpdb;
 
-        $prepared_query = $wpdb->prepare(
+        $preparedQuery = $wpdb->prepare(
             "SELECT * FROM " . self::getResourceTableName() . " WHERE source_uri_sha1 = %s",
             $hash
         );
 
-        $row = $wpdb->get_row($prepared_query);
+        $row = $wpdb->get_row($preparedQuery);
 
         if (is_null($row)) {
             return null;
@@ -107,7 +111,7 @@ class DB {
         return self::mapTableRowToResourceRecord($row);
     }
 
-    private static function mapTableRowToResourceRecord(\stdClass $record): ResourceRecord
+    private static function mapTableRowToResourceRecord(stdClass $record): ResourceRecord
     {
         return new ResourceRecord(
             $record->source_uri_sha1,
