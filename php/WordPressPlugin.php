@@ -33,10 +33,10 @@ class WordPressPlugin
 
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
-		/*
-		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
-		 */
-		add_action('init', [$this, 'setupControllers']);
+        /*
+         * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
+         */
+        add_action('init', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void
@@ -69,27 +69,31 @@ class WordPressPlugin
         return self::getPluginFile('sql', $name);
     }
 
-	/**
-	 * Check if the plugin has been updated
-	 */
-	public static function checkForUpdates(): void {
-		/*
-		 * If the plugin version is newer than registered in the database the plugin has been updated to a newer version
-		 * fire action hook that can be used to run custom update scripts
-		 * the current and new version numbers are passed as arguments
-		 */
-		if (version_compare(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION, '<') )
-			self::pluginUpdatedHandler(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION);
-	}
+    /**
+     * Check if the plugin has been updated
+     */
+    public static function checkForUpdates(): void
+    {
+        /*
+         * If the plugin version is newer than registered in the database the plugin has been updated to a newer version
+         * fire action hook that can be used to run custom update scripts
+         * the current and new version numbers are passed as arguments
+         */
+        if (version_compare(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION, '<')) {
+            self::pluginUpdatedHandler(
+                PluginConfiguration::getStoredPluginVersion(),
+                PluginConfiguration::PLUGIN_VERSION
+            );
+        }
+    }
 
-	/**
-	 * Plugin has been updated, run migration code
-	 *
-	 * @param $currentVersion
-	 * @param $newVersion
-	 */
-	public static function pluginUpdatedHandler($currentVersion, $newVersion): void
-	{
-
-	}
+    /**
+     * Plugin has been updated, run migration code
+     *
+     * @param $currentVersion
+     * @param $newVersion
+     */
+    public static function pluginUpdatedHandler($currentVersion, $newVersion): void
+    {
+    }
 }
