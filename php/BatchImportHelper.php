@@ -8,6 +8,10 @@ use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 use WP_Post;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class BatchImportHelper
 {
     public static function clearBatchJob(): void

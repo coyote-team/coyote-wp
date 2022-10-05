@@ -13,7 +13,7 @@ namespace Coyote;
 use Coyote\DB\ResourceRecord;
 use stdClass;
 
-if (!defined('ABSPATH')) {
+if (!defined('WPINC')) {
     exit;
 }
 

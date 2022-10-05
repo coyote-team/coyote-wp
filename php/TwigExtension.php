@@ -4,6 +4,10 @@ namespace Coyote;
 
 use Twig\TwigFunction;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class TwigExtension
 {
 

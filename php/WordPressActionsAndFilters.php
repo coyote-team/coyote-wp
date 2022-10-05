@@ -16,6 +16,10 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\WordPressPlugin\Actions;
 use Coyote\WordPressPlugin\Filters;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressActionsAndFilters
 {
     use Logger;

@@ -6,6 +6,10 @@ use Coyote\Model\MembershipModel;
 use Coyote\Model\OrganizationModel;
 use Coyote\Model\ProfileModel;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class PluginConfiguration
 {
     /**

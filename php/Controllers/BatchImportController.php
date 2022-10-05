@@ -3,7 +3,10 @@
 namespace Coyote\Controllers;
 
 use Coyote\BatchImportHelper;
-use JetBrains\PhpStorm\NoReturn;
+
+if (!defined('WPINC')) {
+    exit;
+}
 
 class BatchImportController
 {
