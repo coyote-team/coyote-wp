@@ -39,7 +39,7 @@ define('COYOTE_TRANSLATION_REL_PATH', dirname(plugin_basename(__FILE__)) . '/lan
  * @param string $path
  * @return string
  */
-function coyote_asset_url(string $path)
+function coyoteAssetURL(string $path): string
 {
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
