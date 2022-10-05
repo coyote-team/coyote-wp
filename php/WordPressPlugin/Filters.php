@@ -19,11 +19,11 @@ class Filters
         $url = admin_url('options-general.php?page=coyote_fields');
         $text = __('Settings');
 
-        $settings_links = [
+        $settingsLinks = [
             "<a href=\"$url\">$text</a>"
         ];
 
-        return array_merge($links, $settings_links);
+        return array_merge($links, $settingsLinks);
     }
 
     public static function addTinyMcePlugin()
@@ -103,7 +103,7 @@ class Filters
     {
         $schedules['five_minutes'] = [
             'interval' => 300,
-            'display'  => esc_html__('Every Five Minutes')
+            'display' => esc_html__('Every Five Minutes')
         ];
 
         return $schedules;
