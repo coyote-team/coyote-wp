@@ -10,6 +10,10 @@ use Coyote\Payload\CreateResourceGroupPayload;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressCoyoteApiClient
 {
     use Logger;

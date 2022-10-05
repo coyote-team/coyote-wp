@@ -12,6 +12,10 @@ use Coyote\WordPressImage;
 use Coyote\WordPressPlugin;
 use Coyote\Traits\Logger;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class Actions
 {
     use Logger;

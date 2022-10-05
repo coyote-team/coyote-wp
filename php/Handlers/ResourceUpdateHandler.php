@@ -12,6 +12,10 @@ namespace Coyote\Handlers;
 use Coyote\Traits\Logger;
 use Coyote\DB;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class ResourceUpdateHandler
 {
     use Logger;

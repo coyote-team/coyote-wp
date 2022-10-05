@@ -5,6 +5,10 @@ namespace Coyote\Traits;
 use Coyote\WordPressPlugin;
 use Monolog\Handler\StreamHandler;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 trait Logger
 {
     public static function logInfo(string $message, $data = []): void

@@ -18,6 +18,10 @@ use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressImage;
 use Exception;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class PostUpdateHandler
 {
     use Logger;

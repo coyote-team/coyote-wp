@@ -6,6 +6,10 @@ use Coyote\Traits\Logger;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressPlugin
 {
     use Logger;

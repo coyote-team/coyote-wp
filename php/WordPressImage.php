@@ -4,6 +4,10 @@ namespace Coyote;
 
 use Coyote\ContentHelper\Image;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressImage
 {
     private ?string $caption;
