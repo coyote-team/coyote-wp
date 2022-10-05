@@ -38,7 +38,7 @@ class WordPressActionsAndFilters
         add_action('wp_ajax_coyote_cancel_batch_job', [BatchImportController::class, 'ajaxClearBatchJob']);
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', [BatchImportController::class, 'ajaxClearBatchJob']);
 
-        add_action('wp_ajax_coyote_verify_resource_group', [SettingsController::class, 'ajax_verify_resource_group']);
+        add_action('wp_ajax_coyote_verify_resource_group', [SettingsController::class, 'ajaxVerifyResourceGroup']);
     }
 
     private static function setupContentFilters(): void
