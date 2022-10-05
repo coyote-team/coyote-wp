@@ -45,16 +45,6 @@ function coyote_asset_url(string $path)
 }
 
 /**
- * @param string $type
- * @param string $path
- * @return string
- */
-function _coyote_file(string $type, string $path)
-{
-    return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
-}
-
-/**
  * @param int $attachment_id
  * @return string
  */
