@@ -33,7 +33,7 @@ class Filters
     public static function addTinyMcePlugin()
     {
         add_filter('mce_external_plugins', function ($plugins) {
-            $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
+            $plugins['coyote'] = coyoteAssetURL('tinymce_plugin.js');
             return $plugins;
         });
     }

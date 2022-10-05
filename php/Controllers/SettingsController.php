@@ -244,13 +244,13 @@ class SettingsController
     {
         wp_enqueue_script(
             'coyote_settings_js',
-            coyote_asset_url('settings.js'),
+            coyoteAssetURL('settings.js'),
             false
         );
 
         wp_enqueue_style(
             'coyote_settings_css',
-            coyote_asset_url('settings.css'),
+            coyoteAssetURL('settings.css'),
             false
         );
 

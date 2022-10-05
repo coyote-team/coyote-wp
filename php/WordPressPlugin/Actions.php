@@ -87,7 +87,7 @@ js;
 
         wp_enqueue_script(
             'coyote_hook_alt_js',
-            coyote_asset_url('hook_alt_fields.js'),
+            coyoteAssetURL('hook_alt_fields.js'),
             false
         );
     }
