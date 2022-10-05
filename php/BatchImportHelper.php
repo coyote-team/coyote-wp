@@ -109,7 +109,11 @@ class BatchImportHelper
             $host_uri = get_permalink($post);
         }
 
-        $attachmentUrl = coyote_attachment_url($post->ID);
+        $attachmentUrl = WordpressHelper::getAttachmentURL($post->ID);
+
+        if (is_null($attachmentUrl)) {
+            return $payload;
+        }
 
         $image = new WordPressImage(
             new Image($attachmentUrl, $alt, '')

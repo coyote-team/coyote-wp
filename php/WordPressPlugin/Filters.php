@@ -57,8 +57,14 @@ class Filters
             return $response;
         }
 
+        $url = WordPressHelper::getAttachmentUrl($attachment->ID);
+
+        if (is_null($url)) {
+            return $response;
+        }
+
         $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
+            $url,
             $response['alt'],
             ''
         ));
@@ -88,8 +94,14 @@ class Filters
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
 
+        $url = WordPressHelper::getAttachmentURL($attachment->ID);
+
+        if (is_null($url)) {
+            return $attr;
+        }
+
         $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
+            $url,
             '',
             ''
         ));

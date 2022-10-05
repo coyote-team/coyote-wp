@@ -44,21 +44,4 @@ function coyoteAssetURL(string $path): string
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
 
-/**
- * @param int $attachment_id
- * @return string
- */
-function coyote_attachment_url($attachment_id)
-{
-    $url = wp_get_attachment_url($attachment_id);
-
-    $parts = wp_parse_url($url);
-
-    if ($parts === false) {
-        return false;
-    }
-
-    return '//' . $parts['host'] . esc_url($parts['path']);
-}
-
 (new WordPressPlugin(COYOTE_PLUGIN_FILE));
