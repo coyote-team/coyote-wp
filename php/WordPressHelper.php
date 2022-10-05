@@ -8,6 +8,10 @@ use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 use WP_Post;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressHelper
 {
     public static function getSrcAndImageData(WP_Post $post): array

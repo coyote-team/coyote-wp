@@ -2,11 +2,6 @@
 
 namespace Coyote\Controllers;
 
-// Exit if accessed directly.
-if (!defined('ABSPATH')) {
-    exit;
-}
-
 use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
@@ -17,6 +12,10 @@ use Coyote\WordPressPlugin;
 use Coyote\TwigExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
+
+if (!defined('WPINC')) {
+    exit;
+}
 
 class SettingsController
 {

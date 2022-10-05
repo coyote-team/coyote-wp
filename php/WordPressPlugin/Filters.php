@@ -9,6 +9,10 @@ use Coyote\WordPressImage;
 use Coyote\ContentHelper\Image;
 use WP_Post;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class Filters
 {
     use Logger;
