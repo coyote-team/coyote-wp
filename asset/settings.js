@@ -229,7 +229,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     statusSpan.textContent = data.status;
                     percentageSpan.textContent = data.progress;
 
-                    if (data.progress < 100) {
+                    if (data.progress < 100 && data.status !== 'error') {
                         setTimeout(() => update(url), 1000);
                         return;
                     }
