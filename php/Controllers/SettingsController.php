@@ -253,13 +253,14 @@ class SettingsController
             // TODO these should be PluginConfiguration functions
             delete_option('coyote_api_profile');
             delete_option('coyote_api_organization_id');
-        } else {
-            $organizations = $profile->getOrganizations();
+            return;
+        }
 
-            // default to the first organization if there is only one available
-            if (count($organizations) === 1) {
-                PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
-            }
+        $organizations = $profile->getOrganizations();
+
+        // default to the first organization if there is only one available
+        if (count($organizations) === 1) {
+            PluginConfiguration::setApiOrganizationId(array_pop($organizations)->getId());
         }
     }
 
@@ -303,6 +304,9 @@ class SettingsController
 
         if (PluginConfiguration::hasApiConfiguration()) {
             $profile = WordPressCoyoteApiClient::getProfile();
+            if (is_null($profile)) {
+                $this->profileFetchFailed = true;
+            }
         }
 
         if (is_null($profile)) {
