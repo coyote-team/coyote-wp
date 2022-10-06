@@ -6,6 +6,7 @@ use Coyote\ContentHelper\Image;
 use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
+use Coyote\Traits\Logger;
 use WP_Post;
 
 if (!defined('WPINC')) {
@@ -14,6 +15,8 @@ if (!defined('WPINC')) {
 
 class BatchImportHelper
 {
+    use Logger;
+
     public static function clearBatchJob(): void
     {
         delete_transient('coyote_batch_job');
@@ -25,9 +28,14 @@ class BatchImportHelper
         set_transient('coyote_batch_job', ['id' => $id, 'type' => $type]);
     }
 
-    public static function getBatchJob(): ?string
+    public static function getBatchJob(): ?array
     {
-        return get_transient('coyote_batch_job') ?? null;
+        $stored = get_transient('coyote_batch_job');
+        if ($stored === false) {
+            return null;
+        }
+
+        return $stored;
     }
 
     public static function getProcessBatch($size): array
@@ -133,7 +141,7 @@ class BatchImportHelper
 
     private static function postIsImageAttachment(WP_Post $post): bool
     {
-        return $post->post_type === 'attachment' && str_starts_with($post->post_mime_type, 'image/');
+        return $post->post_type === 'attachment' && strpos($post->post_mime_type, 'image/') === 0;
     }
 
     /** @return ResourceModel[] */
@@ -173,6 +181,13 @@ class BatchImportHelper
             return [];
         }
 
-        return WordPressCoyoteApiClient::createResources($payload);
+        $results = WordPressCoyoteApiClient::createResources($payload);
+
+        if (is_null($results)) {
+            self::logWarning('Null response while creating resources', ['payload', $payload]);
+            return [];
+        }
+
+        return $results;
     }
 }
