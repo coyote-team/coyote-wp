@@ -131,7 +131,8 @@ class PluginConfiguration
         $matches = array_filter(
             $profile->getMemberships(),
             function (MembershipModel $mem) use ($organizationId): bool {
-                return ($mem->getOrganization())->getId() === $organizationId;
+                $organization = $mem->getOrganization();
+                return !is_null($organization) && $organization->getId() === $organizationId;
             }
         );
 
@@ -341,15 +342,6 @@ class PluginConfiguration
     public static function clearApiErrorCount(): void
     {
         delete_transient('coyote_api_error_count');
-    }
-
-    /**
-     * Check if the current user has administrator privileges
-     * @return bool
-     */
-    public static function userIsAdmin(): bool
-    {
-        return current_user_can('administrator');
     }
 
     public static function isProcessingUnpublishedPosts(): bool

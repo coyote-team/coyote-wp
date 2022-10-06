@@ -26,26 +26,17 @@ class WordPressPlugin
             return;
         }
 
-        // only load updates option if we're either not in standalone mode,
-        // or in standalone mode caused by repeated errors.
-        // Explicit standalone mode disables remote updates.
-
-        // TODO [JKVA] implement as part of PluginConfiguration::hasUpdatesEnabled()
-        // if (!$this->is_standalone || $this->is_standalone_error) {
-        //    $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
-        //}
-
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
         /*
          * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
          */
-        add_action('init', [$this, 'setupControllers']);
+        add_action('plugins_loaded', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void
     {
-        if (PluginConfiguration::userIsAdmin()) {
+        if (WordPressHelper::userIsAdmin()) {
             (new SettingsController());
         }
 
