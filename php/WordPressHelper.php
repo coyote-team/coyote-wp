@@ -223,4 +223,12 @@ js;
         return '//' . $parts['host'] . esc_url($parts['path']);
     }
 
+    /**
+     * Check if the current user has administrator privileges
+     * @return bool
+     */
+    public static function userIsAdmin(): bool
+    {
+        return current_user_can('administrator');
+    }
 }
