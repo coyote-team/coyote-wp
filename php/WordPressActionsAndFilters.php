@@ -49,7 +49,7 @@ class WordPressActionsAndFilters
         add_filter('wp_prepare_attachment_for_js', [Filters::class, 'filterAttachmentForJavaScript'], 10, 3);
         add_filter('wp_get_attachment_image_attributes', [Filters::class, 'filterAttachmentImageAttributes'], 10, 3);
 
-        if (!PluginConfiguration::isNotStandalone()) {
+        if (PluginConfiguration::isNotStandalone()) {
             // handle updates to posts made by the front-end
             add_filter('wp_insert_post_data', [PostUpdateHandler::class, 'run'], 10, 2);
 
