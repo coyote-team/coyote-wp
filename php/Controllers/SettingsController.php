@@ -163,7 +163,6 @@ class SettingsController
      */
     public function __construct()
     {
-
         /*
          * Set page and menu titles via i18n functions
          */
@@ -609,10 +608,12 @@ class SettingsController
             /*
              * Show an error notice when no valid organizations are found
              */
-            echo $this->twig->render('Partials/AdminNotice.html.twig', [
-                'type' => 'error',
-                'message' => __("There are no allowed organizations found in your profile. Please check if you're using the right token with the correct endpoint.", WordPressPlugin::I18N_NS),
-            ]);
+            add_action('admin_notices', function () {
+                echo $this->twig->render('Partials/AdminNotice.html.twig', [
+                    'type' => 'error',
+                    'message' => __("There are no allowed organizations found in your profile. Please check if you're using the right token with the correct endpoint.", WordPressPlugin::I18N_NS),
+                ]);
+            });
         }
 
         /*
