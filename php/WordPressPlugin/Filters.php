@@ -89,7 +89,13 @@ class Filters
         return $response;
     }
 
-    public static function filterAttachmentImageAttributes(array $attr, WP_Post $attachment, int $size): array
+    /**
+     * @param array $attr
+     * @param WP_Post $attachment
+     * @param int[]|string $size
+     * @return array
+     */
+    public static function filterAttachmentImageAttributes(array $attr, WP_Post $attachment, $size): array
     {
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
