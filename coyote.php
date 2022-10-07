@@ -39,36 +39,9 @@ define('COYOTE_TRANSLATION_REL_PATH', dirname(plugin_basename(__FILE__)) . '/lan
  * @param string $path
  * @return string
  */
-function coyote_asset_url(string $path)
+function coyoteAssetURL(string $path): string
 {
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
-}
-
-/**
- * @param string $type
- * @param string $path
- * @return string
- */
-function _coyote_file(string $type, string $path)
-{
-    return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
-}
-
-/**
- * @param int $attachment_id
- * @return string
- */
-function coyote_attachment_url($attachment_id)
-{
-    $url = wp_get_attachment_url($attachment_id);
-
-    $parts = wp_parse_url($url);
-
-    if ($parts === false) {
-        return false;
-    }
-
-    return '//' . $parts['host'] . esc_url($parts['path']);
 }
 
 (new WordPressPlugin(COYOTE_PLUGIN_FILE));

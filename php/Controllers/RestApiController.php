@@ -13,11 +13,14 @@ use Coyote\Traits\Logger;
 
 use Coyote\CoyoteApiClient;
 use Coyote\Handlers\ResourceUpdateHandler;
-
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use WP_REST_Server;
 use WP_Rest_Request;
+
+if (!defined('WPINC')) {
+    exit;
+}
 
 class RestApiController
 {

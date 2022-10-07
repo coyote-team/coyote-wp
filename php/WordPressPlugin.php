@@ -6,6 +6,10 @@ use Coyote\Traits\Logger;
 use Coyote\Controllers\RestApiController;
 use Coyote\Controllers\SettingsController;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressPlugin
 {
     use Logger;
@@ -22,26 +26,17 @@ class WordPressPlugin
             return;
         }
 
-        // only load updates option if we're either not in standalone mode,
-        // or in standalone mode caused by repeated errors.
-        // Explicit standalone mode disables remote updates.
-
-        // TODO [JKVA] implement as part of PluginConfiguration::hasUpdatesEnabled()
-        // if (!$this->is_standalone || $this->is_standalone_error) {
-        //    $this->has_updates_enabled = get_option('coyote_updates_enabled', false);
-        //}
-
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
 
-		/*
-		 * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
-		 */
-		add_action('init', [$this, 'setupControllers']);
+        /*
+         * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
+         */
+        add_action('plugins_loaded', [$this, 'setupControllers']);
     }
 
     public static function setupControllers(): void
     {
-        if (PluginConfiguration::userIsAdmin()) {
+        if (WordPressHelper::userIsAdmin()) {
             (new SettingsController());
         }
 
@@ -69,27 +64,31 @@ class WordPressPlugin
         return self::getPluginFile('sql', $name);
     }
 
-	/**
-	 * Check if the plugin has been updated
-	 */
-	public static function checkForUpdates(): void {
-		/*
-		 * If the plugin version is newer than registered in the database the plugin has been updated to a newer version
-		 * fire action hook that can be used to run custom update scripts
-		 * the current and new version numbers are passed as arguments
-		 */
-		if (version_compare(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION, '<') )
-			self::pluginUpdatedHandler(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION);
-	}
+    /**
+     * Check if the plugin has been updated
+     */
+    public static function checkForUpdates(): void
+    {
+        /*
+         * If the plugin version is newer than registered in the database the plugin has been updated to a newer version
+         * fire action hook that can be used to run custom update scripts
+         * the current and new version numbers are passed as arguments
+         */
+        if (version_compare(PluginConfiguration::getStoredPluginVersion(), PluginConfiguration::PLUGIN_VERSION, '<')) {
+            self::pluginUpdatedHandler(
+                PluginConfiguration::getStoredPluginVersion(),
+                PluginConfiguration::PLUGIN_VERSION
+            );
+        }
+    }
 
-	/**
-	 * Plugin has been updated, run migration code
-	 *
-	 * @param $currentVersion
-	 * @param $newVersion
-	 */
-	public static function pluginUpdatedHandler($currentVersion, $newVersion): void
-	{
-
-	}
+    /**
+     * Plugin has been updated, run migration code
+     *
+     * @param $currentVersion
+     * @param $newVersion
+     */
+    public static function pluginUpdatedHandler($currentVersion, $newVersion): void
+    {
+    }
 }

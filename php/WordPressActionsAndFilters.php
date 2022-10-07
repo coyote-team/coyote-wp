@@ -16,7 +16,12 @@ use Coyote\Handlers\PostUpdateHandler;
 use Coyote\WordPressPlugin\Actions;
 use Coyote\WordPressPlugin\Filters;
 
-class WordPressActionsAndFilters {
+if (!defined('WPINC')) {
+    exit;
+}
+
+class WordPressActionsAndFilters
+{
     use Logger;
 
     private static function enableBatchImport(): void
@@ -33,7 +38,7 @@ class WordPressActionsAndFilters {
         add_action('wp_ajax_coyote_cancel_batch_job', [BatchImportController::class, 'ajaxClearBatchJob']);
         add_action('wp_ajax_nopriv_coyote_cancel_batch_job', [BatchImportController::class, 'ajaxClearBatchJob']);
 
-        add_action('wp_ajax_coyote_verify_resource_group', [SettingsController::class, 'ajax_verify_resource_group']);
+        add_action('wp_ajax_coyote_verify_resource_group', [SettingsController::class, 'ajaxVerifyResourceGroup']);
     }
 
     private static function setupContentFilters(): void
@@ -41,12 +46,8 @@ class WordPressActionsAndFilters {
         self::logDebug('Filters enabled.');
 
         add_filter('the_content', [Filters::class, 'filterPostContent'], 10, 1);
-//            add_filter('the_editor_content', [$this, 'filter_post_content'], 10, 1);
         add_filter('wp_prepare_attachment_for_js', [Filters::class, 'filterAttachmentForJavaScript'], 10, 3);
         add_filter('wp_get_attachment_image_attributes', [Filters::class, 'filterAttachmentImageAttributes'], 10, 3);
-
-//            add_filter('rest_prepare_post', [$this, 'filter_gutenberg_content'], 10, 3);
-//            add_filter('rest_prepare_page', [$this, 'filter_gutenberg_content'], 10, 3);
 
         if (!PluginConfiguration::isNotStandalone()) {
             // handle updates to posts made by the front-end
@@ -87,7 +88,7 @@ class WordPressActionsAndFilters {
         add_action('coyote_api_client_success', [WordPressCoyoteApiClient::class, 'registerApiSuccess']);
 
         // load plugin textdomain
-        add_action( 'init', [Actions::class, 'loadPluginTextdomain'] );
+        add_action('init', [Actions::class, 'loadPluginTextdomain']);
 
         if (PluginConfiguration::hasFiltersEnabled() && PluginConfiguration::hasApiConfiguration()) {
             self::setupContentFilters();

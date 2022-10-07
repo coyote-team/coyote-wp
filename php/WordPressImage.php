@@ -4,6 +4,10 @@ namespace Coyote;
 
 use Coyote\ContentHelper\Image;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressImage
 {
     private ?string $caption;
@@ -42,7 +46,7 @@ class WordPressImage
 
     public function setCaption(string $value): void
     {
-        if (strlen($value)===0) {
+        if (strlen($value) === 0) {
             return;
         }
 
@@ -77,11 +81,11 @@ class WordPressImage
     public function getUrl(): string
     {
         $url = $this->getWordPressAttachmentUrl();
-        
+
         if (is_null($url)) {
             return $this->getSrc();
         }
-        
+
         $parts = wp_parse_url($url);
 
         if ($parts === false) {

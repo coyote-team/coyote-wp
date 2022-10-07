@@ -9,6 +9,10 @@ use Coyote\WordPressImage;
 use Coyote\ContentHelper\Image;
 use WP_Post;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class Filters
 {
     use Logger;
@@ -19,17 +23,17 @@ class Filters
         $url = admin_url('options-general.php?page=coyote_fields');
         $text = __('Settings');
 
-        $settings_links = [
+        $settingsLinks = [
             "<a href=\"$url\">$text</a>"
         ];
 
-        return array_merge($links, $settings_links);
+        return array_merge($links, $settingsLinks);
     }
 
     public static function addTinyMcePlugin()
     {
         add_filter('mce_external_plugins', function ($plugins) {
-            $plugins['coyote'] = coyote_asset_url('tinymce_plugin.js');
+            $plugins['coyote'] = coyoteAssetURL('tinymce_plugin.js');
             return $plugins;
         });
     }
@@ -53,8 +57,14 @@ class Filters
             return $response;
         }
 
+        $url = WordPressHelper::getAttachmentUrl($attachment->ID);
+
+        if (is_null($url)) {
+            return $response;
+        }
+
         $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
+            $url,
             $response['alt'],
             ''
         ));
@@ -84,8 +94,14 @@ class Filters
         // get a coyote resource for this attachment. If not found, try to create it unless
         // running in standalone mode.
 
+        $url = WordPressHelper::getAttachmentURL($attachment->ID);
+
+        if (is_null($url)) {
+            return $attr;
+        }
+
         $image = new WordPressImage(new Image(
-            coyote_attachment_url($attachment->ID),
+            $url,
             '',
             ''
         ));
@@ -103,7 +119,7 @@ class Filters
     {
         $schedules['five_minutes'] = [
             'interval' => 300,
-            'display'  => esc_html__('Every Five Minutes')
+            'display' => esc_html__('Every Five Minutes')
         ];
 
         return $schedules;

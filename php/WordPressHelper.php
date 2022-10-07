@@ -8,6 +8,10 @@ use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 use WP_Post;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class WordPressHelper
 {
     public static function getSrcAndImageData(WP_Post $post): array
@@ -56,7 +60,7 @@ class WordPressHelper
 
     public static function getResourceForWordPressImage(
         WordPressImage $image,
-        bool $fetchFromApiIfMissing = true
+        bool           $fetchFromApiIfMissing = true
     ): ?ResourceRecord {
         $record = DB::getRecordByHash(sha1($image->getUrl()));
 
@@ -100,7 +104,6 @@ class WordPressHelper
     public static function setImageAlts(WP_Post $post, bool $fetchFromApiIfMissing = true): string
     {
         $helper = new ContentHelper($post->post_content);
-        /** @var Image[] $images */
         $images = $helper->getImages();
         $permalink = get_permalink($post->ID);
 
@@ -121,7 +124,7 @@ class WordPressHelper
             }
 
             if ($fetchFromApiIfMissing) {
-                $missingImages[$url] = ['alt' => $image->getAlt(),'src' => $src];
+                $missingImages[$url] = ['alt' => $image->getAlt(), 'src' => $src];
 
                 /*  Resources require a hostUri where available  */
                 $image->setHostUri($permalink);
@@ -137,8 +140,8 @@ class WordPressHelper
     }
 
     private static function fetchImagesFromApi(
-        array $imageMap,
-        array $missingImages,
+        array                  $imageMap,
+        array                  $missingImages,
         CreateResourcesPayload $payload
     ): array {
         $response = WordPressCoyoteApiClient::createResources($payload);
@@ -189,7 +192,7 @@ class WordPressHelper
         ]);
 
         $mapping = WordPressHelper::getSrcAndImageData($post);
-        $json_mapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $jsonMapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return <<<js
 <script>
@@ -197,9 +200,35 @@ class WordPressHelper
     window.coyote.classic_editor = {
         postId: "$post->ID",
         prefix: "$prefix",
-        mapping: $json_mapping
+        mapping: $jsonMapping
     };
 </script>
 js;
+    }
+
+    /**
+     * @param int $attachmentID
+     * @return string
+     */
+    public static function getAttachmentURL(int $attachmentID): ?string
+    {
+        $url = wp_get_attachment_url($attachmentID);
+
+        $parts = wp_parse_url($url);
+
+        if ($parts === false) {
+            return null;
+        }
+
+        return '//' . $parts['host'] . esc_url($parts['path']);
+    }
+
+    /**
+     * Check if the current user has administrator privileges
+     * @return bool
+     */
+    public static function userIsAdmin(): bool
+    {
+        return current_user_can('administrator');
     }
 }

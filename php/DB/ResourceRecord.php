@@ -2,6 +2,10 @@
 
 namespace Coyote\DB;
 
+if (!defined('WPINC')) {
+    exit;
+}
+
 class ResourceRecord
 {
     private string $sha1;
