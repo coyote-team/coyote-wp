@@ -3,8 +3,6 @@
 namespace Coyote;
 
 use Coyote\Traits\Logger;
-use Coyote\Controllers\RestApiController;
-use Coyote\Controllers\SettingsController;
 
 if (!defined('WPINC')) {
     exit;
@@ -27,31 +25,6 @@ class WordPressPlugin
         }
 
         WordPressActionsAndFilters::setupPluginActionsAndFilters($pluginFile);
-
-        /*
-         * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
-         */
-        add_action('plugins_loaded', [$this, 'setupControllers']);
-    }
-
-    public static function setupControllers(): void
-    {
-        if (WordPressHelper::userIsAdmin()) {
-            (new SettingsController());
-        }
-
-        if (PluginConfiguration::hasStoredApiProfile() && PluginConfiguration::hasUpdatesEnabled()) {
-            // allow remote updates
-            self::logDebug('Updates enabled.');
-
-            (new RestApiController(
-                PluginConfiguration::PLUGIN_VERSION,
-                PluginConfiguration::API_VERSION,
-                PluginConfiguration::getApiOrganizationId()
-            ));
-        } else {
-            self::logDebug('Updates disabled.');
-        }
     }
 
     private static function getPluginFile(string $type, string $name): string

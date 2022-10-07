@@ -3,6 +3,8 @@
 namespace Coyote\WordPressPlugin;
 
 use Coyote\ContentHelper\Image;
+use Coyote\Controllers\RestApiController;
+use Coyote\Controllers\SettingsController;
 use Coyote\DB;
 use Coyote\DB\ResourceRecord;
 use Coyote\PluginConfiguration;
@@ -154,5 +156,25 @@ js;
     public static function loadPluginTextdomain(): void
     {
         load_plugin_textdomain(WordPressPlugin::I18N_NS, false, COYOTE_TRANSLATION_REL_PATH);
+    }
+
+    public static function setupControllers(): void
+    {
+        if (WordPressHelper::userIsAdmin()) {
+            (new SettingsController());
+        }
+
+        if (PluginConfiguration::hasStoredApiProfile() && PluginConfiguration::hasUpdatesEnabled()) {
+            // allow remote updates
+            self::logDebug('Updates enabled.');
+
+            (new RestApiController(
+                PluginConfiguration::PLUGIN_VERSION,
+                PluginConfiguration::API_VERSION,
+                PluginConfiguration::getApiOrganizationId()
+            ));
+        } else {
+            self::logDebug('Updates disabled.');
+        }
     }
 }

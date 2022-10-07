@@ -75,6 +75,11 @@ class WordPressActionsAndFilters
 
     public static function setupPluginActionsAndFilters(string $pluginFile): void
     {
+        /*
+         * setupControllers after plugins_loaded so wp-includes/pluggable.php is loaded
+         */
+        add_action('plugins_loaded', [Actions::class, 'setupControllers']);
+
         add_action('coyote_check_standalone_hook', [Actions::class, 'checkStandaloneStatus']);
 
         // add settings link to plugin page
