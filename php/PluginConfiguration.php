@@ -80,7 +80,7 @@ class PluginConfiguration
         return self::isNonEmptyString(self::getApiOrganizationId());
     }
 
-    public static function getMetum(): ?string
+    public static function getMetum(): string
     {
         $metum = get_option('coyote_api_metum', self::METUM);
         return self::isNonEmptyString($metum) ? $metum : self::METUM;
