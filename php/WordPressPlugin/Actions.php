@@ -64,6 +64,8 @@ class Actions
             ''
         ));
 
+        $image->setHostUri(get_permalink($post));
+
         /** @var ResourceRecord|null $resource */
         $resource = WordpressHelper::getResourceForWordPressImage($image, PluginConfiguration::isEnabled());
 
