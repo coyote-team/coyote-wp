@@ -21,8 +21,11 @@ class WordPressHelper
 
         $imageMap = [];
 
+        $hostUri = get_permalink($post);
+
         foreach ($images as $image) {
             $image = new WordPressImage($image);
+            $image->setHostUri($hostUri);
             $key = $image->getAttachmentId() ?? $image->getSrc();
             $hash = sha1($image->getUrl());
             $resource = DB::getRecordByHash($hash);
