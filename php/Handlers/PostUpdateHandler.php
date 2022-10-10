@@ -16,6 +16,7 @@ use Coyote\Payload\CreateResourcesPayload;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
 use Coyote\WordPressImage;
+use Coyote\WordPressPlugin;
 use Exception;
 
 if (!defined('WPINC')) {
@@ -68,12 +69,20 @@ class PostUpdateHandler
         $payload = new CreateResourcesPayload();
 
         foreach ($images as $image) {
-            $payload->addResource(new CreateResourcePayload(
+            $resource = new CreateResourcePayload(
                 $image->getCaption() ?? $image->getUrl(),
                 $image->getUrl(),
                 PluginConfiguration::getApiResourceGroupId(),
                 $image->getHostUri(),
-            ));
+            );
+
+            $alt = $image->getAlt();
+
+            if (!empty($alt)) {
+                $resource->addRepresentation($alt, PluginConfiguration::getMetum());
+            }
+
+            $payload->addResource($resource);
         }
 
         WordPressCoyoteApiClient::createResources($payload);
