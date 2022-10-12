@@ -66,27 +66,25 @@ window.addEventListener('DOMContentLoaded', function () {
         formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
         formData.append('action', 'coyote_verify_resource_group');
 
-        cancelJob().then(() => {
-            fetch(coyote_ajax_obj.ajax_url, {
-                mode: 'cors',
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(reply => reply.trim())
-            .then(reply => {
-                if (reply === 'false') {
-                    verifyResourceGroupStatus.textContent = "Error verifying resource group.";
-                } else {
-                    verifyResourceGroupStatus.textContent = `Resource group verified with ID ${reply}.`;
-                }
-                enable(verifyResourceGroupButton);
-            })
-            .catch(error => {
-                console.debug("Verification error:", error);
+        fetch(coyote_ajax_obj.ajax_url, {
+            mode: 'cors',
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(reply => reply.trim())
+        .then(reply => {
+            if (!reply.length) {
                 verifyResourceGroupStatus.textContent = "Error verifying resource group.";
-                enable(verifyResourceGroupButton);
-            });
+            } else {
+                verifyResourceGroupStatus.textContent = `Resource group verified with ID ${reply}.`;
+            }
+            enable(verifyResourceGroupButton);
+        })
+        .catch(error => {
+            console.debug("Verification error:", error);
+            verifyResourceGroupStatus.textContent = "Error verifying resource group.";
+            enable(verifyResourceGroupButton);
         });
     };
 
