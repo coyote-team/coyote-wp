@@ -260,8 +260,8 @@ class SettingsController
         if (is_null($profile)) {
             $this->profileFetchFailed = true;
             // TODO these should be PluginConfiguration functions
-            delete_option('coyote_api_profile');
-            delete_option('coyote_api_organization_id');
+            PluginConfiguration::deleteApiProfile();
+            PluginConfiguration::deleteApiOrganizationId();
             return;
         }
 

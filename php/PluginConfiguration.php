@@ -91,9 +91,14 @@ class PluginConfiguration
         update_option('coyote_api_organization_id', $id);
     }
 
+    public static function deleteApiProfile(): void
+    {
+        delete_option('coyote_api_profile');
+    }
+
     public static function deleteApiOrganizationId(): void
     {
-        update_option('coyote_api_organization_id', null);
+        delete_option('coyote_api_organization_id', null);
     }
 
     public static function getApiResourceGroupId(): ?int
