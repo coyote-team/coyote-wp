@@ -25,6 +25,8 @@ class WordPressCoyoteApiClient
 
         if (is_null($resources)) {
             self::registerApiError("Null response when attempting to create resources");
+        } else {
+            self::registerApiSuccess();
         }
 
         return $resources;
@@ -36,6 +38,8 @@ class WordPressCoyoteApiClient
 
         if (is_null($resource)) {
             self::registerApiError("Null response when attempting to create resource");
+        } else {
+            self::registerApiSuccess();
         }
 
         return $resource;
@@ -47,9 +51,31 @@ class WordPressCoyoteApiClient
 
         if (is_null($profile)) {
             self::registerApiError("Null response when attempting to fetch profile");
+        } else {
+            self::registerApiSuccess();
         }
 
         return $profile;
+    }
+
+    public static function getResourceGroupByUrl(string $url): ?ResourceGroupModel
+    {
+        $groups = self::createApiClient()->getResourceGroups();
+
+        if (is_null($groups)) {
+            self::registerApiError("Null response when fetching resource groups");
+            return null;
+        }
+
+        $matches = array_filter($groups, function (ResourceGroupModel $group) use ($url): bool {
+            return $group->getUri() === $url;
+        });
+
+        if (count($matches) === 1) {
+            return array_pop($matches);
+        }
+
+        return null;
     }
 
     public static function createResourceGroup(string $url): ?ResourceGroupModel
@@ -59,6 +85,8 @@ class WordPressCoyoteApiClient
 
         if (is_null($group)) {
             self::registerApiError("Null response when attempting to create resource group");
+        } else {
+            self::registerApiSuccess();
         }
 
         return $group;
