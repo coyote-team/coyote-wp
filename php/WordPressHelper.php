@@ -14,12 +14,13 @@ if (!defined('WPINC')) {
 
 class WordPressHelper
 {
-    public static function getSrcAndImageData(WP_Post $post): array
+    public static function getSrcAndImageData(WP_Post $post, bool $fetch = false): array
     {
         $helper = new ContentHelper($post->post_content);
         $images = $helper->getImages();
 
         $imageMap = [];
+        $missing = [];
 
         $hostUri = get_permalink($post);
 
@@ -31,12 +32,44 @@ class WordPressHelper
             $resource = DB::getRecordByHash($hash);
 
             if (is_null($resource)) {
+                if ($fetch) {
+                    $missing[$key] = $image;
+                }
                 continue;
             }
 
             $imageMap[$key] = [
                 'coyoteId' => $resource->getResourceId(),
                 'alt' => esc_html($resource->getCoyoteDescription())
+            ];
+        }
+
+        if (!$fetch) {
+            return $imageMap;
+        }
+
+        foreach ($missing as $key => $image) {
+            $payload = WordPressHelper::mapWordPressImageToCreateResourcePayload($image);
+            $resource = WordPressCoyoteApiClient::createResource($payload);
+
+            if (is_null($resource)) {
+                continue;
+            }
+
+            $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::METUM);
+            $representation = is_null($representation) ? '' : $representation->getText();
+
+            $record = DB::insertRecord(
+                sha1($resource->getSourceUri()),
+                $resource->getSourceUri(),
+                $image->getAlt(),
+                $resource->getId(),
+                $representation,
+            );
+
+            $imageMap[$key] = [
+                'coyoteId' => $record->getResourceId(),
+                'alt' => esc_html($record->getCoyoteDescription())
             ];
         }
 
@@ -95,12 +128,20 @@ class WordPressHelper
 
     public static function mapWordPressImageToCreateResourcePayload(WordPressImage $image): CreateResourcePayload
     {
-        return new CreateResourcePayload(
+        $payload = new CreateResourcePayload(
             $image->getCaption() ?? $image->getUrl(),
             $image->getUrl(),
             PluginConfiguration::getApiResourceGroupId(),
             $image->getHostUri()
         );
+
+        $alt = $image->getAlt();
+
+        if (!empty($alt)) {
+            $payload->addRepresentation($image->getAlt(), PluginConfiguration::getMetum());
+        }
+
+        return $payload;
     }
 
     public static function setImageAlts(WP_Post $post, bool $fetchFromApiIfMissing = true): string
@@ -193,7 +234,7 @@ class WordPressHelper
             PluginConfiguration::getApiOrganizationId()
         ]);
 
-        $mapping = WordPressHelper::getSrcAndImageData($post);
+        $mapping = WordPressHelper::getSrcAndImageData($post, PluginConfiguration::isEnabled());
         $jsonMapping = json_encode($mapping, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return <<<js
