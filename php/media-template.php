@@ -4,7 +4,7 @@
 use Coyote\PluginConfiguration;
 use Coyote\WordPressHelper;
 
-if (!defined( 'ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
@@ -36,10 +36,10 @@ function coyote_wp_print_media_templates() {
             <div class="media-frame-content"></div>
         </div>
         <h2 class="media-frame-actions-heading screen-reader-text">
-        <?php
+            <?php
             /* translators: Accessibility text. */
             _e( 'Selected media actions' );
-        ?>
+            ?>
         </h2>
         <div class="media-frame-toolbar"></div>
         <div class="media-frame-uploader"></div>
@@ -49,7 +49,7 @@ function coyote_wp_print_media_templates() {
     <script type="text/html" id="tmpl-media-modal">
         <div tabindex="0" class="<?php echo $class; ?>" role="dialog" aria-labelledby="media-frame-title">
             <# if ( data.hasCloseButton ) { #>
-                <button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text"><?php _e( 'Close dialog' ); ?></span></span></button>
+            <button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text"><?php _e( 'Close dialog' ); ?></span></span></button>
             <# } #>
             <div class="media-modal-content" role="document"></div>
         </div>
@@ -77,86 +77,86 @@ function coyote_wp_print_media_templates() {
         <button class="close dashicons dashicons-no"><span class="screen-reader-text"><?php _e( 'Close uploader' ); ?></span></button>
         <# } #>
         <div class="uploader-inline-content {{ messageClass }}">
-        <# if ( data.message ) { #>
+            <# if ( data.message ) { #>
             <h2 class="upload-message">{{ data.message }}</h2>
-        <# } #>
-        <?php if ( ! _device_can_upload() ) : ?>
-            <div class="upload-ui">
-                <h2 class="upload-instructions"><?php _e( 'Your browser cannot upload files' ); ?></h2>
-                <p>
-                <?php
-                    printf(
-                        /* translators: %s: https://apps.wordpress.org/ */
-                        __( 'The web browser on your device cannot be used to upload files. You may be able to use the <a href="%s">native app for your device</a> instead.' ),
-                        'https://apps.wordpress.org/'
-                    );
-                ?>
-                </p>
-            </div>
-        <?php elseif ( is_multisite() && ! is_upload_space_available() ) : ?>
-            <div class="upload-ui">
-                <h2 class="upload-instructions"><?php _e( 'Upload Limit Exceeded' ); ?></h2>
-                <?php
-                /** This action is documented in wp-admin/includes/media.php */
-                do_action( 'upload_ui_over_quota' );
-                ?>
-            </div>
-        <?php else : ?>
-            <div class="upload-ui">
-                <h2 class="upload-instructions drop-instructions"><?php _e( 'Drop files to upload' ); ?></h2>
-                <p class="upload-instructions drop-instructions"><?php _ex( 'or', 'Uploader: Drop files here - or - Select Files' ); ?></p>
-                <button type="button" class="browser button button-hero"><?php _e( 'Select Files' ); ?></button>
-            </div>
-
-            <div class="upload-inline-status"></div>
-
-            <div class="post-upload-ui">
-                <?php
-                /** This action is documented in wp-admin/includes/media.php */
-                do_action( 'pre-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-                /** This action is documented in wp-admin/includes/media.php */
-                do_action( 'pre-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-
-                if ( 10 === remove_action( 'post-plupload-upload-ui', 'media_upload_flash_bypass' ) ) {
-                    /** This action is documented in wp-admin/includes/media.php */
-                    do_action( 'post-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-                    add_action( 'post-plupload-upload-ui', 'media_upload_flash_bypass' );
-                } else {
-                    /** This action is documented in wp-admin/includes/media.php */
-                    do_action( 'post-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-                }
-
-                $max_upload_size = wp_max_upload_size();
-                if ( ! $max_upload_size ) {
-                    $max_upload_size = 0;
-                }
-                ?>
-
-                <p class="max-upload-size">
-                <?php
-                    printf(
-                        /* translators: %s: Maximum allowed file size. */
-                        __( 'Maximum upload file size: %s.' ),
-                        esc_html( size_format( $max_upload_size ) )
-                    );
-                ?>
-                </p>
-
-                <# if ( data.suggestedWidth && data.suggestedHeight ) { #>
-                    <p class="suggested-dimensions">
+            <# } #>
+            <?php if ( ! _device_can_upload() ) : ?>
+                <div class="upload-ui">
+                    <h2 class="upload-instructions"><?php _e( 'Your browser cannot upload files' ); ?></h2>
+                    <p>
                         <?php
-                            /* translators: 1: Suggested width number, 2: Suggested height number. */
-                            printf( __( 'Suggested image dimensions: %1$s by %2$s pixels.' ), '{{data.suggestedWidth}}', '{{data.suggestedHeight}}' );
+                        printf(
+                        /* translators: %s: https://apps.wordpress.org/ */
+                            __( 'The web browser on your device cannot be used to upload files. You may be able to use the <a href="%s">native app for your device</a> instead.' ),
+                            'https://apps.wordpress.org/'
+                        );
                         ?>
                     </p>
-                <# } #>
+                </div>
+            <?php elseif ( is_multisite() && ! is_upload_space_available() ) : ?>
+                <div class="upload-ui">
+                    <h2 class="upload-instructions"><?php _e( 'Upload Limit Exceeded' ); ?></h2>
+                    <?php
+                    /** This action is documented in wp-admin/includes/media.php */
+                    do_action( 'upload_ui_over_quota' );
+                    ?>
+                </div>
+            <?php else : ?>
+                <div class="upload-ui">
+                    <h2 class="upload-instructions drop-instructions"><?php _e( 'Drop files to upload' ); ?></h2>
+                    <p class="upload-instructions drop-instructions"><?php _ex( 'or', 'Uploader: Drop files here - or - Select Files' ); ?></p>
+                    <button type="button" class="browser button button-hero"><?php _e( 'Select Files' ); ?></button>
+                </div>
 
-                <?php
-                /** This action is documented in wp-admin/includes/media.php */
-                do_action( 'post-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-                ?>
-            </div>
-        <?php endif; ?>
+                <div class="upload-inline-status"></div>
+
+                <div class="post-upload-ui">
+                    <?php
+                    /** This action is documented in wp-admin/includes/media.php */
+                    do_action( 'pre-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+                    /** This action is documented in wp-admin/includes/media.php */
+                    do_action( 'pre-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+
+                    if ( 10 === remove_action( 'post-plupload-upload-ui', 'media_upload_flash_bypass' ) ) {
+                        /** This action is documented in wp-admin/includes/media.php */
+                        do_action( 'post-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+                        add_action( 'post-plupload-upload-ui', 'media_upload_flash_bypass' );
+                    } else {
+                        /** This action is documented in wp-admin/includes/media.php */
+                        do_action( 'post-plupload-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+                    }
+
+                    $max_upload_size = wp_max_upload_size();
+                    if ( ! $max_upload_size ) {
+                        $max_upload_size = 0;
+                    }
+                    ?>
+
+                    <p class="max-upload-size">
+                        <?php
+                        printf(
+                        /* translators: %s: Maximum allowed file size. */
+                            __( 'Maximum upload file size: %s.' ),
+                            esc_html( size_format( $max_upload_size ) )
+                        );
+                        ?>
+                    </p>
+
+                    <# if ( data.suggestedWidth && data.suggestedHeight ) { #>
+                    <p class="suggested-dimensions">
+                        <?php
+                        /* translators: 1: Suggested width number, 2: Suggested height number. */
+                        printf( __( 'Suggested image dimensions: %1$s by %2$s pixels.' ), '{{data.suggestedWidth}}', '{{data.suggestedHeight}}' );
+                        ?>
+                    </p>
+                    <# } #>
+
+                    <?php
+                    /** This action is documented in wp-admin/includes/media.php */
+                    do_action( 'post-upload-ui' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+                    ?>
+                </div>
+            <?php endif; ?>
         </div>
     </script>
 
@@ -209,13 +209,13 @@ function coyote_wp_print_media_templates() {
             <h2 class="screen-reader-text"><?php _e( 'Attachment Preview' ); ?></h2>
             <div class="thumbnail thumbnail-{{ data.type }}">
                 <# if ( data.uploading ) { #>
-                    <div class="media-progress-bar"><div></div></div>
+                <div class="media-progress-bar"><div></div></div>
                 <# } else if ( data.sizes && data.sizes.large ) { #>
-                    <img class="details-image" src="{{ data.sizes.large.url }}" draggable="false" alt="" />
+                <img class="details-image" src="{{ data.sizes.large.url }}" draggable="false" alt="" />
                 <# } else if ( data.sizes && data.sizes.full ) { #>
-                    <img class="details-image" src="{{ data.sizes.full.url }}" draggable="false" alt="" />
+                <img class="details-image" src="{{ data.sizes.full.url }}" draggable="false" alt="" />
                 <# } else if ( -1 === jQuery.inArray( data.type, [ 'audio', 'video' ] ) ) { #>
-                    <img class="details-image icon" src="{{ data.icon }}" draggable="false" alt="" />
+                <img class="details-image icon" src="{{ data.icon }}" draggable="false" alt="" />
                 <# } #>
 
                 <# if ( 'audio' === data.type ) { #>
@@ -225,19 +225,19 @@ function coyote_wp_print_media_templates() {
                     </audio>
                 </div>
                 <# } else if ( 'video' === data.type ) {
-                    var w_rule = '';
-                    if ( data.width ) {
-                        w_rule = 'width: ' + data.width + 'px;';
-                    } else if ( wp.media.view.settings.contentWidth ) {
-                        w_rule = 'width: ' + wp.media.view.settings.contentWidth + 'px;';
-                    }
+                var w_rule = '';
+                if ( data.width ) {
+                w_rule = 'width: ' + data.width + 'px;';
+                } else if ( wp.media.view.settings.contentWidth ) {
+                w_rule = 'width: ' + wp.media.view.settings.contentWidth + 'px;';
+                }
                 #>
                 <div style="{{ w_rule }}" class="wp-media-wrapper wp-video">
                     <video controls="controls" class="wp-video-shortcode" preload="metadata"
-                        <# if ( data.width ) { #>width="{{ data.width }}"<# } #>
-                        <# if ( data.height ) { #>height="{{ data.height }}"<# } #>
-                        <# if ( data.image && data.image.src !== data.icon ) { #>poster="{{ data.image.src }}"<# } #>>
-                        <source type="{{ data.mime }}" src="{{ data.url }}"/>
+                    <# if ( data.width ) { #>width="{{ data.width }}"<# } #>
+                    <# if ( data.height ) { #>height="{{ data.height }}"<# } #>
+                    <# if ( data.image && data.image.src !== data.icon ) { #>poster="{{ data.image.src }}"<# } #>>
+                    <source type="{{ data.mime }}" src="{{ data.url }}"/>
                     </video>
                 </div>
                 <# } #>
@@ -264,40 +264,40 @@ function coyote_wp_print_media_templates() {
 
                 <div class="file-size"><strong><?php _e( 'File size:' ); ?></strong> {{ data.filesizeHumanReadable }}</div>
                 <# if ( 'image' === data.type && ! data.uploading ) { #>
-                    <# if ( data.width && data.height ) { #>
-                        <div class="dimensions"><strong><?php _e( 'Dimensions:' ); ?></strong>
-                            <?php
-                            /* translators: 1: A number of pixels wide, 2: A number of pixels tall. */
-                            printf( __( '%1$s by %2$s pixels' ), '{{ data.width }}', '{{ data.height }}' );
-                            ?>
-                        </div>
-                    <# } #>
+                <# if ( data.width && data.height ) { #>
+                <div class="dimensions"><strong><?php _e( 'Dimensions:' ); ?></strong>
+                    <?php
+                    /* translators: 1: A number of pixels wide, 2: A number of pixels tall. */
+                    printf( __( '%1$s by %2$s pixels' ), '{{ data.width }}', '{{ data.height }}' );
+                    ?>
+                </div>
+                <# } #>
 
-                    <# if ( data.originalImageURL && data.originalImageName ) { #>
-                        <?php _e( 'Original image:' ); ?>
-                        <a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
-                    <# } #>
+                <# if ( data.originalImageURL && data.originalImageName ) { #>
+                <?php _e( 'Original image:' ); ?>
+                <a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+                <# } #>
                 <# } #>
 
                 <# if ( data.fileLength && data.fileLengthHumanReadable ) { #>
-                    <div class="file-length"><strong><?php _e( 'Length:' ); ?></strong>
-                        <span aria-hidden="true">{{ data.fileLength }}</span>
-                        <span class="screen-reader-text">{{ data.fileLengthHumanReadable }}</span>
-                    </div>
+                <div class="file-length"><strong><?php _e( 'Length:' ); ?></strong>
+                    <span aria-hidden="true">{{ data.fileLength }}</span>
+                    <span class="screen-reader-text">{{ data.fileLengthHumanReadable }}</span>
+                </div>
                 <# } #>
 
                 <# if ( 'audio' === data.type && data.meta.bitrate ) { #>
-                    <div class="bitrate">
-                        <strong><?php _e( 'Bitrate:' ); ?></strong> {{ Math.round( data.meta.bitrate / 1000 ) }}kb/s
-                        <# if ( data.meta.bitrate_mode ) { #>
-                        {{ ' ' + data.meta.bitrate_mode.toUpperCase() }}
-                        <# } #>
-                    </div>
+                <div class="bitrate">
+                    <strong><?php _e( 'Bitrate:' ); ?></strong> {{ Math.round( data.meta.bitrate / 1000 ) }}kb/s
+                    <# if ( data.meta.bitrate_mode ) { #>
+                    {{ ' ' + data.meta.bitrate_mode.toUpperCase() }}
+                    <# } #>
+                </div>
                 <# } #>
 
                 <div class="compat-meta">
                     <# if ( data.compat && data.compat.meta ) { #>
-                        {{{ data.compat.meta }}}
+                    {{{ data.compat.meta }}}
                     <# } #>
                 </div>
             </div>
@@ -305,14 +305,14 @@ function coyote_wp_print_media_templates() {
             <div class="settings">
                 <# var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly'; #>
                 <# if ( 'image' === data.type ) { #>
-                    <span class="setting has-description" data-setting="alt">
+                <span class="setting has-description" data-setting="alt">
                         <label for="attachment-details-two-column-alt-text" class="name"><?php _e( 'Alternative Text' ); ?></label>
                         <input type="text" id="attachment-details-two-column-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" readonly />
                     </span>
-                    <p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote website</a></p>
+                <p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote website</a></p>
                 <# } #>
                 <?php if ( post_type_supports( 'attachment', 'title' ) ) : ?>
-                <span class="setting" data-setting="title">
+                    <span class="setting" data-setting="title">
                     <label for="attachment-details-two-column-title" class="name"><?php _e( 'Title' ); ?></label>
                     <input type="text" id="attachment-details-two-column-title" value="{{ data.title }}" {{ maybeReadOnly }} />
                 </span>
@@ -320,11 +320,11 @@ function coyote_wp_print_media_templates() {
                 <# if ( 'audio' === data.type ) { #>
                 <?php
                 foreach ( array(
-                    'artist' => __( 'Artist' ),
-                    'album'  => __( 'Album' ),
-                ) as $key => $label ) :
+                              'artist' => __( 'Artist' ),
+                              'album'  => __( 'Album' ),
+                          ) as $key => $label ) :
                     ?>
-                <span class="setting" data-setting="<?php echo esc_attr( $key ); ?>">
+                    <span class="setting" data-setting="<?php echo esc_attr( $key ); ?>">
                     <label for="attachment-details-two-column-<?php echo esc_attr( $key ); ?>" class="name"><?php echo $label; ?></label>
                     <input type="text" id="attachment-details-two-column-<?php echo esc_attr( $key ); ?>" value="{{ data.<?php echo $key; ?> || data.meta.<?php echo $key; ?> || '' }}" />
                 </span>
@@ -343,7 +343,7 @@ function coyote_wp_print_media_templates() {
                     <span class="value">{{ data.authorName }}</span>
                 </span>
                 <# if ( data.uploadedToTitle ) { #>
-                    <span class="setting">
+                <span class="setting">
                         <span class="name"><?php _e( 'Uploaded To' ); ?></span>
                         <# if ( data.uploadedToLink ) { #>
                             <span class="value"><a href="{{ data.uploadedToLink }}">{{ data.uploadedToTitle }}</a></span>
@@ -362,18 +362,18 @@ function coyote_wp_print_media_templates() {
             <div class="actions">
                 <a class="view-attachment" href="{{ data.link }}"><?php _e( 'View attachment page' ); ?></a>
                 <# if ( data.can.save ) { #> |
-                    <a href="{{ data.editLink }}"><?php _e( 'Edit more details' ); ?></a>
+                <a href="{{ data.editLink }}"><?php _e( 'Edit more details' ); ?></a>
                 <# } #>
                 <# if ( ! data.uploading && data.can.remove ) { #> |
-                    <?php if ( MEDIA_TRASH ) : ?>
-                        <# if ( 'trash' === data.status ) { #>
-                            <button type="button" class="button-link untrash-attachment"><?php _e( 'Restore from Trash' ); ?></button>
-                        <# } else { #>
-                            <button type="button" class="button-link trash-attachment"><?php _e( 'Move to Trash' ); ?></button>
-                        <# } #>
-                    <?php else : ?>
-                        <button type="button" class="button-link delete-attachment"><?php _e( 'Delete Permanently' ); ?></button>
-                    <?php endif; ?>
+                <?php if ( MEDIA_TRASH ) : ?>
+                    <# if ( 'trash' === data.status ) { #>
+                    <button type="button" class="button-link untrash-attachment"><?php _e( 'Restore from Trash' ); ?></button>
+                    <# } else { #>
+                    <button type="button" class="button-link trash-attachment"><?php _e( 'Move to Trash' ); ?></button>
+                    <# } #>
+                <?php else : ?>
+                    <button type="button" class="button-link delete-attachment"><?php _e( 'Delete Permanently' ); ?></button>
+                <?php endif; ?>
                 <# } #>
             </div>
         </div>
@@ -384,53 +384,53 @@ function coyote_wp_print_media_templates() {
         <div class="attachment-preview js--select-attachment type-{{ data.type }} subtype-{{ data.subtype }} {{ data.orientation }}">
             <div class="thumbnail">
                 <# if ( data.uploading ) { #>
-                    <div class="media-progress-bar"><div style="width: {{ data.percent }}%"></div></div>
+                <div class="media-progress-bar"><div style="width: {{ data.percent }}%"></div></div>
                 <# } else if ( 'image' === data.type && data.sizes ) { #>
-                    <div class="centered">
-                        <img src="{{ data.size.url }}" draggable="false" alt="" />
-                    </div>
+                <div class="centered">
+                    <img src="{{ data.size.url }}" draggable="false" alt="" />
+                </div>
                 <# } else { #>
-                    <div class="centered">
-                        <# if ( data.image && data.image.src && data.image.src !== data.icon ) { #>
-                            <img src="{{ data.image.src }}" class="thumbnail" draggable="false" alt="" />
-                        <# } else if ( data.sizes && data.sizes.medium ) { #>
-                            <img src="{{ data.sizes.medium.url }}" class="thumbnail" draggable="false" alt="" />
-                        <# } else { #>
-                            <img src="{{ data.icon }}" class="icon" draggable="false" alt="" />
-                        <# } #>
-                    </div>
-                    <div class="filename">
-                        <div>{{ data.filename }}</div>
-                    </div>
+                <div class="centered">
+                    <# if ( data.image && data.image.src && data.image.src !== data.icon ) { #>
+                    <img src="{{ data.image.src }}" class="thumbnail" draggable="false" alt="" />
+                    <# } else if ( data.sizes && data.sizes.medium ) { #>
+                    <img src="{{ data.sizes.medium.url }}" class="thumbnail" draggable="false" alt="" />
+                    <# } else { #>
+                    <img src="{{ data.icon }}" class="icon" draggable="false" alt="" />
+                    <# } #>
+                </div>
+                <div class="filename">
+                    <div>{{ data.filename }}</div>
+                </div>
                 <# } #>
             </div>
             <# if ( data.buttons.close ) { #>
-                <button type="button" class="button-link attachment-close media-modal-icon"><span class="screen-reader-text"><?php _e( 'Remove' ); ?></span></button>
+            <button type="button" class="button-link attachment-close media-modal-icon"><span class="screen-reader-text"><?php _e( 'Remove' ); ?></span></button>
             <# } #>
         </div>
         <# if ( data.buttons.check ) { #>
-            <button type="button" class="check" tabindex="-1"><span class="media-modal-icon"></span><span class="screen-reader-text"><?php _e( 'Deselect' ); ?></span></button>
+        <button type="button" class="check" tabindex="-1"><span class="media-modal-icon"></span><span class="screen-reader-text"><?php _e( 'Deselect' ); ?></span></button>
         <# } #>
         <#
         var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly';
         if ( data.describe ) {
-            if ( 'image' === data.type ) { #>
-                <input type="text" value="{{ data.caption }}" class="describe" data-setting="caption"
-                    aria-label="<?php esc_attr_e( 'Caption' ); ?>"
-                    placeholder="<?php esc_attr_e( 'Caption&hellip;' ); ?>" {{ maybeReadOnly }} />
-            <# } else { #>
-                <input type="text" value="{{ data.title }}" class="describe" data-setting="title"
-                    <# if ( 'video' === data.type ) { #>
-                        aria-label="<?php esc_attr_e( 'Video title' ); ?>"
-                        placeholder="<?php esc_attr_e( 'Video title&hellip;' ); ?>"
-                    <# } else if ( 'audio' === data.type ) { #>
-                        aria-label="<?php esc_attr_e( 'Audio title' ); ?>"
-                        placeholder="<?php esc_attr_e( 'Audio title&hellip;' ); ?>"
-                    <# } else { #>
-                        aria-label="<?php esc_attr_e( 'Media title' ); ?>"
-                        placeholder="<?php esc_attr_e( 'Media title&hellip;' ); ?>"
-                    <# } #> {{ maybeReadOnly }} />
-            <# }
+        if ( 'image' === data.type ) { #>
+        <input type="text" value="{{ data.caption }}" class="describe" data-setting="caption"
+               aria-label="<?php esc_attr_e( 'Caption' ); ?>"
+               placeholder="<?php esc_attr_e( 'Caption&hellip;' ); ?>" {{ maybeReadOnly }} />
+        <# } else { #>
+        <input type="text" value="{{ data.title }}" class="describe" data-setting="title"
+        <# if ( 'video' === data.type ) { #>
+        aria-label="<?php esc_attr_e( 'Video title' ); ?>"
+        placeholder="<?php esc_attr_e( 'Video title&hellip;' ); ?>"
+        <# } else if ( 'audio' === data.type ) { #>
+        aria-label="<?php esc_attr_e( 'Audio title' ); ?>"
+        placeholder="<?php esc_attr_e( 'Audio title&hellip;' ); ?>"
+        <# } else { #>
+        aria-label="<?php esc_attr_e( 'Media title' ); ?>"
+        placeholder="<?php esc_attr_e( 'Media title&hellip;' ); ?>"
+        <# } #> {{ maybeReadOnly }} />
+        <# }
         } #>
     </script>
 
@@ -446,11 +446,11 @@ function coyote_wp_print_media_templates() {
         <div class="attachment-info">
             <div class="thumbnail thumbnail-{{ data.type }}">
                 <# if ( data.uploading ) { #>
-                    <div class="media-progress-bar"><div></div></div>
+                <div class="media-progress-bar"><div></div></div>
                 <# } else if ( 'image' === data.type && data.sizes ) { #>
-                    <img src="{{ data.size.url }}" draggable="false" alt="" />
+                <img src="{{ data.size.url }}" draggable="false" alt="" />
                 <# } else { #>
-                    <img src="{{ data.icon }}" class="icon" draggable="false" alt="" />
+                <img src="{{ data.icon }}" class="icon" draggable="false" alt="" />
                 <# } #>
             </div>
             <div class="details">
@@ -459,61 +459,61 @@ function coyote_wp_print_media_templates() {
 
                 <div class="file-size">{{ data.filesizeHumanReadable }}</div>
                 <# if ( 'image' === data.type && ! data.uploading ) { #>
-                    <# if ( data.width && data.height ) { #>
-                        <div class="dimensions">
-                            <?php
-                            /* translators: 1: A number of pixels wide, 2: A number of pixels tall. */
-                            printf( __( '%1$s by %2$s pixels' ), '{{ data.width }}', '{{ data.height }}' );
-                            ?>
-                        </div>
-                    <# } #>
+                <# if ( data.width && data.height ) { #>
+                <div class="dimensions">
+                    <?php
+                    /* translators: 1: A number of pixels wide, 2: A number of pixels tall. */
+                    printf( __( '%1$s by %2$s pixels' ), '{{ data.width }}', '{{ data.height }}' );
+                    ?>
+                </div>
+                <# } #>
 
-                    <# if ( data.originalImageURL && data.originalImageName ) { #>
-                        <?php _e( 'Original image:' ); ?>
-                        <a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
-                    <# } #>
+                <# if ( data.originalImageURL && data.originalImageName ) { #>
+                <?php _e( 'Original image:' ); ?>
+                <a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+                <# } #>
 
-                    <# if ( data.can.save && data.sizes ) { #>
-                        <a class="edit-attachment" href="{{ data.editLink }}&amp;image-editor" target="_blank"><?php _e( 'Edit Image' ); ?></a>
-                    <# } #>
+                <# if ( data.can.save && data.sizes ) { #>
+                <a class="edit-attachment" href="{{ data.editLink }}&amp;image-editor" target="_blank"><?php _e( 'Edit Image' ); ?></a>
+                <# } #>
                 <# } #>
 
                 <# if ( data.fileLength && data.fileLengthHumanReadable ) { #>
-                    <div class="file-length"><?php _e( 'Length:' ); ?>
-                        <span aria-hidden="true">{{ data.fileLength }}</span>
-                        <span class="screen-reader-text">{{ data.fileLengthHumanReadable }}</span>
-                    </div>
+                <div class="file-length"><?php _e( 'Length:' ); ?>
+                    <span aria-hidden="true">{{ data.fileLength }}</span>
+                    <span class="screen-reader-text">{{ data.fileLengthHumanReadable }}</span>
+                </div>
                 <# } #>
 
                 <# if ( ! data.uploading && data.can.remove ) { #>
-                    <?php if ( MEDIA_TRASH ) : ?>
+                <?php if ( MEDIA_TRASH ) : ?>
                     <# if ( 'trash' === data.status ) { #>
-                        <button type="button" class="button-link untrash-attachment"><?php _e( 'Restore from Trash' ); ?></button>
+                    <button type="button" class="button-link untrash-attachment"><?php _e( 'Restore from Trash' ); ?></button>
                     <# } else { #>
-                        <button type="button" class="button-link trash-attachment"><?php _e( 'Move to Trash' ); ?></button>
+                    <button type="button" class="button-link trash-attachment"><?php _e( 'Move to Trash' ); ?></button>
                     <# } #>
-                    <?php else : ?>
-                        <button type="button" class="button-link delete-attachment"><?php _e( 'Delete Permanently' ); ?></button>
-                    <?php endif; ?>
+                <?php else : ?>
+                    <button type="button" class="button-link delete-attachment"><?php _e( 'Delete Permanently' ); ?></button>
+                <?php endif; ?>
                 <# } #>
 
                 <div class="compat-meta">
                     <# if ( data.compat && data.compat.meta ) { #>
-                        {{{ data.compat.meta }}}
+                    {{{ data.compat.meta }}}
                     <# } #>
                 </div>
             </div>
         </div>
         <# var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly'; #>
         <# if ( 'image' === data.type ) { #>
-            <span class="setting has-description" data-setting="alt">
+        <span class="setting has-description" data-setting="alt">
                 <label for="attachment-details-alt-text" class="name"><?php _e( 'Alt Text' ); ?></label>
                 <input type="text" id="attachment-details-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" readonly />
             </span>
-            <p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote website</a></p>
+        <p class="description" id="alt-text-description"><a href="{{{ data.coyoteManagementUrl }}}">Manage image on Coyote website</a></p>
         <# } #>
         <?php if ( post_type_supports( 'attachment', 'title' ) ) : ?>
-        <span class="setting" data-setting="title">
+            <span class="setting" data-setting="title">
             <label for="attachment-details-title" class="name"><?php _e( 'Title' ); ?></label>
             <input type="text" id="attachment-details-title" value="{{ data.title }}" {{ maybeReadOnly }} />
         </span>
@@ -521,11 +521,11 @@ function coyote_wp_print_media_templates() {
         <# if ( 'audio' === data.type ) { #>
         <?php
         foreach ( array(
-            'artist' => __( 'Artist' ),
-            'album'  => __( 'Album' ),
-        ) as $key => $label ) :
+                      'artist' => __( 'Artist' ),
+                      'album'  => __( 'Album' ),
+                  ) as $key => $label ) :
             ?>
-        <span class="setting" data-setting="<?php echo esc_attr( $key ); ?>">
+            <span class="setting" data-setting="<?php echo esc_attr( $key ); ?>">
             <label for="attachment-details-<?php echo esc_attr( $key ); ?>" class="name"><?php echo $label; ?></label>
             <input type="text" id="attachment-details-<?php echo esc_attr( $key ); ?>" value="{{ data.<?php echo $key; ?> || data.meta.<?php echo $key; ?> || '' }}" />
         </span>
@@ -550,10 +550,10 @@ function coyote_wp_print_media_templates() {
         <div class="selection-info">
             <span class="count"></span>
             <# if ( data.editable ) { #>
-                <button type="button" class="button-link edit-selection"><?php _e( 'Edit Selection' ); ?></button>
+            <button type="button" class="button-link edit-selection"><?php _e( 'Edit Selection' ); ?></button>
             <# } #>
             <# if ( data.clearable ) { #>
-                <button type="button" class="button-link clear-selection"><?php _e( 'Clear' ); ?></button>
+            <button type="button" class="button-link clear-selection"><?php _e( 'Clear' ); ?></button>
             <# } #>
         </div>
         <div class="selection-view"></div>
@@ -564,10 +564,10 @@ function coyote_wp_print_media_templates() {
         <h2><?php _e( 'Attachment Display Settings' ); ?></h2>
 
         <# if ( 'image' === data.type ) { #>
-            <span class="setting align">
+        <span class="setting align">
                 <label for="attachment-display-settings-alignment" class="name"><?php _e( 'Alignment' ); ?></label>
                 <select id="attachment-display-settings-alignment" class="alignment"
-                    data-setting="align"
+                        data-setting="align"
                     <# if ( data.userSettings ) { #>
                         data-user-setting="align"
                     <# } #>>
@@ -584,7 +584,7 @@ function coyote_wp_print_media_templates() {
                     <option value="none" selected>
                         <?php esc_html_e( 'None' ); ?>
                     </option>
-                </select>
+            </select>
             </span>
         <# } #>
 
@@ -597,7 +597,7 @@ function coyote_wp_print_media_templates() {
                 <# } #>
             </label>
             <select id="attachment-display-settings-link-to" class="link-to"
-                data-setting="link"
+                    data-setting="link"
                 <# if ( data.userSettings && ! data.model.canEmbed ) { #>
                     data-user-setting="urlbutton"
                 <# } #>>
@@ -639,10 +639,10 @@ function coyote_wp_print_media_templates() {
         </span>
 
         <# if ( 'undefined' !== typeof data.sizes ) { #>
-            <span class="setting">
+        <span class="setting">
                 <label for="attachment-display-settings-size" class="name"><?php _e( 'Size' ); ?></label>
                 <select id="attachment-display-settings-size" class="size" name="size"
-                    data-setting="size"
+                        data-setting="size"
                     <# if ( data.userSettings ) { #>
                         data-user-setting="imgsize"
                     <# } #>>
@@ -663,7 +663,7 @@ function coyote_wp_print_media_templates() {
                         <#
                         var size = data.sizes['<?php echo esc_js( $value ); ?>'];
                         if ( size ) { #>
-                            <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, 'full' ); ?>>
+                        <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, 'full' ); ?>>
                                 <?php echo esc_html( $name ); ?> &ndash; {{ size.width }} &times; {{ size.height }}
                             </option>
                         <# } #>
@@ -680,7 +680,7 @@ function coyote_wp_print_media_templates() {
         <span class="setting">
             <label for="gallery-settings-link-to" class="name"><?php _e( 'Link To' ); ?></label>
             <select id="gallery-settings-link-to" class="link-to"
-                data-setting="link"
+                    data-setting="link"
                 <# if ( data.userSettings ) { #>
                     data-user-setting="urlbutton"
                 <# } #>>
@@ -690,10 +690,10 @@ function coyote_wp_print_media_templates() {
                 #>>
                     <?php esc_html_e( 'Attachment Page' ); ?>
                 </option>
-                <option value="file" <# if ( 'file' == wp.media.galleryDefaults.link ) { #>selected="selected"<# } #>>
+            <option value="file" <# if ( 'file' == wp.media.galleryDefaults.link ) { #>selected="selected"<# } #>>
                     <?php esc_html_e( 'Media File' ); ?>
                 </option>
-                <option value="none" <# if ( 'none' == wp.media.galleryDefaults.link ) { #>selected="selected"<# } #>>
+            <option value="none" <# if ( 'none' == wp.media.galleryDefaults.link ) { #>selected="selected"<# } #>>
                     <?php esc_html_e( 'None' ); ?>
                 </option>
             </select>
@@ -702,7 +702,7 @@ function coyote_wp_print_media_templates() {
         <span class="setting">
             <label for="gallery-settings-columns" class="name select-label-inline"><?php _e( 'Columns' ); ?></label>
             <select id="gallery-settings-columns" class="columns" name="columns"
-                data-setting="columns">
+                    data-setting="columns">
                 <?php for ( $i = 1; $i <= 9; $i++ ) : ?>
                     <option value="<?php echo esc_attr( $i ); ?>" <#
                         if ( <?php echo $i; ?> == wp.media.galleryDefaults.columns ) { #>selected="selected"<# }
@@ -721,7 +721,7 @@ function coyote_wp_print_media_templates() {
         <span class="setting size">
             <label for="gallery-settings-size" class="name"><?php _e( 'Size' ); ?></label>
             <select id="gallery-settings-size" class="size" name="size"
-                data-setting="size"
+                    data-setting="size"
                 <# if ( data.userSettings ) { #>
                     data-user-setting="imgsize"
                 <# } #>
@@ -753,7 +753,7 @@ function coyote_wp_print_media_templates() {
         <h2><?php _e( 'Playlist Settings' ); ?></h2>
 
         <# var emptyModel = _.isEmpty( data.model ),
-            isVideo = 'video' === data.controller.get('library').props.get('type'); #>
+        isVideo = 'video' === data.controller.get('library').props.get('type'); #>
 
         <span class="setting">
             <input type="checkbox" id="playlist-settings-show-list" data-setting="tracklist" <# if ( emptyModel ) { #>
@@ -909,11 +909,11 @@ function coyote_wp_print_media_templates() {
                     </fieldset>
 
                     <# if ( data.attachment ) { #>
-                        <# if ( 'undefined' !== typeof data.attachment.sizes ) { #>
-                            <span class="setting size">
+                    <# if ( 'undefined' !== typeof data.attachment.sizes ) { #>
+                    <span class="setting size">
                                 <label for="image-details-size" class="name"><?php _e( 'Size' ); ?></label>
                                 <select id="image-details-size" class="size" name="size"
-                                    data-setting="size"
+                                        data-setting="size"
                                     <# if ( data.userSettings ) { #>
                                         data-user-setting="imgsize"
                                     <# } #>>
@@ -934,7 +934,7 @@ function coyote_wp_print_media_templates() {
                                         <#
                                         var size = data.sizes['<?php echo esc_js( $value ); ?>'];
                                         if ( size ) { #>
-                                            <option value="<?php echo esc_attr( $value ); ?>">
+                                        <option value="<?php echo esc_attr( $value ); ?>">
                                                 <?php echo esc_html( $name ); ?> &ndash; {{ size.width }} &times; {{ size.height }}
                                             </option>
                                         <# } #>
@@ -942,21 +942,21 @@ function coyote_wp_print_media_templates() {
                                     <option value="<?php echo esc_attr( 'custom' ); ?>">
                                         <?php _e( 'Custom Size' ); ?>
                                     </option>
-                                </select>
+                        </select>
                             </span>
-                        <# } #>
-                            <div class="custom-size wp-clearfix<# if ( data.model.size !== 'custom' ) { #> hidden<# } #>">
+                    <# } #>
+                    <div class="custom-size wp-clearfix<# if ( data.model.size !== 'custom' ) { #> hidden<# } #>">
                                 <span class="custom-size-setting">
                                     <label for="image-details-size-width"><?php _e( 'Width' ); ?></label>
                                     <input type="number" id="image-details-size-width" aria-describedby="image-size-desc" data-setting="customWidth" step="1" value="{{ data.model.customWidth }}" />
                                 </span>
-                                <span class="sep" aria-hidden="true">&times;</span>
-                                <span class="custom-size-setting">
+                        <span class="sep" aria-hidden="true">&times;</span>
+                        <span class="custom-size-setting">
                                     <label for="image-details-size-height"><?php _e( 'Height' ); ?></label>
                                     <input type="number" id="image-details-size-height" aria-describedby="image-size-desc" data-setting="customHeight" step="1" value="{{ data.model.customHeight }}" />
                                 </span>
-                                <p id="image-size-desc" class="description"><?php _e( 'Image size in pixels' ); ?></p>
-                            </div>
+                        <p id="image-size-desc" class="description"><?php _e( 'Image size in pixels' ); ?></p>
+                    </div>
                     <# } #>
 
                     <span class="setting link-to">
@@ -1021,10 +1021,10 @@ function coyote_wp_print_media_templates() {
                     <div class="image">
                         <img src="{{ data.model.url }}" draggable="false" alt="" />
                         <# if ( data.attachment && window.imageEdit ) { #>
-                            <div class="actions">
-                                <input type="button" class="edit-attachment button" value="<?php esc_attr_e( 'Edit Original' ); ?>" />
-                                <input type="button" class="replace-attachment button" value="<?php esc_attr_e( 'Replace' ); ?>" />
-                            </div>
+                        <div class="actions">
+                            <input type="button" class="edit-attachment button" value="<?php esc_attr_e( 'Edit Original' ); ?>" />
+                            <input type="button" class="replace-attachment button" value="<?php esc_attr_e( 'Replace' ); ?>" />
+                        </div>
                         <# } #>
                     </div>
                 </div>
@@ -1041,8 +1041,8 @@ function coyote_wp_print_media_templates() {
     <?php // Template for an embedded Audio details. ?>
     <script type="text/html" id="tmpl-audio-details">
         <# var ext, html5types = {
-            mp3: wp.media.view.settings.embedMimes.mp3,
-            ogg: wp.media.view.settings.embedMimes.ogg
+        mp3: wp.media.view.settings.embedMimes.mp3,
+        ogg: wp.media.view.settings.embedMimes.ogg
         }; #>
 
         <?php $audio_types = wp_get_audio_extensions(); ?>
@@ -1051,10 +1051,10 @@ function coyote_wp_print_media_templates() {
                 <?php wp_underscore_audio_template(); ?>
 
                 <# if ( ! _.isEmpty( data.model.src ) ) {
-                    ext = data.model.src.split('.').pop();
-                    if ( html5types[ ext ] ) {
-                        delete html5types[ ext ];
-                    }
+                ext = data.model.src.split('.').pop();
+                if ( html5types[ ext ] ) {
+                delete html5types[ ext ];
+                }
                 #>
                 <span class="setting">
                     <label for="audio-details-source" class="name"><?php _e( 'URL' ); ?></label>
@@ -1066,17 +1066,17 @@ function coyote_wp_print_media_templates() {
 
                 foreach ( $audio_types as $type ) :
                     ?>
-                <# if ( ! _.isEmpty( data.model.<?php echo $type; ?> ) ) {
+                    <# if ( ! _.isEmpty( data.model.<?php echo $type; ?> ) ) {
                     if ( ! _.isUndefined( html5types.<?php echo $type; ?> ) ) {
-                        delete html5types.<?php echo $type; ?>;
+                    delete html5types.<?php echo $type; ?>;
                     }
-                #>
-                <span class="setting">
+                    #>
+                    <span class="setting">
                     <label for="audio-details-<?php echo $type . '-source'; ?>" class="name"><?php echo strtoupper( $type ); ?></label>
                     <input type="text" id="audio-details-<?php echo $type . '-source'; ?>" readonly data-setting="<?php echo $type; ?>" value="{{ data.model.<?php echo $type; ?> }}" />
                     <button type="button" class="button-link remove-setting"><?php _e( 'Remove audio source' ); ?></button>
                 </span>
-                <# } #>
+                    <# } #>
                 <?php endforeach ?>
 
                 <# if ( ! _.isEmpty( html5types ) ) { #>
@@ -1121,53 +1121,53 @@ function coyote_wp_print_media_templates() {
     <?php // Template for an embedded Video details. ?>
     <script type="text/html" id="tmpl-video-details">
         <# var ext, html5types = {
-            mp4: wp.media.view.settings.embedMimes.mp4,
-            ogv: wp.media.view.settings.embedMimes.ogv,
-            webm: wp.media.view.settings.embedMimes.webm
+        mp4: wp.media.view.settings.embedMimes.mp4,
+        ogv: wp.media.view.settings.embedMimes.ogv,
+        webm: wp.media.view.settings.embedMimes.webm
         }; #>
 
         <?php $video_types = wp_get_video_extensions(); ?>
         <div class="media-embed media-embed-details">
             <div class="embed-media-settings embed-video-settings">
                 <div class="wp-video-holder">
-                <#
-                var w = ! data.model.width || data.model.width > 640 ? 640 : data.model.width,
+                    <#
+                    var w = ! data.model.width || data.model.width > 640 ? 640 : data.model.width,
                     h = ! data.model.height ? 360 : data.model.height;
 
-                if ( data.model.width && w !== data.model.width ) {
+                    if ( data.model.width && w !== data.model.width ) {
                     h = Math.ceil( ( h * w ) / data.model.width );
-                }
-                #>
+                    }
+                    #>
 
-                <?php wp_underscore_video_template(); ?>
+                    <?php wp_underscore_video_template(); ?>
 
-                <# if ( ! _.isEmpty( data.model.src ) ) {
+                    <# if ( ! _.isEmpty( data.model.src ) ) {
                     ext = data.model.src.split('.').pop();
                     if ( html5types[ ext ] ) {
-                        delete html5types[ ext ];
+                    delete html5types[ ext ];
                     }
-                #>
-                <span class="setting">
+                    #>
+                    <span class="setting">
                     <label for="video-details-source" class="name"><?php _e( 'URL' ); ?></label>
                     <input type="text" id="video-details-source" readonly data-setting="src" value="{{ data.model.src }}" />
                     <button type="button" class="button-link remove-setting"><?php _e( 'Remove video source' ); ?></button>
                 </span>
-                <# } #>
-                <?php
-                foreach ( $video_types as $type ) :
-                    ?>
-                <# if ( ! _.isEmpty( data.model.<?php echo $type; ?> ) ) {
-                    if ( ! _.isUndefined( html5types.<?php echo $type; ?> ) ) {
+                    <# } #>
+                    <?php
+                    foreach ( $video_types as $type ) :
+                        ?>
+                        <# if ( ! _.isEmpty( data.model.<?php echo $type; ?> ) ) {
+                        if ( ! _.isUndefined( html5types.<?php echo $type; ?> ) ) {
                         delete html5types.<?php echo $type; ?>;
-                    }
-                #>
-                <span class="setting">
+                        }
+                        #>
+                        <span class="setting">
                     <label for="video-details-<?php echo $type . '-source'; ?>" class="name"><?php echo strtoupper( $type ); ?></label>
                     <input type="text" id="video-details-<?php echo $type . '-source'; ?>" readonly data-setting="<?php echo $type; ?>" value="{{ data.model.<?php echo $type; ?> }}" />
                     <button type="button" class="button-link remove-setting"><?php _e( 'Remove video source' ); ?></button>
                 </span>
-                <# } #>
-                <?php endforeach ?>
+                        <# } #>
+                    <?php endforeach ?>
                 </div>
 
                 <# if ( ! _.isEmpty( html5types ) ) { #>
@@ -1225,13 +1225,13 @@ function coyote_wp_print_media_templates() {
                         <input class="content-track" type="text" id="video-details-track-{{ index }}" aria-describedby="video-details-track-desc-{{ index }}" value="{{ track.outerHTML }}" />
                         <span class="description" id="video-details-track-desc-{{ index }}">
                         <?php
-                            printf(
-                                /* translators: 1: "srclang" HTML attribute, 2: "label" HTML attribute, 3: "kind" HTML attribute. */
-                                __( 'The %1$s, %2$s, and %3$s values can be edited to set the video track language and kind.' ),
-                                'srclang',
-                                'label',
-                                'kind'
-                            );
+                        printf(
+                        /* translators: 1: "srclang" HTML attribute, 2: "label" HTML attribute, 3: "kind" HTML attribute. */
+                            __( 'The %1$s, %2$s, and %3$s values can be edited to set the video track language and kind.' ),
+                            'srclang',
+                            'label',
+                            'kind'
+                        );
                         ?>
                         </span>
                         <button type="button" class="button-link remove-setting remove-track"><?php _ex( 'Remove video track', 'media' ); ?></button><br/>
@@ -1249,31 +1249,31 @@ function coyote_wp_print_media_templates() {
     <?php // Template for a Gallery within the editor. ?>
     <script type="text/html" id="tmpl-editor-gallery">
         <# if ( data.attachments.length ) { #>
-            <div class="gallery gallery-columns-{{ data.columns }}">
-                <# _.each( data.attachments, function( attachment, index ) { #>
-                    <dl class="gallery-item">
-                        <dt class="gallery-icon">
-                            <# if ( attachment.thumbnail ) { #>
-                                <img src="{{ attachment.thumbnail.url }}" width="{{ attachment.thumbnail.width }}" height="{{ attachment.thumbnail.height }}" alt="{{ attachment.alt }}" />
-                            <# } else { #>
-                                <img src="{{ attachment.url }}" alt="{{ attachment.alt }}" />
-                            <# } #>
-                        </dt>
-                        <# if ( attachment.caption ) { #>
-                            <dd class="wp-caption-text gallery-caption">
-                                {{{ data.verifyHTML( attachment.caption ) }}}
-                            </dd>
-                        <# } #>
-                    </dl>
-                    <# if ( index % data.columns === data.columns - 1 ) { #>
-                        <br style="clear: both;">
+        <div class="gallery gallery-columns-{{ data.columns }}">
+            <# _.each( data.attachments, function( attachment, index ) { #>
+            <dl class="gallery-item">
+                <dt class="gallery-icon">
+                    <# if ( attachment.thumbnail ) { #>
+                    <img src="{{ attachment.thumbnail.url }}" width="{{ attachment.thumbnail.width }}" height="{{ attachment.thumbnail.height }}" alt="{{ attachment.alt }}" />
+                    <# } else { #>
+                    <img src="{{ attachment.url }}" alt="{{ attachment.alt }}" />
                     <# } #>
-                <# } ); #>
-            </div>
+                </dt>
+                <# if ( attachment.caption ) { #>
+                <dd class="wp-caption-text gallery-caption">
+                    {{{ data.verifyHTML( attachment.caption ) }}}
+                </dd>
+                <# } #>
+            </dl>
+            <# if ( index % data.columns === data.columns - 1 ) { #>
+            <br style="clear: both;">
+            <# } #>
+            <# } ); #>
+        </div>
         <# } else { #>
-            <div class="wpview-error">
-                <div class="dashicons dashicons-format-gallery"></div><p><?php _e( 'No items found.' ); ?></p>
-            </div>
+        <div class="wpview-error">
+            <div class="dashicons dashicons-format-gallery"></div><p><?php _e( 'No items found.' ); ?></p>
+        </div>
         <# } #>
     </script>
 
@@ -1309,24 +1309,27 @@ function coyote_wp_print_media_templates() {
      *
      * @since 3.5.0
      */
-    do_action( 'print_media_templates' );
+    do_action('print_media_templates');
 
     echo WordPressHelper::getMediaTemplateData();
 }
 ?><?php
-add_action('wp_enqueue_media', function() {
-    global $coyote_plugin;
-
+add_action('wp_enqueue_media', function () {
     if (!function_exists('get_current_screen')) {
         error_log('[Coyote Plugin] Function get_current_screen() is not available. Is the classic editor running?');
         return;
     }
 
-    $screen = get_current_screen()->id;
+    $screen = get_current_screen();
+    $screen_id = $screen->id;
+    $post_type = $screen->post_type;
 
-    // only hook the media editor for a specific set of screens
+    $hooked_screen = in_array($screen_id, COYOTE_HOOK_MEDIA_SCREENS);
+    $hooked_type = in_array($post_type, PluginConfiguration::getProcessedPostTypes());
+
+    // only hook the media editor for a specific set of post types being edited
     // such as post and page editor, upload screen
-    if (!in_array($screen, COYOTE_HOOK_MEDIA_SCREENS)) {
+    if (!($hooked_screen || $hooked_type)) {
         return;
     }
 
@@ -1335,7 +1338,7 @@ add_action('wp_enqueue_media', function() {
         return;
     }
 
-    if (!remove_action( 'admin_footer', 'wp_print_media_templates')) {
+    if (!remove_action('admin_footer', 'wp_print_media_templates')) {
         error_log("remove_action fail");
         return;
     }
@@ -1343,4 +1346,3 @@ add_action('wp_enqueue_media', function() {
     add_action('admin_footer', 'coyote_wp_print_media_templates');
 
 });
-

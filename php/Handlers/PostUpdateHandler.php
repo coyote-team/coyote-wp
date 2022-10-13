@@ -15,7 +15,9 @@ use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 use Coyote\PluginConfiguration;
 use Coyote\WordPressCoyoteApiClient;
+use Coyote\WordPressHelper;
 use Coyote\WordPressImage;
+use Coyote\DB;
 use Exception;
 
 if (!defined('WPINC')) {
@@ -68,14 +70,48 @@ class PostUpdateHandler
         $payload = new CreateResourcesPayload();
 
         foreach ($images as $image) {
-            $payload->addResource(new CreateResourcePayload(
+            $hash = sha1($image->getUrl());
+
+            if (!is_null(DB::getRecordByHash($hash))) {
+                continue;
+            }
+
+            $resource = new CreateResourcePayload(
                 $image->getCaption() ?? $image->getUrl(),
                 $image->getUrl(),
                 PluginConfiguration::getApiResourceGroupId(),
                 $image->getHostUri(),
-            ));
+            );
+
+            $alt = $image->getAlt();
+
+            if (!empty($alt)) {
+                $resource->addRepresentation($alt, PluginConfiguration::getMetum());
+            }
+
+            $payload->addResource($resource);
         }
 
-        WordPressCoyoteApiClient::createResources($payload);
+        $resources = WordPressCoyoteApiClient::createResources($payload);
+
+        if (is_null($resources)) {
+            return;
+        }
+
+        $new = WordPressHelper::getNewlyCreatedResources($images, $resources);
+
+        foreach ($new as $alt => $resource) {
+            $hash = sha1($resource->getSourceUri());
+
+            $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::getMetum());
+
+            DB::insertRecord(
+                $hash,
+                $resource->getSourceUri(),
+                $alt,
+                $resource->getId(),
+                $representation ? $representation->getText() : ''
+            );
+        }
     }
 }

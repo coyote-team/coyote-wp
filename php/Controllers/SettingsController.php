@@ -210,12 +210,21 @@ class SettingsController
 
     public static function ajaxVerifyResourceGroup()
     {
-        $resourceGroupUrl = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
+        $url = get_site_url(get_current_blog_id(), '/wp-json/coyote/v1/callback');
 
-        $resourceGroup = WordPressCoyoteApiClient::createResourceGroup($resourceGroupUrl);
+        $existing = WordPressCoyoteApiClient::getResourceGroupByUrl($url);
 
-        if (!is_null($resourceGroup)) {
-            PluginConfiguration::setResourceGroupId(intval($resourceGroup->getId()));
+        if (!is_null($existing)) {
+            PluginConfiguration::setResourceGroupId(intval($existing->getId()));
+            echo $existing->getId();
+            wp_die();
+        }
+
+        $created = WordPressCoyoteApiClient::createResourceGroup($url);
+
+        if (!is_null($created)) {
+            PluginConfiguration::setResourceGroupId(intval($created->getId()));
+            echo $created->getId();
         }
 
         wp_die();
@@ -251,8 +260,8 @@ class SettingsController
         if (is_null($profile)) {
             $this->profileFetchFailed = true;
             // TODO these should be PluginConfiguration functions
-            delete_option('coyote_api_profile');
-            delete_option('coyote_api_organization_id');
+            PluginConfiguration::deleteApiProfile();
+            PluginConfiguration::deleteApiOrganizationId();
             return;
         }
 

@@ -20,7 +20,7 @@ class Filters
     // add setting quicklink to plugin listing entry
     public static function addActionLinks($links): array
     {
-        $url = admin_url('options-general.php?page=coyote_fields');
+        $url = admin_url('options-general.php?page=coyote');
         $text = __('Settings');
 
         $settingsLinks = [

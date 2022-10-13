@@ -2,8 +2,8 @@
 
 namespace Coyote;
 
-use Coyote\ContentHelper\Image;
 use Coyote\DB\ResourceRecord;
+use Coyote\Model\ResourceModel;
 use Coyote\Payload\CreateResourcePayload;
 use Coyote\Payload\CreateResourcesPayload;
 use WP_Post;
@@ -21,8 +21,11 @@ class WordPressHelper
 
         $imageMap = [];
 
+        $hostUri = get_permalink($post);
+
         foreach ($images as $image) {
             $image = new WordPressImage($image);
+            $image->setHostUri($hostUri);
             $key = $image->getAttachmentId() ?? $image->getSrc();
             $hash = sha1($image->getUrl());
             $resource = DB::getRecordByHash($hash);
@@ -79,7 +82,6 @@ class WordPressHelper
         }
 
         $representation = $resource->getTopRepresentationByMetum(PluginConfiguration::METUM);
-
         $representation = is_null($representation) ? '' : $representation->getText();
 
         return DB::insertRecord(
@@ -230,5 +232,27 @@ js;
     public static function userIsAdmin(): bool
     {
         return current_user_can('administrator');
+    }
+
+    /**
+     * @param WordPressImage[] $images
+     * @param ResourceModel[] $resources
+     * @return array<string, ResourceModel>
+     */
+    public static function getNewlyCreatedResources(array $images, array $resources): array
+    {
+        $altText = [];
+        $records = [];
+
+        foreach ($images as $image) {
+            $altText[$image->getUrl()] = $image->getAlt();
+        }
+
+        foreach ($resources as $resource) {
+            $alt = $altText[$resource->getSourceUri()];
+            $records[$alt] = $resource;
+        }
+
+        return $records;
     }
 }
