@@ -1334,7 +1334,7 @@ add_action('wp_enqueue_media', function () {
     }
 
     // only patch the html when the plugin has filters enabled
-    if (!PluginConfiguration::hasFiltersEnabled()) {
+    if (PluginConfiguration::isStandalone() || !PluginConfiguration::hasFiltersEnabled()) {
         return;
     }
 
