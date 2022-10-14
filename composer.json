@@ -1,10 +1,18 @@
 {
     "require": {
-        "guzzlehttp/guzzle": "~6.0",
+        "guzzlehttp/guzzle": "~7.4.1",
         "psr/log": "^1.1",
-        "ext-json": "*"
+        "ext-json": "*",
+        "coyote/coyote-php-content-helper": "^1.0.5",
+        "coyote/coyote-api-client": "^1.0.21",
+        "monolog/monolog": "^2.6",
+        "twig/twig": "^3.0"
     },
     "autoload" : {
         "classmap": ["php/"]
-    }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.6"
+    },
+    "minimum-stability": "stable"
 }

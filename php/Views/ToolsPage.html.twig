@@ -1,0 +1,70 @@
+<div class="wrap">
+    <h2>{{ pageTitle }}</h2>
+    <form method="post" action="options.php">
+        <div id="coyote_verify_resource_group_container">
+            <button class="button button-primary" type="button" id="coyote_verify_resource_group" aria-describedby="coyote_verify_resource_group_hint">
+                {{  __('Verify resource group') }}
+            </button>
+            <span role="alert" id="coyote_verify_resource_group_status"></span>
+            <p id="coyote_verify_resource_group_hint">
+                {{ __('A resource group is required to make dynamic updates to image description work. When encountering update problems, verify the group exists.') }}
+            </p>
+        </div>
+
+        <h3>{{ __('Process existing posts') }}</h3>
+
+        {% if emptyOrganizationOption %}
+            <p>{{ __('Please select a Coyote organization to process posts.') }}</p>
+        {% elseif not emptyOrganizationOption %}
+
+            {% if batchJob %}
+                {% set processDisabled      = 'disabled' %}
+            {% elseif not batchJob %}
+                {% set cancelDisabled       = 'disabled' %}
+                {% set processStatusHidden  = 'hidden' %}
+            {% endif %}
+
+            <p>{{ __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.') }}</p>
+            <p>{{ __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.') }}</p>
+            <p>{{ __('This process does not modify your WordPress content itself, and may be used more than once.') }}</p>
+
+            <div id="process-existing-posts">
+                <div class="form-group">
+                    <label for="coyote_processor_endpoint">
+                        {{ __('Processor endpoint') }}
+                    </label>
+                    <input readonly {{ processDisabled }} id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value={{ processEndpoint }}>
+                </div>
+                <div class="form-group">
+                    <label for="coyote_batch_size">
+                        {{ __('Batch size') }}:
+                    </label>
+                    <input id="coyote_batch_size" type="text" size="3" maxlength="3" value={{ batchSize }}>
+                </div>
+                <div id="process-controls">
+                    <button id="coyote_process_existing_posts" {{ processDisabled }} type="submit" class="button button-primary">
+                        {{ __('Start processing job') }}
+                    </button>
+                    <button id="coyote_cancel_processing" {{ cancelDisabled }} type="button" class="button">
+                        {{ __('Cancel processing job') }}
+                    </button>
+                </div>
+            </div>
+
+            <div id="coyote_processing_status" {{ processStatusHidden }} aria-live="assertive" aria-atomic="true">
+                <div>
+                    <strong id="coyote_job_status">{{ __('Status') }}: <span></span></strong>
+                </div>
+                <div>
+                    <strong id="coyote_processing">{{ __('Processing') }}: <span></span>%</strong>
+                </div>
+                <div>
+                    <strong hidden id="coyote_processing_complete">{{ __('Processing complete') }}.</strong>
+                </div>
+            </div>
+
+        {% endif %}
+
+    </form>
+</div>
+

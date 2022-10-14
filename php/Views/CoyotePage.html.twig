@@ -1,0 +1,26 @@
+<div class="wrap">
+    <h2>{{ pageTitle }}</h2>
+    <form method="post" action="options.php">
+
+        {# Check for admin notices #}
+        {% if not isStandalone %}
+            {% if membership %}
+                <div class="notice notice-info">
+                    <p>{{ __('Linked API profile: %s (role: %s)')|format(profile.getname, membership.getRole) }}</p>
+                </div>
+            {% elseif profileFetchFailed %}
+                <div class="notice notice-error">
+                    <p>{{ __('Unable to load Coyote profile.') }}</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {{ settings_fields(settingsSlug) }}
+        {{ do_settings_sections(settingsSlug) }}
+
+        {% if not isStandalone %}
+            {{ submit_button() }}
+        {% endif %}
+
+    </form>
+</div>

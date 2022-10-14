@@ -1,0 +1,790 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Coyote 2.0\n"
+"POT-Creation-Date: 2022-08-16 15:41+0200\n"
+"PO-Revision-Date: 2022-08-16 15:42+0200\n"
+"Last-Translator: \n"
+"Language-Team: Coyote\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_n;_x;esc_html__;esc_html_e\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: vendor\n"
+"X-Poedit-SearchPathExcluded-1: sql\n"
+
+#: php/Views/CoyotePage.html.twig:10
+#, fuzzy, python-format
+msgid "Linked API profile: %s (role: %s)"
+msgstr "Gelinkte API profiel: %s (rol: %s)"
+
+#: php/Views/CoyotePage.html.twig:14
+#, fuzzy
+msgid "Unable to load Coyote profile."
+msgstr "Kan Coyote profiel niet laden."
+
+#: php/Views/ToolsPage.html.twig:6
+#, fuzzy
+msgid "Verify resource group"
+msgstr "Resourcegroep verifiëren"
+
+#: php/Views/ToolsPage.html.twig:10
+#, fuzzy
+msgid ""
+"A resource group is required to make dynamic updates to image description "
+"work. When encountering update problems, verify the group exists."
+msgstr ""
+"Er is een resourcegroep vereist om dynamische updates van de "
+"afbeeldingsbeschrijving te laten werken. Controleer bij updateproblemen of "
+"de groep bestaat."
+
+#: php/Views/ToolsPage.html.twig:14
+#, fuzzy
+msgid "Process existing posts"
+msgstr "Bestaande posts verwerken"
+
+#: php/Views/ToolsPage.html.twig:17
+#, fuzzy
+msgid "Please select a Coyote organization to process posts."
+msgstr "Selecteer een Coyote-organisatie om berichten te verwerken."
+
+#: php/Views/ToolsPage.html.twig:27
+#, fuzzy
+msgid ""
+"Using a remote service, your WordPress installation will be queried remotely "
+"and this process will populate the associated Coyote organisation. Depending "
+"on your WordPress installation, this process may take a while to complete."
+msgstr ""
+"Met behulp van een remote service, zal uw WordPress installatie op afstand "
+"worden opgevraagd en dit proces zal de bijbehorende Coyote organisatie "
+"vullen. Afhankelijk van uw WordPress installatie, kan dit proces een tijdje "
+"duren om te voltooien."
+
+#: php/Views/ToolsPage.html.twig:28
+#, fuzzy
+msgid ""
+"If the status of the processing job keeps resulting in an error, consider "
+"decreasing the batch size."
+msgstr ""
+"Als de status van de verwerkingstaak steeds op een fout uitdraait, kunt u "
+"overwegen de batchgrootte te verkleinen."
+
+#: php/Views/ToolsPage.html.twig:29
+#, fuzzy
+msgid ""
+"This process does not modify your WordPress content itself, and may be used "
+"more than once."
+msgstr ""
+"Dit proces wijzigt uw WordPress inhoud zelf niet, en kan meer dan eens "
+"worden gebruikt."
+
+#: php/Views/ToolsPage.html.twig:34
+msgid "Processor endpoint"
+msgstr ""
+
+#: php/Views/ToolsPage.html.twig:40
+#, fuzzy
+msgid "Batch size"
+msgstr "Batch groote"
+
+#: php/Views/ToolsPage.html.twig:46
+#, fuzzy
+msgid "Start processing job"
+msgstr "Start verwerk taak"
+
+#: php/Views/ToolsPage.html.twig:49
+#, fuzzy
+msgid "Cancel processing job"
+msgstr "Annuleer verwerk taak"
+
+#: php/Views/ToolsPage.html.twig:56
+#, fuzzy
+msgid "Status"
+msgstr "Status"
+
+#: php/Views/ToolsPage.html.twig:59
+#, fuzzy
+msgid "Processing"
+msgstr "Processing"
+
+#: php/Views/ToolsPage.html.twig:62
+#, fuzzy
+msgid "Processing complete"
+msgstr "Processing compleet"
+
+#: php/Controllers/SettingsController.php:188
+#, fuzzy
+msgid "Coyote settings"
+msgstr "Coyote instellingen"
+
+#: php/Controllers/SettingsController.php:189
+#, fuzzy
+msgid "Coyote"
+msgstr "Coyote"
+
+#: php/Controllers/SettingsController.php:190
+#, fuzzy
+msgid "Coyote advanced"
+msgstr "Coyote geavanceerd"
+
+#: php/Controllers/SettingsController.php:191
+#, fuzzy
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+#: php/Controllers/SettingsController.php:192
+#, fuzzy
+msgid "Coyote tools"
+msgstr "Coyote hulpmiddelen"
+
+#: php/Controllers/SettingsController.php:193
+#, fuzzy
+msgid "Tools"
+msgstr "Hulpmiddelen"
+
+#: php/Controllers/SettingsController.php:512
+#, fuzzy
+msgid "Plugin settings"
+msgstr "Plugin instellingen"
+
+#: php/Controllers/SettingsController.php:529
+#, fuzzy
+msgid "API settings"
+msgstr "API instellingen"
+
+#: php/Controllers/SettingsController.php:536
+#, fuzzy
+msgid "Token"
+msgstr "Token"
+
+#: php/Controllers/SettingsController.php:551
+#, fuzzy
+msgid "Organization"
+msgstr "Organisatie"
+
+#: php/Controllers/SettingsController.php:563
+#, fuzzy
+msgid "Standalone settings"
+msgstr "Standalone instellingen"
+
+#: php/Controllers/SettingsController.php:570
+#, fuzzy
+msgid "Run in standalone mode"
+msgstr "Voer uit in standalone modus"
+
+#: php/Controllers/SettingsController.php:583
+#, fuzzy
+msgid "Advanced settings"
+msgstr "Geavanceerd"
+
+#: php/Controllers/SettingsController.php:590
+#, fuzzy
+msgid "Endpoint"
+msgstr "Endpoint"
+
+#: php/Controllers/SettingsController.php:607
+#, fuzzy
+msgid "Metum"
+msgstr "Metum"
+
+#: php/Controllers/SettingsController.php:616
+#, fuzzy
+msgid "Filter images through Coyote"
+msgstr "Filter afbeelding door Coyote"
+
+#: php/Controllers/SettingsController.php:625
+#, fuzzy
+msgid "Enable Coyote remote description updates"
+msgstr "Gebruik Coyote externe updates voor beschrijving"
+
+#: php/Controllers/SettingsController.php:634
+#, fuzzy
+msgid "Skip unpublished items when importing"
+msgstr "Niet-gepubliceerde items overslaan bij het importeren"
+
+#: php/Controllers/SettingsController.php:655
+#, fuzzy
+msgid "Standalone mode"
+msgstr "Standalone modus"
+
+#: php/Controllers/SettingsController.php:656
+#, fuzzy
+msgid ""
+"Coyote is running in standalone mode. No settings are available, and no "
+"remote Coyote API is used to manage resources and descriptions. Any locally "
+"stored image descriptions will be used to describe images."
+msgstr ""
+"Coyote draait in stand-alone modus. Er zijn geen instellingen beschikbaar en "
+"er wordt geen externe Coyote-API gebruikt om bronnen en beschrijvingen te "
+"beheren. Alle lokaal opgeslagen afbeeldingsbeschrijvingen worden gebruikt om "
+"afbeeldingen te beschrijven."
+
+#: php/Controllers/SettingsController.php:657
+#, fuzzy
+msgid "Turn off standalone mode"
+msgstr "Zet standalone modus uit"
+
+#: php/Controllers/SettingsController.php:668
+#, fuzzy
+msgid ""
+"In order to use the plugin, configure the API settings accordingly. Once "
+"your profile has been retrieved and an organisation has been selected, you "
+"can optionally process any existing posts, pages and images to populate the "
+"Coyote instance."
+msgstr ""
+"Om de plug-in te gebruiken, configureert u de API-instellingen "
+"dienovereenkomstig. Zodra uw profiel is opgehaald en een organisatie is "
+"geselecteerd, kunt u eventueel bestaande berichten, pagina’s en afbeeldingen "
+"verwerken om de Coyote-instantie te vullen."
+
+#: php/Controllers/SettingsController.php:677
+#, fuzzy
+msgid ""
+"The endpoint for your Coyote instance, e.g. \"https://staging.coyote.pics\"."
+msgstr ""
+"Het eindpunt voor uw Coyote-instantie, b.v. “https://staging.coyote.pics”."
+
+#: php/Controllers/SettingsController.php:686
+#, fuzzy
+msgid "The API token associated with your Coyote account."
+msgstr "Het API-token dat is gekoppeld aan uw Coyote-account."
+
+#: php/Controllers/SettingsController.php:695
+#: php/Controllers/SettingsController.php:704
+#, fuzzy
+msgid ""
+"The metum used by the API to categorise image descriptions, e.g. \"Alt\"."
+msgstr ""
+"Het metum dat door de API wordt gebruikt om afbeeldingsbeschrijvingen te "
+"categoriseren, b.v. “Alt”."
+
+#: php/Controllers/SettingsController.php:705
+msgid "--select an organization--"
+msgstr ""
+
+#: php/Controllers/SettingsController.php:710
+#, fuzzy
+msgid ""
+"Important: changing organization requires an import of coyote resources."
+msgstr ""
+"Belangrijk: veranderende organisatie vereist een import van coyotebronnen."
+
+#: php/Controllers/SettingsController.php:718
+#, fuzzy
+msgid ""
+"The plugin does not attempt to communicate with the API. The plugin "
+"configuration becomes unavailable until standalone mode is again disabled."
+msgstr ""
+"De plug-in probeert niet te communiceren met de API. De plug-inconfiguratie "
+"is niet beschikbaar totdat de zelfstandige modus weer wordt uitgeschakeld."
+
+#: php/Controllers/SettingsController.php:726
+#, fuzzy
+msgid "The plugin manages image descriptions for posts, pages and media."
+msgstr ""
+"De plug-in beheert afbeeldingsbeschrijvingen voor berichten, pagina’s en "
+"media."
+
+#: php/Controllers/SettingsController.php:734
+#, fuzzy
+msgid ""
+"The plugin responds to approved image description updates issued through the "
+"Coyote API."
+msgstr ""
+"De plug-in reageert op goedgekeurde updates van de afbeeldingsbeschrijving "
+"die zijn uitgegeven via de Coyote API."
+
+#: php/Controllers/SettingsController.php:742
+#, fuzzy
+msgid ""
+"During import the plugin skips unpublished posts and media library images "
+"contained in unpublished posts."
+msgstr ""
+"Tijdens het importeren slaat de plug-in niet-gepubliceerde berichten en "
+"afbeeldingen uit de mediabibliotheek in niet-gepubliceerde berichten over."
+
+#: php/WordPressPlugin/Actions.php:27
+#, fuzzy
+msgid ""
+"The Coyote API client has thrown 10 consecutive errors, the Coyote plugin "
+"has switched to standalone mode."
+msgstr ""
+"De Coyote API-client heeft 10 opeenvolgende fouten gegenereerd, de Coyote-"
+"plug-in is overgeschakeld naar de zelfstandige modus."
+
+#: php/WordPressPlugin/Filters.php:20
+#, fuzzy
+msgid "Settings"
+msgstr "Instellingen"
+
+#: php/WordPressPlugin/Filters.php:106
+msgid "Every Five Minutes"
+msgstr ""
+
+#: php/media-template.php:41
+msgid "Selected media actions"
+msgstr ""
+
+#: php/media-template.php:52 php/media-template.php:200
+msgid "Close dialog"
+msgstr ""
+
+#: php/media-template.php:62 php/media-template.php:69
+#: php/media-template.php:106
+msgid "Drop files to upload"
+msgstr ""
+
+#: php/media-template.php:77
+msgid "Close uploader"
+msgstr ""
+
+#: php/media-template.php:85
+msgid "Your browser cannot upload files"
+msgstr ""
+
+#: php/media-template.php:90
+#, php-format
+msgid ""
+"The web browser on your device cannot be used to upload files. You may be "
+"able to use the <a href=\"%s\">native app for your device</a> instead."
+msgstr ""
+
+#: php/media-template.php:98
+msgid "Upload Limit Exceeded"
+msgstr ""
+
+#: php/media-template.php:108
+msgid "Select Files"
+msgstr ""
+
+#: php/media-template.php:139
+#, php-format
+msgid "Maximum upload file size: %s."
+msgstr ""
+
+#: php/media-template.php:149
+#, php-format
+msgid "Suggested image dimensions: %1$s by %2$s pixels."
+msgstr ""
+
+#: php/media-template.php:166
+msgid "List View"
+msgstr ""
+
+#: php/media-template.php:169
+msgid "Grid View"
+msgstr ""
+
+#: php/media-template.php:175
+msgid "Uploading"
+msgstr ""
+
+#: php/media-template.php:176
+msgid "Dismiss Errors"
+msgstr ""
+
+#: php/media-template.php:198
+msgid "Edit previous media item"
+msgstr ""
+
+#: php/media-template.php:199
+msgid "Edit next media item"
+msgstr ""
+
+#: php/media-template.php:209
+msgid "Attachment Preview"
+msgstr ""
+
+#: php/media-template.php:247 php/media-template.php:477
+msgid "Edit Image"
+msgstr ""
+
+#: php/media-template.php:249
+msgid "Document Preview"
+msgstr ""
+
+#: php/media-template.php:257 php/media-template.php:443
+msgid "Saved."
+msgstr ""
+
+#: php/media-template.php:260
+msgid "Details"
+msgstr ""
+
+#: php/media-template.php:261
+msgid "File name:"
+msgstr ""
+
+#: php/media-template.php:262
+msgid "File type:"
+msgstr ""
+
+#: php/media-template.php:263
+msgid "Uploaded on:"
+msgstr ""
+
+#: php/media-template.php:265
+msgid "File size:"
+msgstr ""
+
+#: php/media-template.php:268
+msgid "Dimensions:"
+msgstr ""
+
+#: php/media-template.php:271 php/media-template.php:466
+#, php-format
+msgid "%1$s by %2$s pixels"
+msgstr ""
+
+#: php/media-template.php:277 php/media-template.php:472
+msgid "Original image:"
+msgstr ""
+
+#: php/media-template.php:283 php/media-template.php:482
+msgid "Length:"
+msgstr ""
+
+#: php/media-template.php:291
+msgid "Bitrate:"
+msgstr ""
+
+#: php/media-template.php:309 php/media-template.php:812
+#: php/media-template.php:875
+msgid "Alternative Text"
+msgstr ""
+
+#: php/media-template.php:316 php/media-template.php:517
+msgid "Title"
+msgstr ""
+
+#: php/media-template.php:323 php/media-template.php:524
+msgid "Artist"
+msgstr ""
+
+#: php/media-template.php:324 php/media-template.php:525
+msgid "Album"
+msgstr ""
+
+#: php/media-template.php:334 php/media-template.php:535
+#: php/media-template.php:822 php/media-template.php:885
+msgid "Caption"
+msgstr ""
+
+#: php/media-template.php:338 php/media-template.php:539
+msgid "Description"
+msgstr ""
+
+#: php/media-template.php:342
+msgid "Uploaded By"
+msgstr ""
+
+#: php/media-template.php:347
+msgid "Uploaded To"
+msgstr ""
+
+#: php/media-template.php:356 php/media-template.php:543
+msgid "Copy Link"
+msgstr ""
+
+#: php/media-template.php:363
+msgid "View attachment page"
+msgstr ""
+
+#: php/media-template.php:365
+msgid "Edit more details"
+msgstr ""
+
+#: php/media-template.php:370 php/media-template.php:491
+msgid "Restore from Trash"
+msgstr ""
+
+#: php/media-template.php:372 php/media-template.php:493
+msgid "Move to Trash"
+msgstr ""
+
+#: php/media-template.php:375 php/media-template.php:496
+msgid "Delete Permanently"
+msgstr ""
+
+#: php/media-template.php:408
+msgid "Remove"
+msgstr ""
+
+#: php/media-template.php:412
+msgid "Deselect"
+msgstr ""
+
+#: php/media-template.php:440
+msgid "Attachment Details"
+msgstr ""
+
+#: php/media-template.php:510
+msgid "Alt Text"
+msgstr ""
+
+#: php/media-template.php:553
+msgid "Edit Selection"
+msgstr ""
+
+#: php/media-template.php:556
+msgid "Clear"
+msgstr ""
+
+#: php/media-template.php:564
+msgid "Attachment Display Settings"
+msgstr ""
+
+#: php/media-template.php:568
+msgid "Alignment"
+msgstr ""
+
+#: php/media-template.php:576 php/media-template.php:832
+#: php/media-template.php:896
+msgid "Left"
+msgstr ""
+
+#: php/media-template.php:579 php/media-template.php:835
+#: php/media-template.php:899
+msgid "Center"
+msgstr ""
+
+#: php/media-template.php:582 php/media-template.php:838
+#: php/media-template.php:902
+msgid "Right"
+msgstr ""
+
+#: php/media-template.php:585 php/media-template.php:612
+#: php/media-template.php:697 php/media-template.php:841
+#: php/media-template.php:858 php/media-template.php:905
+#: php/media-template.php:981 php/media-template.php:1101
+#: php/media-template.php:1200
+msgid "None"
+msgstr ""
+
+#: php/media-template.php:594
+msgid "Embed or Link"
+msgstr ""
+
+#: php/media-template.php:596 php/media-template.php:681
+#: php/media-template.php:848 php/media-template.php:963
+msgid "Link To"
+msgstr ""
+
+#: php/media-template.php:607
+msgid "Embed Media Player"
+msgstr ""
+
+#: php/media-template.php:617
+msgid "Link to Media File"
+msgstr ""
+
+#: php/media-template.php:619 php/media-template.php:694
+#: php/media-template.php:967
+msgid "Media File"
+msgstr ""
+
+#: php/media-template.php:624
+msgid "Link to Attachment Page"
+msgstr ""
+
+#: php/media-template.php:626 php/media-template.php:691
+#: php/media-template.php:970
+msgid "Attachment Page"
+msgstr ""
+
+#: php/media-template.php:631 php/media-template.php:855
+#: php/media-template.php:978
+msgid "Custom URL"
+msgstr ""
+
+#: php/media-template.php:637 php/media-template.php:863
+#: php/media-template.php:986 php/media-template.php:1060
+#: php/media-template.php:1151
+msgid "URL"
+msgstr ""
+
+#: php/media-template.php:643 php/media-template.php:722
+#: php/media-template.php:914
+msgid "Size"
+msgstr ""
+
+#: php/media-template.php:654 php/media-template.php:734
+#: php/media-template.php:925
+msgid "Thumbnail"
+msgstr ""
+
+#: php/media-template.php:655 php/media-template.php:735
+#: php/media-template.php:926
+msgid "Medium"
+msgstr ""
+
+#: php/media-template.php:656 php/media-template.php:736
+#: php/media-template.php:927
+msgid "Large"
+msgstr ""
+
+#: php/media-template.php:657 php/media-template.php:737
+#: php/media-template.php:928
+msgid "Full Size"
+msgstr ""
+
+#: php/media-template.php:678
+msgid "Gallery Settings"
+msgstr ""
+
+#: php/media-template.php:703
+msgid "Columns"
+msgstr ""
+
+#: php/media-template.php:718
+msgid "Random Order"
+msgstr ""
+
+#: php/media-template.php:753
+#, fuzzy
+msgid "Playlist Settings"
+msgstr "Playlist instellingen"
+
+#: php/media-template.php:764
+msgid "Show Video List"
+msgstr ""
+
+#: php/media-template.php:766
+msgid "Show Tracklist"
+msgstr ""
+
+#: php/media-template.php:777
+msgid "Show Artist Name in Tracklist"
+msgstr ""
+
+#: php/media-template.php:787
+msgid "Show Images"
+msgstr ""
+
+#: php/media-template.php:795
+msgid "Link Text"
+msgstr ""
+
+#: php/media-template.php:828 php/media-template.php:892
+msgid "Align"
+msgstr ""
+
+#: php/media-template.php:852 php/media-template.php:974
+msgid "Image URL"
+msgstr ""
+
+#: php/media-template.php:890
+msgid "Display Settings"
+msgstr ""
+
+#: php/media-template.php:943
+msgid "Custom Size"
+msgstr ""
+
+#: php/media-template.php:950
+msgid "Width"
+msgstr ""
+
+#: php/media-template.php:955
+msgid "Height"
+msgstr ""
+
+#: php/media-template.php:958
+msgid "Image size in pixels"
+msgstr ""
+
+#: php/media-template.php:991
+#, fuzzy
+msgid "Advanced Options"
+msgstr "Geavanceerde options"
+
+#: php/media-template.php:995
+msgid "Image Title Attribute"
+msgstr ""
+
+#: php/media-template.php:999
+msgid "Image CSS Class"
+msgstr ""
+
+#: php/media-template.php:1006
+msgid "Open link in a new tab"
+msgstr ""
+
+#: php/media-template.php:1009
+msgid "Link Rel"
+msgstr ""
+
+#: php/media-template.php:1013
+msgid "Link CSS Class"
+msgstr ""
+
+#: php/media-template.php:1062 php/media-template.php:1077
+msgid "Remove audio source"
+msgstr ""
+
+#: php/media-template.php:1084 php/media-template.php:1175
+msgid "Add alternate sources for maximum HTML5 playback"
+msgstr ""
+
+#: php/media-template.php:1096 php/media-template.php:1195
+msgid "Preload"
+msgstr ""
+
+#: php/media-template.php:1100 php/media-template.php:1199
+msgid "Metadata"
+msgstr ""
+
+#: php/media-template.php:1109 php/media-template.php:1208
+msgid "Autoplay"
+msgstr ""
+
+#: php/media-template.php:1114 php/media-template.php:1213
+msgid "Loop"
+msgstr ""
+
+#: php/media-template.php:1153 php/media-template.php:1167
+msgid "Remove video source"
+msgstr ""
+
+#: php/media-template.php:1188
+msgid "Poster Image"
+msgstr ""
+
+#: php/media-template.php:1190
+msgid "Remove poster image"
+msgstr ""
+
+#: php/media-template.php:1224 php/media-template.php:1240
+msgid "Tracks (subtitles, captions, descriptions, chapters, or metadata)"
+msgstr ""
+
+#: php/media-template.php:1230
+#, php-format
+msgid ""
+"The %1$s, %2$s, and %3$s values can be edited to set the video track "
+"language and kind."
+msgstr ""
+
+#: php/media-template.php:1241
+msgid "There are no associated subtitles."
+msgstr ""
+
+#: php/media-template.php:1275
+msgid "No items found."
+msgstr ""
+
+#: php/media-template.php:1288
+msgid "Preview"
+msgstr ""
+
+#: php/media-template.php:1289
+msgid "As a browser icon"
+msgstr ""
+
+#: php/media-template.php:1299
+msgid "As an app icon"
+msgstr ""

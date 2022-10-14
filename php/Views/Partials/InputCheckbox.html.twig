@@ -1,0 +1,46 @@
+{% if id is not empty %}
+    <div>
+        <input
+            type="checkbox"
+            name="{{ name }}"
+            id="{{ id }}"
+            {% if checked %}
+                checked="checked"
+            {% endif %}
+            {% if readonly %}
+                readonly="readonly"
+            {% endif %}
+            {% if disabled %}
+                disabled="disabled"
+            {% endif %}
+            {% if value %}
+                value="{{ value }}"
+            {% endif %}
+        >
+        <label for="{{ id }}">
+            {{ label }}
+        </label>
+    </div>
+{% else %}
+    <input
+        type="checkbox"
+        name="{{ name }}"
+        id="{{ name }}"
+        {% if checked %}
+            checked="checked"
+        {% endif %}
+        {% if readonly %}
+            readonly="readonly"
+        {% endif %}
+        {% if disabled %}
+            disabled="disabled"
+        {% endif %}
+        {% if value %}
+            value="{{ value }}"
+        {% endif %}
+        aria-describedby="{{ name }}_hint"
+    >
+    <p id="{{ name }}_hint">
+        {{ label }}
+    </p>
+{% endif %}

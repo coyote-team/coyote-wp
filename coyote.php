@@ -4,12 +4,13 @@ Plugin Name: Coyote
 Description: Integrate with a Coyote API to obtain media text descriptions.
 Plugin URI: http://wordpress.org/plugins/coyote/
 Author: Prime Access Consulting
-Version: 1.7
+Version: 2.0
 Author URI: https://www.pac.bz
  */
 
-// Exit if accessed directly.
-if (!defined( 'ABSPATH')) {
+use Coyote\WordPressPlugin;
+
+if (!defined('WPINC')) {
     exit;
 }
 
@@ -31,61 +32,16 @@ define('COYOTE_PLUGIN_NAME', 'coyote');
 define('COYOTE_I18N_NS', 'coyote');
 define('COYOTE_PLUGIN_FILE', __FILE__);
 define('COYOTE_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('COYOTE_VERSION', '0.0.1');
 define('COYOTE_HOOK_MEDIA_SCREENS', ['post', 'page', 'upload', 'ch_events']);
+define('COYOTE_TRANSLATION_REL_PATH', dirname(plugin_basename(__FILE__)) . '/languages');
 
 /**
  * @param string $path
  * @return string
  */
-function coyote_plugin_file(string $path) {
-    return _coyote_file('php', $path);
-}
-
-/**
- * @param string $path
- * @return string
- */
-function coyote_sql_file(string $path) {
-    return _coyote_file('sql', $path);
-}
-
-/**
- * @param string $path
- * @return string
- */
-function coyote_asset_url(string $path) {
+function coyoteAssetURL(string $path): string
+{
     return plugin_dir_url(__FILE__) . DIRECTORY_SEPARATOR . 'asset' . DIRECTORY_SEPARATOR . $path;
 }
 
-/**
- * @param string $type
- * @param string $path
- * @return string
- */
-function _coyote_file(string $type, string $path) {
-    return COYOTE_PLUGIN_PATH . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $path;
-}
-
-/**
- * @param int $attachment_id
- * @return string
- */
-function coyote_attachment_url($attachment_id) {
-    $url = wp_get_attachment_url($attachment_id);
-
-    $parts = wp_parse_url($url);
-
-    if ($parts === false) {
-        return false;
-    }
-
-    return '//' . $parts['host'] . esc_url($parts['path']);
-}
-
-require_once coyote_plugin_file('classes/class.plugin.php');
-
-use Coyote\Plugin;
-
-global $coyote_plugin;
-$coyote_plugin = new Plugin(COYOTE_PLUGIN_FILE, COYOTE_VERSION, is_admin());
+(new WordPressPlugin(COYOTE_PLUGIN_FILE));

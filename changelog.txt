@@ -1,5 +1,8 @@
 == Changelog ==
 
+=2.0=
+Major refactor, including separate API client and post content parser
+
 =1.7=
 Check for required functions when interfacing with classic editor
 
