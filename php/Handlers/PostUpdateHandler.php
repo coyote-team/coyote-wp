@@ -92,6 +92,10 @@ class PostUpdateHandler
             $payload->addResource($resource);
         }
 
+        if (count($payload->resources) === 0) {
+            return;
+        }
+
         $resources = WordPressCoyoteApiClient::createResources($payload);
 
         if (is_null($resources)) {

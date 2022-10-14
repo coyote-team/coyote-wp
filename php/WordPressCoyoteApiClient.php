@@ -21,6 +21,10 @@ class WordPressCoyoteApiClient
     /** @return ResourceModel[]|null */
     public static function createResources(CreateResourcesPayload $payload): ?array
     {
+        if (count($payload->resources) === 0) {
+            return [];
+        }
+
         $resources = self::createApiClient()->createResources($payload);
 
         if (is_null($resources)) {
