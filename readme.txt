@@ -1,7 +1,7 @@
 === Coyote ===
 Contributors: jkva
 Requires at least: 5.0.0
-Tested up to: 6.2
+Tested up to: 6.0
 Requires PHP: 7.0
 Stable tag: 2.0
 License: GPLv2 or later
