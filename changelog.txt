@@ -1,6 +1,8 @@
 == Changelog ==
 
-=2.0=
+=2.1=
+* Scope dependencies via php-scoper
+
 =2.0=
 * Significant rewrite
 * Support for custom post types
