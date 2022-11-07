@@ -12,7 +12,8 @@
         "classmap": ["php/"]
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.6"
+        "squizlabs/php_codesniffer": "^3.6",
+        "humbug/php-scoper": "^0.17.5"
     },
     "minimum-stability": "stable"
 }
