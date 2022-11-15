@@ -9,11 +9,27 @@
         "twig/twig": "^3.0"
     },
     "autoload" : {
-        "classmap": ["php/"]
+        "classmap": [
+            "php/",
+            "vendor_prefixed/"
+        ]
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.6",
         "humbug/php-scoper": "^0.17.5"
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "scripts": {
+        "prefix-dependencies": [
+            "composer prefix-monolog",
+            "composer prefix-psr"
+        ],
+        "prefix-monolog": [
+            "@php ./vendor/humbug/php-scoper/bin/php-scoper add-prefix --prefix=PAC_Vendor --output-dir=./vendor_prefixed/monolog --config=config/scoper.monolog.php --force --quiet"
+        ],
+        "prefix-psr": [
+            "@php ./vendor/humbug/php-scoper/bin/php-scoper add-prefix --prefix=PAC_Vendor --output-dir=./vendor_prefixed/psr --config=config/scoper.psr.php --force --quiet"
+        ]
+
+    }
 }
