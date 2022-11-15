@@ -3,7 +3,8 @@
 namespace Coyote\Traits;
 
 use Coyote\WordPressPlugin;
-use Monolog\Handler\StreamHandler;
+use PAC_Vendor\Monolog\Logger as MonologLogger;
+use PAC_Vendor\Monolog\Handler\StreamHandler;
 
 if (!defined('WPINC')) {
     exit;
@@ -13,22 +14,22 @@ trait Logger
 {
     public static function logInfo(string $message, $data = []): void
     {
-        self::log($message, $data, \Monolog\Logger::INFO, get_called_class());
+        self::log($message, $data, MonologLogger::INFO, get_called_class());
     }
 
     public static function logWarning(string $message, $data = []): void
     {
-        self::log($message, $data, \Monolog\Logger::WARNING, get_called_class());
+        self::log($message, $data, MonologLogger::WARNING, get_called_class());
     }
 
     public static function logDebug(string $message, $data = []): void
     {
-        self::log($message, $data, \Monolog\Logger::DEBUG, get_called_class());
+        self::log($message, $data, MonologLogger::DEBUG, get_called_class());
     }
 
     public static function logError(string $message, $data = []): void
     {
-        self::log($message, $data, \Monolog\Logger::ERROR, get_called_class());
+        self::log($message, $data, MonologLogger::ERROR, get_called_class());
     }
 
     private static function log(string $message, array $payload, int $level, string $class): void
@@ -36,9 +37,9 @@ trait Logger
         self::logger()->log($level, $message, array_merge($payload, ['class' => $class]));
     }
 
-    private static function logger(): \Monolog\Logger
+    private static function logger(): MonologLogger
     {
-        $logger = new \Monolog\Logger(WordPressPlugin::PLUGIN_NAME);
+        $logger = new MonologLogger(WordPressPlugin::PLUGIN_NAME);
         $handler = new StreamHandler(WordPressPlugin::LOG_PATH, \Monolog\Logger::DEBUG);
         $logger->pushHandler($handler);
         return $logger;

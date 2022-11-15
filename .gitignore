@@ -3,7 +3,7 @@ node_modules/
 *.swo
 .idea/
 vendor/
+vendor_prefixed/
 .phpunit.result.cache
 coyote.log
-/build/
 composer.lock
