@@ -45,7 +45,7 @@ class WordPressActionsAndFilters
     {
         self::logDebug('Filters enabled.');
 
-        add_filter('the_content', [Filters::class, 'filterPostContent'], 10, 1);
+        add_filter('the_content', [Filters::class, 'filterPostContent'], 255, 1);
         add_filter('wp_prepare_attachment_for_js', [Filters::class, 'filterAttachmentForJavaScript'], 10, 3);
         add_filter('wp_get_attachment_image_attributes', [Filters::class, 'filterAttachmentImageAttributes'], 10, 3);
 
