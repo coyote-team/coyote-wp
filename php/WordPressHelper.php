@@ -144,11 +144,11 @@ class WordPressHelper
         return $payload;
     }
 
-    public static function setImageAlts(WP_Post $post, bool $fetchFromApiIfMissing = true): string
+    public static function setImageAlts(string $postID, string $postContent, bool $fetchFromApiIfMissing = true): string
     {
-        $helper = new ContentHelper($post->post_content);
+        $helper = new ContentHelper($postContent);
         $images = $helper->getImages();
-        $permalink = get_permalink($post->ID);
+        $permalink = get_permalink($postID);
 
         $imageMap = [];
         $missingImages = [];
