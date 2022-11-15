@@ -47,7 +47,13 @@ class Filters
             return $postContent;
         }
 
-        return WordPressHelper::setImageAlts($post, PluginConfiguration::isEnabled());
+        $shouldFilter = (is_single() || is_page()) && in_the_loop() && is_main_query();
+
+        if ($shouldFilter) {
+            return $postContent;
+        }
+
+        return WordPressHelper::setImageAlts($post->ID, $postContent, PluginConfiguration::isEnabled());
     }
 
     // used in the media template
