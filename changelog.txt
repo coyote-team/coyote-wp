@@ -2,6 +2,7 @@
 
 =2.1=
 * Scope dependencies via php-scoper
+* Fix content parsing bug
 
 =2.0=
 * Significant rewrite

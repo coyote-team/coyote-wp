@@ -28,6 +28,7 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 
 =2.1=
 * Scope dependencies via php-scoper
+* Fix content parsing bug
 
 =2.0=
 * Significant rewrite
