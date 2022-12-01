@@ -2,6 +2,7 @@
 
 namespace Coyote;
 
+use Coyote\Model\MembershipModel;
 use Coyote\Traits\Logger;
 use Coyote\Model\ProfileModel;
 use Coyote\Model\ResourceGroupModel;
@@ -116,6 +117,34 @@ class WordPressCoyoteApiClient
     {
         self::logDebug("Coyote API error: $message");
         PluginConfiguration::raiseApiErrorCount();
+    }
+
+    public static function tokenHasOrganizationPermissions(): bool
+    {
+        return !empty(self::getValidOrganizations());
+    }
+
+    public static function getValidOrganizations(): array
+    {
+        return CoyoteApiClientHelperFunctions::getOrganizationsFilteredForMembershipRoles(
+            self::getVersionedApiURI(),
+            PluginConfiguration::getApiToken(),
+            PluginConfiguration::ALLOWED_ROLES
+        );
+    }
+
+    public static function getOrganizationMembership(ProfileModel $profile = null, string $organisationId = null): ?MembershipModel
+    {
+        if (is_null($profile) || is_null($organisationId)) {
+            return null;
+        }
+
+        return CoyoteApiClientHelperFunctions::getOrganisationMembershipWithName(
+            self::getVersionedApiURI(),
+            PluginConfiguration::getApiToken(),
+            $organisationId,
+            $profile->getName()
+        );
     }
 
     private static function getVersionedApiURI(): string
