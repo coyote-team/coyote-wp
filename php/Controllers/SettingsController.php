@@ -2,6 +2,7 @@
 
 namespace Coyote\Controllers;
 
+use Coyote\Model\OrganizationModel;
 use Coyote\Traits\Logger;
 use Coyote\BatchImportHelper;
 use Coyote\DB;
@@ -259,13 +260,12 @@ class SettingsController
 
         if (is_null($profile)) {
             $this->profileFetchFailed = true;
-            // TODO these should be PluginConfiguration functions
             PluginConfiguration::deleteApiProfile();
             PluginConfiguration::deleteApiOrganizationId();
             return;
         }
 
-        $organizations = $profile->getOrganizations();
+        $organizations = WordPressCoyoteApiClient::getValidOrganizations();
 
         // default to the first organization if there is only one available
         if (count($organizations) === 1) {
@@ -324,7 +324,7 @@ class SettingsController
         }
 
         PluginConfiguration::setApiProfile($profile);
-        $organizations = PluginConfiguration::getAllowedOrganizationsInProfile($profile);
+        $organizations = WordPressCoyoteApiClient::getValidOrganizations();
 
         // default to the first organization if there is only one available
         if (count($organizations) === 1) {
@@ -358,7 +358,7 @@ class SettingsController
             'pageTitle' => $this->mainPageTitle,
             'isStandalone' => $this->isStandalone,
             'profile' => $this->profile,
-            'membership' => PluginConfiguration::getOrganizationMembership(PluginConfiguration::getApiOrganizationId()),
+            'membership' => WordPressCoyoteApiClient::getOrganizationMembership($this->profile, PluginConfiguration::getApiOrganizationId()),
             'profileFetchFailed' => $this->profileFetchFailed,
             'settingsSlug' => self::MAIN_SETTINGS_SLUG
         ]);
@@ -488,7 +488,10 @@ class SettingsController
 
     public function sanitizeOrganizationID($organizationId): ?string
     {
-        return (PluginConfiguration::isOrganizationRoleAllowed($organizationId)) ? esc_html($organizationId) : null;
+        $organizations = WordPressCoyoteApiClient::getValidOrganizations();
+        return count(array_filter($organizations, function (OrganizationModel $org) use($organizationId): bool {
+            return $org->getId() === $organizationId;
+        })) === 1 ? esc_html($organizationId) : null;
     }
 
     public function init()
@@ -608,7 +611,7 @@ class SettingsController
          * Check if profile is set and the profile has valid organizations
          * This renders the organization field
          */
-        if ($this->profile && PluginConfiguration::profileHasAllowedOrganizationRoles($this->profile)) {
+        if ($this->profile && WordPressCoyoteApiClient::tokenHasOrganizationPermissions()) {
             add_settings_field(
                 'coyote_api_organization_id',
                 __('Organization', WordPressPlugin::I18N_NS),
@@ -617,7 +620,7 @@ class SettingsController
                 self::API_SETTINGS_SECTION,
                 ['label_for' => 'coyote_api_organization_id']
             );
-        } elseif ($this->profile && !PluginConfiguration::profileHasAllowedOrganizationRoles($this->profile)) {
+        } elseif ($this->profile && !WordPressCoyoteApiClient::tokenHasOrganizationPermissions()) {
             /*
              * Show an error notice when no valid organizations are found
              */
@@ -794,7 +797,7 @@ class SettingsController
             'name' => 'coyote_api_organization_id',
             'label' => __('The metum used by the API to categorise image descriptions, e.g. "Alt".', WordPressPlugin::I18N_NS),
             'notSingleLabel' => __('--select an organization--', WordPressPlugin::I18N_NS),
-            'options' => PluginConfiguration::getAllowedOrganizationsInProfile($this->profile),
+            'options' => WordPressCoyoteApiClient::getValidOrganizations(),
             'currentOption' => PluginConfiguration::getApiOrganizationId(),
             'alert' => [
                 'id' => 'coyote_org_change_alert',

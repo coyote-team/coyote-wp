@@ -176,16 +176,20 @@ class PluginConfiguration
     /**
      * @param ProfileModel $profile
      *
-     * @return array
+     * @return OrganizationModel[]
      */
     public static function getAllowedOrganizationsInProfile(ProfileModel $profile): array
     {
-        return array_filter($profile->getOrganizations(), function (OrganizationModel $org): bool {
-            return in_array(
-                PluginConfiguration::getOrganizationMembershipRole($org->getId()),
-                PluginConfiguration::ALLOWED_ROLES
-            );
-        });
+        $validMemberships = array_filter(
+            $profile->getMemberships() ?? [],
+            function (MembershipModel $membership): bool {
+                return in_array($membership->getRole(), PluginConfiguration::ALLOWED_ROLES);
+            }
+        );
+
+        return array_map(function (MembershipModel $membership): OrganizationModel {
+            return $membership->getOrganization();
+        }, $validMemberships);
     }
 
     public static function isStandalone(): bool
