@@ -40,7 +40,11 @@ class WordPressPlugin
             (new SettingsController());
         }
 
-        if (PluginConfiguration::hasStoredApiProfile() && PluginConfiguration::hasUpdatesEnabled()) {
+        if (
+            PluginConfiguration::hasStoredApiProfile() &&
+            PluginConfiguration::hasUpdatesEnabled() &&
+            !is_null(PluginConfiguration::getApiOrganizationId())
+        ) {
             // allow remote updates
             self::logDebug('Updates enabled.');
 
