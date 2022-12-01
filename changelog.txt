@@ -1,5 +1,9 @@
 == Changelog ==
 
+=2.2=
+* Ignore whitespace image captions
+* Filter organization memberships by role
+
 =2.1=
 * Scope dependencies via php-scoper
 * Fix content parsing bug

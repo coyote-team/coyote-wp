@@ -3,7 +3,7 @@ Contributors: jkva
 Requires at least: 5.0.0
 Tested up to: 6.0
 Requires PHP: 7.0
-Stable tag: 2.1
+Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,10 @@ The plugin may also query the Coyote service to provide necessary functionality.
 Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
 == Changelog ==
+
+=2.2=
+* Ignore whitespace image captions
+* Filter organization memberships by role
 
 =2.1=
 * Scope dependencies via php-scoper

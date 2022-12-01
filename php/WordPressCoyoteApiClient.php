@@ -133,16 +133,16 @@ class WordPressCoyoteApiClient
         );
     }
 
-    public static function getOrganizationMembership(ProfileModel $profile = null, string $organisationId = null): ?MembershipModel
+    public static function getOrganizationMembership(ProfileModel $profile = null, string $organizationId = null): ?MembershipModel
     {
-        if (is_null($profile) || is_null($organisationId)) {
+        if (is_null($profile) || is_null($organizationId)) {
             return null;
         }
 
         return CoyoteApiClientHelperFunctions::getOrganisationMembershipWithName(
             self::getVersionedApiURI(),
             PluginConfiguration::getApiToken(),
-            $organisationId,
+            $organizationId,
             $profile->getName()
         );
     }
