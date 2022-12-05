@@ -175,7 +175,8 @@ class WordPressHelper
             }
         }
 
-        if ($fetchFromApiIfMissing && count($missingImages) > 0) {
+        // if $missingImages contains items, it implies fetching from the API
+        if (count($missingImages) > 0) {
             $imageMap = self::fetchImagesFromApi($imageMap, $missingImages, $payload);
         }
 
@@ -195,22 +196,22 @@ class WordPressHelper
 
         foreach ($response as $resourceModel) {
             $uri = $resourceModel->getSourceUri();
-            $imageSrc = $missingImages[$uri]['src'];
+            $hash = sha1($uri);
+            $originalSrc = $missingImages[$uri]['src'];
+            $originalAlt = $missingImages[$uri]['alt'];
 
+            $coyoteId = $resourceModel->getId();
             $representation = $resourceModel->getTopRepresentationByMetum(PluginConfiguration::METUM);
+
             if (is_null($representation)) {
-                DB::InsertRecord(sha1($imageSrc), $imageSrc, $missingImages[$uri]['alt'], $resourceModel->getId(), '');
+                DB::InsertRecord($hash, $uri, $originalAlt, $coyoteId, '');
                 continue;
             }
 
-            DB::InsertRecord(
-                sha1($imageSrc),
-                $imageSrc,
-                $missingImages[$uri]['alt'],
-                $resourceModel->getId(),
-                $representation->getText()
-            );
-            $imageMap[$uri] = $representation->getText();
+            $coyoteAlt = $representation->getText();
+
+            DB::InsertRecord($hash, $uri, $originalAlt, $coyoteId, $coyoteAlt);
+            $imageMap[$originalSrc] = $coyoteAlt;
         }
 
         return $imageMap;
