@@ -26,6 +26,9 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 
 == Changelog ==
 
+=2.3=
+* Upgrade coyote-api-client version
+
 =2.2=
 * Ignore whitespace image captions
 * Filter organization memberships by role
