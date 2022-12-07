@@ -4,7 +4,7 @@
         "psr/log": "^1.1",
         "ext-json": "*",
         "coyote/coyote-php-content-helper": "^1.0.5",
-        "coyote/coyote-api-client": "^1.0.22",
+        "coyote/coyote-api-client": "^1.0.23",
         "monolog/monolog": "^2.6",
         "twig/twig": "^3.0"
     },
