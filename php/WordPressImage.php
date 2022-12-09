@@ -97,9 +97,9 @@ class WordPressImage
 
     private function findCaption(): ?string
     {
-        $caption = $this->image->getFigureCaption();
+        $caption = trim($this->image->getFigureCaption() ?? "");
 
-        if (!is_null($caption)) {
+        if (strlen($caption) > 0) {
             return $caption;
         }
 
