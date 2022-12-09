@@ -293,6 +293,20 @@ class PluginConfiguration
         update_option('coyote_api_resource_group_id', $id);
     }
 
+    public static function getProcessingBatchSize(): int
+    {
+        return get_option('coyote_processing_batch_size', 50);
+    }
+
+    public static function setProcessingBatchSize(int $size): void
+    {
+        if ($size <= 0) {
+            $size = 50;
+        }
+
+        update_option('coyote_processing_batch_size', $size);
+    }
+
     public static function getApiProfile(): ?ProfileModel
     {
         return self::possiblyMigrateApiProfile(get_option('coyote_api_profile', null));
@@ -386,7 +400,8 @@ class PluginConfiguration
             'coyote_api_metum',
             'coyote_api_organization_id',
             'coyote_api_profile',
-            'coyote_filters_enabled', 'coyote_updates_enabled', 'coyote_processor_endpoint',
+            'coyote_filters_enabled',
+            'coyote_updates_enabled',
             'coyote_plugin_is_installed',
             'coyote_plugin_version'
         ];

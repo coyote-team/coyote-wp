@@ -10,49 +10,84 @@ if (!defined('WPINC')) {
 
 class BatchImportController
 {
-    private const MINIMUM_BATCH_SIZE = 10;
-    private const MAXIMUM_BATCH_SIZE = 200;
+    const REFERER_KEY = 'coyote_ajax';
 
-    public static function ajaxSetBatchJob(): void
+    public static function ajaxStartBatchJob(): void
     {
         session_write_close();
-        check_ajax_referer('coyote_ajax');
+        check_ajax_referer(self::REFERER_KEY);
 
-        $jobID = sanitize_text_field($_POST['job_id']);
-        $jobType = sanitize_text_field($_POST['job_type']);
+        $job = BatchImportHelper::createBatchJob();
 
-        BatchImportHelper::setBatchJob($jobID, $jobType);
-
-        echo true;
+        echo $job->getId();
 
         wp_die();
     }
 
-    public static function ajaxClearBatchJob(): void
+    public static function ajaxCancelBatchJob(): void
     {
         session_write_close();
-        check_ajax_referer('coyote_ajax');
+        check_ajax_referer(self::REFERER_KEY);
 
-        BatchImportHelper::clearBatchJob();
+        $id = $_POST['id'];
+        BatchImportHelper::clearBatchJob($id);
 
-        echo true;
+        echo "1";
 
         wp_die();
     }
 
-    public static function ajaxLoadProcessBatch(): void
+    public static function ajaxRunBatchJob(): void
     {
         session_write_close();
+        check_ajax_referer(self::REFERER_KEY);
 
-        $batchSize = intval($_GET['size']);
+        $id = $_POST['id'];
 
-        if ($batchSize < self::MINIMUM_BATCH_SIZE) {
-            $batchSize = self::MINIMUM_BATCH_SIZE;
-        } elseif ($batchSize > self::MAXIMUM_BATCH_SIZE) {
-            $batchSize = self::MAXIMUM_BATCH_SIZE;
+        if (intval($id) === 0) {
+            echo "0";
+            wp_die();
         }
 
-        echo json_encode(BatchImportHelper::getProcessBatch($batchSize));
+        $job = BatchImportHelper::getBatchJob($id);
+
+        if (is_null($job)) {
+            echo "0";
+            wp_die();
+        }
+
+        try {
+            $result = $job->processNextBatch();
+
+            if ($job->isFinished()) {
+                BatchImportHelper::clearBatchJob($id);
+            }
+
+            BatchImportHelper::updateBatchJob($job);
+
+            echo json_encode($result);
+        } catch (\Exception $e) {
+            echo "0";
+        }
+
+        wp_die();
+    }
+
+    public static function ajaxResizeBatchJob(): void
+    {
+        session_write_close();
+        check_ajax_referer(self::REFERER_KEY);
+
+        $id = $_POST['id'];
+
+        if (intval($id) === 0) {
+            echo "0";
+            wp_die();
+        }
+
+        BatchImportHelper::decreaseBatchSize($id);
+
+        echo "1";
 
         wp_die();
     }
