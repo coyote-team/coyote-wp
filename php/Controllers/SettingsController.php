@@ -181,7 +181,7 @@ class SettingsController
         $this->profileFetchFailed = false;
         $this->profile = $this->getProfile();
 
-        $this->batchJob = BatchImportHelper::getBatchJob();
+        $this->batchJob = BatchImportHelper::getCurrentBatchJob();
 
         /*
          * Check if standalone mode is active
@@ -248,9 +248,8 @@ class SettingsController
         wp_localize_script('coyote_settings_js', 'coyote_ajax_obj', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('coyote_ajax'),
-            'endpoint' => esc_url(get_option('coyote_processor_endpoint')),
-            'job_id' => $this->batchJob ? $this->batchJob['id'] : null,
-            'job_type' => $this->batchJob ? $this->batchJob['type'] : null,
+            'job_id' => $this->batchJob ? $this->batchJob->getId() : null,
+            'job_progress' => $this->batchJob ? $this->batchJob->getProgress() : 0
         ]);
     }
 
@@ -400,10 +399,10 @@ class SettingsController
         echo $this->twig->render('ToolsPage.html.twig', [
             'pageTitle' => $this->toolsSubpageTitle,
             'isStandalone' => $this->isStandalone,
-            'emptyOrganizationOption' => empty(get_option('coyote_api_organization_id')),
+            'emptyOrganizationOption' => empty(PluginConfiguration::getApiOrganizationId()),
             'processEndpoint' => 'https://processor.coyote.pics',
             'batchJob' => $this->batchJob,
-            'batchSize' => esc_html(get_option('coyote_processing_batch_size', 50)),
+            'batchSize' => esc_html(PluginConfiguration::getProcessingBatchSize()),
         ]);
     }
 
@@ -557,15 +556,6 @@ class SettingsController
                 self::ADVANCED_SETTINGS_SLUG,
                 'coyote_plugin_processed_post_types',
                 ['type' => 'array']
-            );
-
-            /*
-             * Register admin subpage tools settings
-             */
-            register_setting(
-                self::TOOLS_SETTINGS_SLUG,
-                'coyote_processor_endpoint',
-                ['type' => 'string', 'sanitize_callback' => [$this, 'sanitizeEndpoint']]
             );
         }
 

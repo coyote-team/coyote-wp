@@ -24,17 +24,11 @@
                 {% set processStatusHidden  = 'hidden' %}
             {% endif %}
 
-            <p>{{ __('Using a remote service, your WordPress installation will be queried remotely and this process will populate the associated Coyote organisation. Depending on your WordPress installation, this process may take a while to complete.') }}</p>
+            <p>{{ __('This process will populate the associated Coyote organisation by processing all existing posts. Depending on your WordPress installation, this process may take a while to complete.') }}</p>
             <p>{{ __('If the status of the processing job keeps resulting in an error, consider decreasing the batch size.') }}</p>
             <p>{{ __('This process does not modify your WordPress content itself, and may be used more than once.') }}</p>
 
             <div id="process-existing-posts">
-                <div class="form-group">
-                    <label for="coyote_processor_endpoint">
-                        {{ __('Processor endpoint') }}
-                    </label>
-                    <input readonly {{ processDisabled }} id="coyote_processor_endpoint" name="coyote_processor_endpoint" type="text" size="50" maxlength="100" value={{ processEndpoint }}>
-                </div>
                 <div class="form-group">
                     <label for="coyote_batch_size">
                         {{ __('Batch size') }}:

@@ -28,7 +28,28 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const errorStatus = () => statusSpan.textContent = 'error';
 
-    const processorEndpoint = byId('coyote_processor_endpoint') && byId('coyote_processor_endpoint').value;
+    let currentJob = undefined;
+
+    if ('job_id' in coyote_ajax_obj) {
+        currentJob = {
+            id: coyote_ajax_obj.job_id,
+            status: 'running',
+            progress: coyote_ajax_obj.job_progress
+        }
+
+        percentageSpan.textContent = currentJob.progress;
+        statusSpan.textContent = currentJob.status;
+    }
+
+
+    const formDataForAction = action => {
+        const formData = new FormData();
+
+        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
+        formData.append('action', action);
+
+        return formData;
+    }
 
     const load = () => {
         if (verifyResourceGroupButton) {
@@ -44,8 +65,8 @@ window.addEventListener('DOMContentLoaded', function () {
             processExistingPostsButton.addEventListener('click', startProcessing);
             cancelProcessingButton.addEventListener('click', cancelProcessing);
 
-            if (processExistingPostsButton.hasAttribute('disabled')) {
-                return updateProgress()
+            if (currentJob !== undefined) {
+                return runJob()
                     .then(() => {
                         enable(cancelProcessingButton);
                     })
@@ -61,38 +82,35 @@ window.addEventListener('DOMContentLoaded', function () {
         disable(verifyResourceGroupButton);
         verifyResourceGroupStatus.textContent = "Verifying resource group...";
 
-        const formData = new FormData();
-
-        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-        formData.append('action', 'coyote_verify_resource_group');
+        const formData = formDataForAction('coyote_verify_resource_group');
 
         fetch(coyote_ajax_obj.ajax_url, {
             mode: 'cors',
             method: 'POST',
             body: formData
         })
-        .then(response => response.text())
-        .then(reply => reply.trim())
-        .then(reply => {
-            if (!reply.length) {
+            .then(response => response.text())
+            .then(reply => reply.trim())
+            .then(reply => {
+                if (!reply.length) {
+                    verifyResourceGroupStatus.textContent = "Error verifying resource group.";
+                } else {
+                    verifyResourceGroupStatus.textContent = `Resource group verified with ID ${reply}.`;
+                }
+                enable(verifyResourceGroupButton);
+            })
+            .catch(error => {
+                console.debug("Verification error:", error);
                 verifyResourceGroupStatus.textContent = "Error verifying resource group.";
-            } else {
-                verifyResourceGroupStatus.textContent = `Resource group verified with ID ${reply}.`;
-            }
-            enable(verifyResourceGroupButton);
-        })
-        .catch(error => {
-            console.debug("Verification error:", error);
-            verifyResourceGroupStatus.textContent = "Error verifying resource group.";
-            enable(verifyResourceGroupButton);
-        });
+                enable(verifyResourceGroupButton);
+            });
     };
 
     const changeOrganization = function (oldId) {
         const changeAlert = coyoteOrganizationChangeAlert;
         return function () {
             const newId = coyoteOrganizationIdSelect.value;
-            if (oldId && (newId != oldId)) {
+            if (oldId && (newId !== oldId)) {
                 changeAlert.textContent = '';
                 changeAlert.textContent = changeAlert.dataset.message;
                 return;
@@ -105,100 +123,78 @@ window.addEventListener('DOMContentLoaded', function () {
         disable(processExistingPostsButton);
         enable(cancelProcessingButton);
 
-        const data = {
-            nonce: coyote_ajax_obj.nonce,
-            host: coyote_ajax_obj.ajax_url,
-            batchSize: byId('coyote_batch_size').value
-        };
+        const formData = formDataForAction('coyote_start_batch_job');
+        formData.size = byId('coyote_batch_size').value;
 
-        fetch(`${processorEndpoint}/jobs/`, {
+        fetch(coyote_ajax_obj.ajax_url, {
             mode: 'cors',
             method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            body: formData
         })
-        .then(response => response.text())
-        .then(setProcessingJob)
-        .then(reply => {
-            if (reply.trim() == "1") {
-                disable(processExistingPostsButton);
-                hide(processingComplete);
-                show(processingStatus);
-                show(processingContainer);
-                updateProgress();
-            }
-        })
-        .catch((error) => {
-            console.debug("Error: ", error);
-            errorStatus();
-            enable(cancelProcessingButton);
-        });
+            .then(response => response.text())
+            .then(getJobId)
+            .then(jobId => {
+                if (jobId !== undefined) {
+                    currentJob = {
+                        id: jobId,
+                        status: 'created',
+                        progress: 0
+                    };
+
+                    percentageSpan.textContent = currentJob.progress;
+                    statusSpan.textContent = currentJob.status;
+
+                    cancelProcessingButton.addEventListener('click', cancelProcessing);
+                    disable(processExistingPostsButton);
+                    hide(processingComplete);
+                    show(processingStatus);
+                    show(processingContainer);
+
+                    runJob();
+                } else {
+                    console.debug("Unable to obtain job id!")
+                    errorStatus();
+                    enable(cancelProcessingButton);
+                }
+            })
+            .catch((error) => {
+                console.debug("Error: ", error);
+                errorStatus();
+                enable(cancelProcessingButton);
+            });
     };
 
-    const setProcessingJob = function (responseText) {
-        try {
-            const data = JSON.parse(responseText);
+    const getJobId = function (responseText) {
+        const response = responseText.trim();
 
-            const formData = new FormData();
-            formData.append('action', 'coyote_set_batch_job');
-            formData.append('job_id', data.id);
-            formData.append('job_type', 'process');
-            formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-
-            return fetch(coyote_ajax_obj.ajax_url, {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                coyote_ajax_obj['job_id'] = data.id;
-                return response.text();
-            });
-        } catch (e) {
-            console.error("Error: ", e);
-            return Promise.reject("Invalid json");
+        if (response === "0" || response === "") {
+            return undefined;
         }
-    }
 
-    const cancelJob = function () {
-        if (coyote_ajax_obj.job_id) {
-            job_id = coyote_ajax_obj.job_id;
-            delete coyote_ajax_obj.job_id;
-
-            return fetch(`${processorEndpoint}/jobs/${job_id}`, {
-                mode: 'cors',
-                method: 'DELETE',
-            });
-        }
-        return Promise.resolve();
+        return response;
     }
 
     const cancelProcessing = function () {
-        const formData = new FormData();
+        const formData = formDataForAction('coyote_cancel_batch_job');
+        formData.append('id', currentJob.id);
 
-        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-        formData.append('action', 'coyote_cancel_batch_job');
-
-        cancelJob().then(() => {
-            fetch(coyote_ajax_obj.ajax_url, {
-                mode: 'cors',
-                method: 'POST',
-                body: formData
-            })
+        fetch(coyote_ajax_obj.ajax_url, {
+            mode: 'cors',
+            method: 'POST',
+            body: formData
+        })
             .then(response => response.text())
             .then(reply => {
-                statusSpan.innerText = "cancelled";
+                currentJob = undefined;
+                statusSpan.innerText = "canceled";
                 enable(processExistingPostsButton);
                 disable(cancelProcessingButton);
             });
-        });
     }
 
-    const clearBatchJob = function () {
-        const formData = new FormData();
-
-        formData.append('_ajax_nonce', coyote_ajax_obj.nonce);
-        formData.append('action', 'coyote_clear_batch_job');
+    const decreaseBatchSize = function () {
+        const formData = formDataForAction('coyote_resize_batch_job')
+        formData.append('id', currentJob.id);
 
         return fetch(coyote_ajax_obj.ajax_url, {
             mode: 'cors',
@@ -207,49 +203,54 @@ window.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const updateProgress = function () {
-        const update = (url) => {
-            if (!coyote_ajax_obj.job_id) {
-                return Promise.resolve();
+    const runJob = function () {
+        if (currentJob === undefined) {
+            return;
+        }
+
+        const formData = formDataForAction('coyote_run_batch_job')
+        formData.append('id', currentJob.id);
+
+        return fetch(coyote_ajax_obj.ajax_url, {
+            mode: 'cors',
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            data = data.trim();
+
+            if (data === "0") {
+                errorStatus();
+                return;
             }
 
-            return fetch(url)
-            .then(response => response.text())
-            .then(data => {
-                if (data.length) {
-                    try {
-                        data = JSON.parse(data);
-                    } catch (error) {
-                        console.error("Error:", error);
-                        errorStatus();
-                    }
-
-                    statusSpan.textContent = data.status;
-                    percentageSpan.textContent = data.progress;
-
-                    if (data.progress < 100 && data.status !== 'error') {
-                        setTimeout(() => update(url), 1000);
-                        return;
-                    }
+            if (data.length) {
+                try {
+                    data = JSON.parse(data);
+                } catch (error) {
+                    console.error("Error:", error);
+                    errorStatus();
                 }
 
-                clearBatchJob().then(() => {
-                    percentageSpan.textContent = 100;
-                    enable(processExistingPostsButton);
-                    disable(cancelProcessingButton);
-                    hide(processingContainer);
-                    show(processingComplete);
-                }).catch(errorStatus);
-            }).catch(() => {
-                // job does not exist
-                cancelProcessing()
-            });
-        };
+                statusSpan.textContent = data.status;
+                percentageSpan.textContent = data.progress;
 
-        // get this from the ajaxObj; job_id, job_type
-        const url = `${processorEndpoint}/jobs/${coyote_ajax_obj.job_id}`;
+                if (data.progress < 100 && data.status !== 'error') {
+                    setTimeout(runJob, 1000);
+                    return;
+                }
+            }
 
-        return update(url);
+            percentageSpan.textContent = 100;
+            enable(processExistingPostsButton);
+            disable(cancelProcessingButton);
+            hide(processingContainer);
+            show(processingComplete);
+        }).catch(() => {
+            // error during run, resize and try again
+            decreaseBatchSize().then(() => setTimeout(runJob, 500));
+        });
     };
 
     load();
