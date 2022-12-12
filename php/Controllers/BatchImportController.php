@@ -17,7 +17,9 @@ class BatchImportController
         session_write_close();
         check_ajax_referer(self::REFERER_KEY);
 
-        $job = BatchImportHelper::createBatchJob();
+        $size = intval($_POST['size']);
+
+        $job = BatchImportHelper::createBatchJob($size);
 
         echo $job->getId();
 

@@ -19,12 +19,12 @@ class BatchImportHelper
         }
     }
 
-    public static function createBatchJob(): BatchProcessingJob
+    public static function createBatchJob($size = 0): BatchProcessingJob
     {
         $job = new BatchProcessingJob(
             wp_generate_uuid4(),
             PluginConfiguration::getProcessedPostTypes(),
-            PluginConfiguration::getProcessingBatchSize(),
+            $size || PluginConfiguration::getProcessingBatchSize(),
             PluginConfiguration::getApiResourceGroupId(),
             PluginConfiguration::isProcessingUnpublishedPosts()
         );
