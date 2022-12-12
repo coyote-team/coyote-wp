@@ -12,6 +12,10 @@ class BatchImportController
 {
     const REFERER_KEY = 'coyote_ajax';
 
+    private static function isValidId(string $id) {
+        return preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $id);
+    }
+
     public static function ajaxStartBatchJob(): void
     {
         session_write_close();
@@ -32,9 +36,16 @@ class BatchImportController
         check_ajax_referer(self::REFERER_KEY);
 
         $id = $_POST['id'];
-        BatchImportHelper::clearBatchJob($id);
 
-        echo "1";
+        if (!self::isValidId($id)) {
+            echo "0";
+            wp_die();
+        }
+
+        echo BatchImportHelper::clearBatchJob($id)
+            ? "1"
+            : "0"
+        ;
 
         wp_die();
     }
@@ -46,7 +57,7 @@ class BatchImportController
 
         $id = $_POST['id'];
 
-        if (intval($id) === 0) {
+        if (!self::isValidId($id)) {
             echo "0";
             wp_die();
         }
@@ -63,13 +74,13 @@ class BatchImportController
 
             if ($job->isFinished()) {
                 BatchImportHelper::clearBatchJob($id);
+            } else {
+                BatchImportHelper::updateBatchJob($job);
             }
-
-            BatchImportHelper::updateBatchJob($job);
 
             echo json_encode($result);
         } catch (\Exception $e) {
-            echo "0";
+            echo "-1";
         }
 
         wp_die();
@@ -82,7 +93,7 @@ class BatchImportController
 
         $id = $_POST['id'];
 
-        if (intval($id) === 0) {
+        if (!self::isValidId($id)) {
             echo "0";
             wp_die();
         }
