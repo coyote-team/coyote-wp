@@ -242,6 +242,11 @@ class BatchProcessingJob
             return;
         }
 
+        if ($this->size - self::DECREASE_BATCH_SIZE_STEP < self::MIN_BATCH_SIZE) {
+            $this->size = self::MIN_BATCH_SIZE;
+            return;
+        }
+
         $this->size -= self::DECREASE_BATCH_SIZE_STEP;
     }
 }
