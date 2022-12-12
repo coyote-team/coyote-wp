@@ -68,38 +68,21 @@ class BatchProcessingJob
         $this->validStatuses = array_unique(array_merge($this->validStatuses, $statuses));
     }
 
-    public function addValidPostTypes(array $types): void
-    {
-        $this->validPostTypes = array_unique(array_merge($this->validPostTypes, $types));
-    }
-
-    /**
-     * @return string
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return int
-     */
     public function getOffset(): int
     {
         return $this->offset;
     }
 
-    /**
-     * @param int $offset
-     */
     private function increaseOffset(int $n): void
     {
         $this->offset += $n;
     }
 
-    /**
-     * @return int
-     */
     public function getSize(): int
     {
         return $this->size;

@@ -10,13 +10,15 @@ class BatchImportHelper
 {
     private const TRANSIENT_KEY = 'coyote_batch_job';
 
-    public static function clearBatchJob(string $id): void
+    public static function clearBatchJob(string $id): bool
     {
         $job = self::getBatchJob($id);
 
         if (!is_null($job)) {
-            delete_transient(self::TRANSIENT_KEY);
+            return delete_transient(self::TRANSIENT_KEY);
         }
+
+        return false;
     }
 
     public static function createBatchJob($size = 0): BatchProcessingJob
@@ -35,20 +37,19 @@ class BatchImportHelper
 
     public static function updateBatchJob(BatchProcessingJob $job): void
     {
-        set_transient(self::TRANSIENT_KEY, $job);
+        # might have been cancelled in the meantime - verify
+        $current = self::getBatchJob($job->getId());
+
+        if (!is_null($current)) {
+            set_transient(self::TRANSIENT_KEY, $job);
+        }
     }
 
     public static function getCurrentBatchJob(): ?BatchProcessingJob
     {
-        /** @var BatchProcessingJob|false $job */
         $job = get_transient(self::TRANSIENT_KEY);
 
-        if ($job === false) {
-            return null;
-        }
-
-        if ($job->isFinished()) {
-            self::clearBatchJob($job->getId());
+        if (!is_a($job, BatchProcessingJob::class)) {
             return null;
         }
 
@@ -57,9 +58,9 @@ class BatchImportHelper
 
     public static function getBatchJob(string $id): ?BatchProcessingJob
     {
-        $job = get_transient(self::TRANSIENT_KEY);
+        $job = self::getCurrentBatchJob();
 
-        if ($job === false || is_null($job) || $job->getId() !== $id) {
+        if (is_null($job) || $job->getId() !== $id) {
             return null;
         }
 

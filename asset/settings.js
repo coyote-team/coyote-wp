@@ -1,6 +1,8 @@
 window.addEventListener('DOMContentLoaded', function () {
     console.debug('[Coyote]', 'settings loaded');
 
+    const STATUS_CANCELED = 'canceled';
+
     const hide = node => node.setAttribute('hidden', '');
     const show = node => node.removeAttribute('hidden');
 
@@ -30,7 +32,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     let currentJob = undefined;
 
-    if ('job_id' in coyote_ajax_obj) {
+    if ('job_id' in coyote_ajax_obj && !!coyote_ajax_obj.job_id) {
         currentJob = {
             id: coyote_ajax_obj.job_id,
             status: 'running',
@@ -124,7 +126,7 @@ window.addEventListener('DOMContentLoaded', function () {
         enable(cancelProcessingButton);
 
         const formData = formDataForAction('coyote_start_batch_job');
-        formData.size = byId('coyote_batch_size').value;
+        formData.append('size', byId('coyote_batch_size').value);
 
         fetch(coyote_ajax_obj.ajax_url, {
             mode: 'cors',
@@ -175,6 +177,8 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     const cancelProcessing = function () {
+        currentJob.status = STATUS_CANCELED;
+
         const formData = formDataForAction('coyote_cancel_batch_job');
         formData.append('id', currentJob.id);
 
@@ -185,7 +189,6 @@ window.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.text())
             .then(reply => {
-                currentJob = undefined;
                 statusSpan.innerText = "canceled";
                 enable(processExistingPostsButton);
                 disable(cancelProcessingButton);
@@ -204,8 +207,8 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     const runJob = function () {
-        if (currentJob === undefined) {
-            return;
+        if (currentJob.status === STATUS_CANCELED) {
+            return cancelProcessing();
         }
 
         const formData = formDataForAction('coyote_run_batch_job')
@@ -216,41 +219,46 @@ window.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: formData
         })
-        .then(response => response.text())
-        .then(data => {
-            data = data.trim();
-
-            if (data === "0") {
-                errorStatus();
-                return;
-            }
-
-            if (data.length) {
-                try {
-                    data = JSON.parse(data);
-                } catch (error) {
-                    console.error("Error:", error);
-                    errorStatus();
+            .then(response => response.text())
+            .then(data => {
+                if (currentJob.status === STATUS_CANCELED) {
+                    return cancelProcessing();
                 }
 
-                statusSpan.textContent = data.status;
-                percentageSpan.textContent = data.progress;
+                data = data.trim();
 
-                if (data.progress < 100 && data.status !== 'error') {
-                    setTimeout(runJob, 1000);
+                if (data === "0") {
+                    errorStatus();
                     return;
                 }
-            }
 
-            percentageSpan.textContent = 100;
-            enable(processExistingPostsButton);
-            disable(cancelProcessingButton);
-            hide(processingContainer);
-            show(processingComplete);
-        }).catch(() => {
-            // error during run, resize and try again
-            decreaseBatchSize().then(() => setTimeout(runJob, 500));
-        });
+                if (data.length) {
+                    try {
+                        data = JSON.parse(data);
+                    } catch (error) {
+                        console.error("Error:", error);
+                        errorStatus();
+                    }
+
+                    statusSpan.textContent = data.status;
+                    percentageSpan.textContent = data.progress;
+
+                    if (data.progress < 100 && data.status !== 'error') {
+                        setTimeout(runJob, 500);
+                        return;
+                    }
+                }
+
+                percentageSpan.textContent = 100;
+                enable(processExistingPostsButton);
+                disable(cancelProcessingButton);
+                hide(processingContainer);
+                show(processingComplete);
+            }).catch(() => {
+                // error during run, resize and try again
+                decreaseBatchSize().then(() => setTimeout(runJob, 500));
+                return;
+            });
     };
 
     load();
