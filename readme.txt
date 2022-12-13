@@ -26,6 +26,10 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 
 == Changelog ==
 
+=2.4=
+* Allow batch processing without needing a secondary control server
+* Fix caption whitespace bug
+
 =2.3=
 * Upgrade coyote-api-client version
 
