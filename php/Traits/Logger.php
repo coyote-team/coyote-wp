@@ -43,8 +43,8 @@ trait Logger
         ];
 
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            $payload = print_r($payload, true);
-            $message = sprintf("[%s] %s: %s > %s", $levels[$level], $class, $message, $payload);
+            $payload = count($payload) > 0 ? print_r($payload, true) : '[]';
+            $message = sprintf("[%s] %s: %s | %s", $levels[$level], $class, $message, $payload);
             error_log($message);
         }
     }
