@@ -142,7 +142,7 @@ class WordPressCoyoteApiClient
         return CoyoteApiClientHelperFunctions::getOrganisationMembershipWithName(
             self::getVersionedApiURI(),
             PluginConfiguration::getApiToken(),
-            $organizationId,
+            (int) $organizationId,
             $profile->getName()
         );
     }
