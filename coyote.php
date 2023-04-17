@@ -4,7 +4,7 @@ Plugin Name: Coyote
 Description: Integrate with a Coyote API to obtain media text descriptions.
 Plugin URI: http://wordpress.org/plugins/coyote/
 Author: Prime Access Consulting
-Version: 2.4
+Version: 2.5
 Author URI: https://www.pac.bz
  */
 
@@ -14,8 +14,8 @@ if (!defined('WPINC')) {
     exit;
 }
 
-if (PHP_MAJOR_VERSION === null || PHP_MAJOR_VERSION < 8.1) {
-    error_log('Coyote plugin requires at least PHP 8.1');
+if (PHP_MAJOR_VERSION === null || PHP_MAJOR_VERSION < 8) {
+    error_log('Coyote plugin requires at least PHP 8, got ' . PHP_MAJOR_VERSION);
     return;
 }
 
