@@ -1,9 +1,9 @@
 === Coyote ===
 Contributors: jkva
-Requires at least: 5.0.0
-Tested up to: 6.0
-Requires PHP: 7.0
-Stable tag: 2.4
+Requires at least: 6.0.0
+Tested up to: 6.2
+Requires PHP: 8.1
+Stable tag: 2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,10 @@ The plugin may also query the Coyote service to provide necessary functionality.
 Please familiarise yourself with the [Coyote Terms of Service](https://www.coyote.pics/terms-of-service/).
 
 == Changelog ==
+
+=2.5=
+* Remove monolog dependency
+* Upgrade coyote-api-client version
 
 =2.4=
 * Allow batch processing without needing a secondary control server

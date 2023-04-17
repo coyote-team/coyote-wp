@@ -1,5 +1,9 @@
 == Changelog ==
 
+=2.5=
+* Remove monolog dependency
+* Upgrade coyote-api-client version
+
 =2.4=
 * Allow batch processing without needing a secondary control server
 * Fix caption whitespace bug
