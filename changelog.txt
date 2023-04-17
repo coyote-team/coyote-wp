@@ -2,6 +2,7 @@
 
 =2.5=
 * Remove monolog dependency
+* Add explicit debugging setting
 * Upgrade coyote-api-client version
 
 =2.4=

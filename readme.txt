@@ -28,6 +28,7 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 
 =2.5=
 * Remove monolog dependency
+* Add explicit debugging setting
 * Upgrade coyote-api-client version
 
 =2.4=
