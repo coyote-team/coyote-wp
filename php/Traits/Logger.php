@@ -2,6 +2,8 @@
 
 namespace Coyote\Traits;
 
+use Coyote\PluginConfiguration;
+
 if (!defined('WPINC')) {
     exit;
 }
@@ -42,7 +44,7 @@ trait Logger
             self::$LOG_ERROR => 'ERROR'
         ];
 
-        if (defined('WP_DEBUG') && WP_DEBUG) {
+        if (defined('WP_DEBUG') && WP_DEBUG && PluginConfiguration::isDebuggingEnabled()) {
             $payload = count($payload) > 0 ? print_r($payload, true) : '[]';
             $message = sprintf("[%s] %s: %s | %s", $levels[$level], $class, $message, $payload);
             error_log($message);

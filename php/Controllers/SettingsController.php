@@ -379,6 +379,7 @@ class SettingsController
         echo $this->twig->render('AdvancedPage.html.twig', [
             'pageTitle' => $this->advancedSubpageTitle,
             'isStandalone' => $this->isStandalone,
+            'debuggingEnabled' => PluginConfiguration::isDebuggingEnabled(),
             'settingsSlug' => self::ADVANCED_SETTINGS_SLUG
         ]);
     }
@@ -557,6 +558,12 @@ class SettingsController
                 'coyote_plugin_processed_post_types',
                 ['type' => 'array']
             );
+
+            register_setting(
+                self::ADVANCED_SETTINGS_SLUG,
+                'coyote_debugging_enabled',
+                ['type' => 'boolean', 'sanitize_callback' => [$this, 'sanitizeBool']]
+            );
         }
 
         /*
@@ -719,6 +726,15 @@ class SettingsController
             self::ADVANCED_SETTINGS_SECTION,
             ['label_for' => 'coyote_plugin_processed_post_types']
         );
+
+        add_settings_field(
+            'coyote_debugging_enabled',
+            __('Enable logging to error_log', WordPressPlugin::I18N_NS),
+            [$this, 'settingsIsDebuggingEnabledCallback'],
+            self::ADVANCED_SETTINGS_SLUG,
+            self::ADVANCED_SETTINGS_SECTION,
+            ['label_for' => 'coyote_debugging_enabled']
+        );
     }
 
     /**
@@ -829,6 +845,15 @@ class SettingsController
             'name' => 'coyote_skip_unpublished_enabled',
             'label' => __('During import the plugin skips unpublished posts and media library images contained in unpublished posts.', WordPressPlugin::I18N_NS),
             'checked' => PluginConfiguration::isNotProcessingUnpublishedPosts()
+        ]);
+    }
+
+    public function settingsIsDebuggingEnabledCallback()
+    {
+        echo $this->twig->render('Partials/InputCheckbox.html.twig', [
+            'name' => 'coyote_debugging_enabled',
+            'label' => __('Log messages are printed to error_log if WP_DEBUG is set.', WordPressPlugin::I18N_NS),
+            'checked' => PluginConfiguration::isDebuggingEnabled()
         ]);
     }
 

@@ -403,7 +403,8 @@ class PluginConfiguration
             'coyote_filters_enabled',
             'coyote_updates_enabled',
             'coyote_plugin_is_installed',
-            'coyote_plugin_version'
+            'coyote_plugin_version',
+            'coyote_debugging_enabled'
         ];
 
         foreach ($options as $option) {
@@ -441,5 +442,10 @@ class PluginConfiguration
     {
         return self::isNonEmptyString(self::getApiEndPoint()) &&
             self::isNonEmptyString(self::getApiToken());
+    }
+
+    public static function isDebuggingEnabled(): bool
+    {
+        return get_option('coyote_debugging_enabled', false);
     }
 }
