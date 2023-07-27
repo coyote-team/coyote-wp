@@ -2,8 +2,8 @@
 Contributors: jkva
 Requires at least: 6.0.0
 Tested up to: 6.2
-Requires PHP: 8.1
-Stable tag: 2.5
+Requires PHP: 8.0
+Stable tag: 2.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,7 +26,11 @@ Please familiarise yourself with the [Coyote Terms of Service](https://www.coyot
 
 == Changelog ==
 
+=2.6=
+* Downgrade minimal required PHP to 8.0
+
 =2.5=
+* Update minimal required PHP to 8.1, WP to 6.0
 * Remove monolog dependency
 * Add explicit debugging setting
 * Upgrade coyote-api-client version

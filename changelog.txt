@@ -1,6 +1,10 @@
 == Changelog ==
 
+=2.6=
+* Downgrade minimal required PHP to 8.0
+
 =2.5=
+* Update minimal required PHP to 8.1, WP to 6.0
 * Remove monolog dependency
 * Add explicit debugging setting
 * Upgrade coyote-api-client version

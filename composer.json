@@ -2,7 +2,7 @@
     "require": {
         "ext-json": "*",
         "coyote/coyote-php-content-helper": "^1.0.5",
-        "coyote/coyote-api-client": "^1.0.27.x-dev",
+        "coyote/coyote-api-client": "^1.0.28.x-dev",
         "twig/twig": "^3.0"
     },
     "autoload" : {
